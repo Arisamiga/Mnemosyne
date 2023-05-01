@@ -3,7 +3,6 @@
 
 // Declare functions after main
 int initialChoice(int);
-int scan(void);
 int cancel(void);
 int credits(void);
 
