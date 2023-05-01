@@ -33,6 +33,39 @@
             }
         },
         {
+            "label": "Build for 68000 (NDK)",
+            "type": "shell",
+            "linux":{
+                "command": "vc",
+                "args": [
+                        "+aos68k",
+                        "-c99",
+                        "-I$NDK_INC",
+                        "-lamiga",
+                        "-lauto",
+                        "/opt/code/src/main.c",
+                        "/opt/code/src/scan.c",
+                        "-o",
+                        "/opt/code/build/main",
+                ]
+            },
+            "problemMatcher": {
+                "owner": "cpp",
+                "fileLocation": ["relative", "${workspaceFolder}"],
+                "pattern": {
+                    "regexp": "^(warning|error) ([0-9]*) in line ([0-9]*) of \"(.*)\": (.*)$",
+                    "severity": 1,
+                    "line": 3,
+                    "file": 4,
+                    "message": 5
+                }
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
             "label": "Clean Build",
             "type": "shell",
             "linux":{
