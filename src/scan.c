@@ -1,13 +1,15 @@
 #include <stdio.h>
 #include "scan.h"
 
-long get_file_size(char *filename) {
+long get_file_size(char *filename)
+{
     FILE *fp = fopen(filename, "r");
 
-    if (fp==NULL)
+    if (fp == NULL)
         return -1;
 
-    if (fseek(fp, 0, SEEK_END) < 0) {
+    if (fseek(fp, 0, SEEK_END) < 0)
+    {
         fclose(fp);
         return -1;
     }
@@ -37,11 +39,10 @@ int scan(void)
         printf("Scanning...\n");
         char *filename = name;
         printf(
-            "Size of file `%s` is %ld\n", 
-            filename, 
+            "Size of file `%s` is %ld\n",
+            filename,
             get_file_size(filename),
-            " bytes."
-        );
+            " bytes.");
     }
 
     return 0;
