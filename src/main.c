@@ -32,9 +32,8 @@ int initialChoice(int choices)
     else
     {
         printf("Invalid input, please try again.\n");
-        int choice = 0;
-        scanf("%d", &choice);
-        initialChoice(choice);
+        scanf("%d", &choices);
+        initialChoice(choices);
     }
 }
 
