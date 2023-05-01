@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include "scan.h"
 
 // Declare functions after main
 int initialChoice(int);
@@ -35,12 +36,6 @@ int initialChoice(int choices)
         scanf("%d", &choices);
         initialChoice(choices);
     }
-}
-
-int scan(void)
-{
-    printf("Scanning...\n");
-    return 0;
 }
 
 int cancel(void)
