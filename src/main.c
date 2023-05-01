@@ -9,13 +9,14 @@ int credits(void);
 int main(void)
 {
     printf("\nWelcome to Mnemosyne!\n\n To get started:\n  Type '1' to start the scan,\n  Type '2' to cancel,\n  Type '3' if you want to see credits.\n");
-    int choices = 0; 
+    int choices = 0;
     scanf("%d", &choices);
     initialChoice(choices);
     return 0;
 }
 
-int initialChoice(int choices) {
+int initialChoice(int choices)
+{
     if (choices == 1)
     {
         scan();
