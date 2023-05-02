@@ -1,8 +1,9 @@
 #include <stdio.h>
+#include <ctype.h>
 #include "scan.h"
 
 // Declare functions after main
-int initialChoice(int);
+void initialChoice(int);
 int cancel(void);
 int credits(void);
 
@@ -11,11 +12,17 @@ int main(void)
     printf("\nWelcome to Mnemosyne!\n\n To get started:\n  Type '1' to start the scan,\n  Type '2' to cancel,\n  Type '3' if you want to see credits.\n");
     int choices = 0;
     scanf("%d", &choices);
-    initialChoice(choices);
+    if (choices != 1 && choices != 2 && choices != 3)
+    {
+        printf("Invalid choice, please try again.\n");
+    }
+    else {
+        initialChoice(choices);
+    }
     return 0;
 }
 
-int initialChoice(int choices)
+void initialChoice(int choices)
 {
     if (choices == 1)
     {
@@ -31,9 +38,7 @@ int initialChoice(int choices)
     }
     else
     {
-        printf("Invalid input, please try again.\n");
-        scanf("%d", &choices);
-        initialChoice(choices);
+        printf("Invalid choice, please try again.\n");
     }
 }
 
