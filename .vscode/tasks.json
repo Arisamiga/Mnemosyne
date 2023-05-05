@@ -12,6 +12,7 @@
                         "+aos68k",
                         "/opt/code/src/main.c",
                         "/opt/code/src/scan.c",
+                        "/opt/code/src/funcs.c",
                         "-o",
                         "/opt/code/build/main",
                 ]
@@ -45,6 +46,7 @@
                         "-lauto",
                         "/opt/code/src/main.c",
                         "/opt/code/src/scan.c",
+                        "/opt/code/src/funcs.c",
                         "-o",
                         "/opt/code/build/main",
                 ]
