@@ -13,7 +13,6 @@ int scan(void)
     if (file == NULL)
     {
         printf("File does not exist.\n");
-        fclose(file);
         return 0;
     }
     else
