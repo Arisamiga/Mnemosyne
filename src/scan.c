@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "scan.h"
 #include "funcs.h"
+#include <proto/dos.h>
 
 int scan(void)
 {
@@ -12,6 +13,7 @@ int scan(void)
     if (file == NULL)
     {
         printf("File does not exist.\n");
+        fclose(file);
         return 0;
     }
     else
@@ -27,4 +29,19 @@ int scan(void)
     }
 
     return 0;
+}
+
+void scanPath(char *path){
+    printf("Path: %s\n", path);
+    BPTR lockPath = Lock(path, ACCESS_READ);
+    if (lockPath)
+    {
+        printf("Path Exists\n");
+        printf(
+        "Size of file is %ld bytes.\n",
+        get_file_size(path));
+        UnLock(lockPath);
+        return;
+    }
+    printf("Path Doesn't Exist\n");
 }

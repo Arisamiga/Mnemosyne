@@ -6,8 +6,27 @@
 void initialChoice(int);
 int cancel(void);
 int credits(void);
+int mainNoArgs(void);
 
-int main(void)
+int main(int argc, char **argv) {
+    printf("DBG: %d\n", argc);
+    if(argc <= 1){
+        mainNoArgs();
+        return 0;
+    }
+
+    if(argc > 2) {
+        //TODO: Not supported return information.
+        return 0;
+    }
+    scanPath(argv[1]);
+
+    return 0;
+}
+
+
+
+int mainNoArgs(void)
 {
     printf("\nWelcome to Mnemosyne!\n\n To get started:\n  Type '1' to start the scan,\n  Type '2' to cancel,\n  Type '3' if you want to see credits.\n");
     int choices = 0;
