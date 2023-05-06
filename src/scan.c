@@ -20,7 +20,7 @@ int scan(void)
 
         printf("Scanning...\n");
         char *filename = name;
-        printf(
+        sprintf(
             "Size of file `%s` is %ld\n",
             filename,
             get_file_size(filename),
