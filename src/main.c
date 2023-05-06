@@ -4,27 +4,35 @@
 
 // Declare functions after main
 void initialChoice(int);
-int cancel(void);
-int credits(void);
+void cancel(void);
+void credits(void);
 int mainNoArgs(void);
+void info(void);
 
-int main(int argc, char **argv) {
-    printf("DBG: %d\n", argc);
-    if(argc <= 1){
+int main(int argc, char **argv)
+{
+    if (argc <= 1)
+    {
         mainNoArgs();
         return 0;
     }
 
-    if(argc > 2) {
-        //TODO: Not supported return information.
+    if (argc > 2)
+    {
+        // TODO: Not supported return information.
         return 0;
     }
+
+    if (argv[1][0] == '?')
+    {
+        info();
+        return 0;
+    }
+
     scanPath(argv[1]);
 
     return 0;
 }
-
-
 
 int mainNoArgs(void)
 {
@@ -35,7 +43,8 @@ int mainNoArgs(void)
     {
         printf("Invalid choice, please try again.\n");
     }
-    else {
+    else
+    {
         initialChoice(choices);
     }
     return 0;
@@ -61,14 +70,17 @@ void initialChoice(int choices)
     }
 }
 
-int cancel(void)
+void info(void)
 {
-    printf("Cancelling... Thanks so much for using Mnemosyne!\n");
-    return 0;
+    printf("Mnemosyne: Starts CLI\nMnemosyne (PATH): Scans Selected Path\n");
 }
 
-int credits(void)
+void cancel(void)
+{
+    printf("Cancelling... Thanks so much for using Mnemosyne!\n");
+}
+
+void credits(void)
 {
     printf("Credits: (SoonTM)\n");
-    return 0;
 }
