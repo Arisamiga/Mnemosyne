@@ -33,14 +33,34 @@ int scan(void)
 void scanPath(char *path){
     printf("Path: %s\n", path);
     BPTR lockPath = Lock(path, ACCESS_READ);
-    if (lockPath)
-    {
-        printf("Path Exists\n");
-        printf(
-        "Size of file is %ld bytes.\n",
-        get_file_size(path));
-        UnLock(lockPath);
+    if (!lockPath){
+        printf("Path Doesn't Exist\n");
         return;
     }
-    printf("Path Doesn't Exist\n");
+
+    printf("Path Exists\n");
+
+    // Check if path is file or folder with Examine()
+    struct FileInfoBlock *fib;
+
+    if (!Examine(lockPath, fib)){
+        printf("Examine Failed on path: %s\n", path);
+        goto exit;
+    }
+
+    // If file return size
+    if(fib->fib_DirEntryType < 0){
+        printf("%s: %ld bytes\n",fib->fib_FileName , fib->fib_Size);
+        goto exit;
+    }
+
+    // If folder scan recursivly and return size for each child
+    if(fib->fib_DirEntryType > 0){
+        printf("This is a Directory\n");
+        // TODO: Scan recursivly and return size for each child
+    }
+
+exit:
+    UnLock(lockPath);
+    return;
 }

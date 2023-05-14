@@ -9,6 +9,8 @@ void credits(void);
 int mainNoArgs(void);
 void info(void);
 
+
+
 int main(int argc, char **argv)
 {
     if (argc <= 1)
@@ -63,10 +65,6 @@ void initialChoice(int choices)
     else if (choices == 3)
     {
         credits();
-    }
-    else
-    {
-        printf("Invalid choice, please try again.\n");
     }
 }
 
