@@ -1,8 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
+
+#include <proto/dos.h>
+#include <proto/exec.h>
+
 #include "scan.h"
 #include "funcs.h"
-#include <proto/dos.h>
+
+long totalSize = 0;
 
 int scan(void)
 {
@@ -31,8 +36,6 @@ int scan(void)
     return 0;
 }
 
-long totalSize = 0;
-
 void scanPath(char *path){
     printf("Path: %s\n", path);
     BPTR lockPath = Lock(path, ACCESS_READ);
@@ -44,7 +47,7 @@ void scanPath(char *path){
     printf("Path Exists\n");
 
     // Check if path is file or folder with Examine()
-    struct FileInfoBlock *fib;
+    struct FileInfoBlock *fib = (struct FileInfoBlock *)AllocVec(sizeof(struct FileInfoBlock), MEMF_CLEAR);
 
     if (!Examine(lockPath, fib)){
         printf("Examine Failed on path: %s\n", path);
@@ -64,14 +67,14 @@ void scanPath(char *path){
             totalSize += fib->fib_Size;
             if(fib->fib_DirEntryType > 0){
                 // TODO: Scan SubFolders
-
+                
             }
         }
-        printf("Total Size Of Path Given: %ld bytes", totalSize);
-
+        printf("Total Size Of Path Given: %ld bytes\n\n", totalSize);
     }
 
 exit:
+    FreeVec(fib);
     UnLock(lockPath);
     return;
 }
