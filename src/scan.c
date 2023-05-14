@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "scan.h"
 #include "funcs.h"
 #include <proto/dos.h>
@@ -30,6 +31,8 @@ int scan(void)
     return 0;
 }
 
+long totalSize = 0;
+
 void scanPath(char *path){
     printf("Path: %s\n", path);
     BPTR lockPath = Lock(path, ACCESS_READ);
@@ -53,11 +56,19 @@ void scanPath(char *path){
         printf("%s: %ld bytes\n",fib->fib_FileName , fib->fib_Size);
         goto exit;
     }
-
     // If folder scan recursivly and return size for each child
     if(fib->fib_DirEntryType > 0){
         printf("This is a Directory\n");
-        // TODO: Scan recursivly and return size for each child
+        while(ExNext(lockPath, fib)){
+            printf("%s: %ld bytes\n",fib->fib_FileName , fib->fib_Size);
+            totalSize += fib->fib_Size;
+            if(fib->fib_DirEntryType > 0){
+                // TODO: Scan SubFolders
+
+            }
+        }
+        printf("Total Size Of Path Given: %ld bytes", totalSize);
+
     }
 
 exit:
