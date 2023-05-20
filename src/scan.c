@@ -73,16 +73,19 @@ void scanPath(char *path, BOOL subFoldering){
                 //     printf("---- Scanning SubFolder: %s\n", newPath);
                 long oldTotalSize = totalSize;
                 scanPath(newPath, TRUE);
-                if(!subFoldering)
-                    printf("%s/: %ld bytes\n",fib->fib_FileName , totalSize - oldTotalSize);
+                if(!subFoldering){
+                    strcat(fib->fib_FileName, "/");
+                    printf("| %-20s: %12ld bytes\n",fib->fib_FileName, totalSize - oldTotalSize);
+                }
                 continue;
             }
             if(!subFoldering)
-                printf("%s: %ld bytes\n",fib->fib_FileName , fib->fib_Size);
+                printf("| %-20s: %12ld bytes\n",fib->fib_FileName , fib->fib_Size);
             totalSize += fib->fib_Size;
         }
-        if(!subFoldering)
-            printf("\nTotal Size Of Path Given: %ld bytes\n\n", totalSize);
+        if(!subFoldering){
+            printf("\n--> Total Size Of Path Given: %ld bytes\n\n", totalSize);
+        }
     }
 
 exit:

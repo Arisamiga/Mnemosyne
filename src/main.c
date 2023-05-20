@@ -33,7 +33,10 @@ int main(int argc, char **argv)
         info();
         return 0;
     }
-
+    // Printf a line
+    printf("\n----------------------------------------\n");
+    printf("Scanning: %s\n\n", argv[1]);
+    printf("| Name: \t\t Size: \n\n");
     scanPath(argv[1], FALSE);
 
     return 0;
