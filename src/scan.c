@@ -69,6 +69,9 @@ void scanPath(char *path){
                 // Scan SubFolders
                 char newPath[256];
                 strcpy(newPath, path);
+                if(newPath[strlen(newPath) -1] != ':'){
+                    strcat(newPath, "/");
+                }
                 strcat(newPath, fib->fib_FileName);
                 printf("---- Scanning SubFolder: %s\n", newPath);
                 scanPath(newPath);
