@@ -81,6 +81,7 @@ void info(void)
 
 void cancel(void)
 {
+    // TODO: Enable ability to CTRL+C to cancel ongoing scan.
     printf("Cancelling... Thanks so much for using Mnemosyne!\n");
 }
 

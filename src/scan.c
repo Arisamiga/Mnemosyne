@@ -84,11 +84,13 @@ void scanPath(char *path, BOOL subFoldering)
                 if (!subFoldering)
                 {
                     strcat(fib->fib_FileName, "/");
+                    // TODO: Manage names above 20 chars long so it doesn't break the table
                     printf("| %-20s: %12ld bytes\n", fib->fib_FileName, totalSize - oldTotalSize);
                 }
                 continue;
             }
             if (!subFoldering)
+                // TODO: Manage names above 20 chars long so it doesn't break the table
                 printf("| %-20s: %12ld bytes\n", fib->fib_FileName, fib->fib_Size);
             totalSize += fib->fib_Size;
         }
