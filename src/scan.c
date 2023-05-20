@@ -38,7 +38,7 @@ int scan(void)
 void scanPath(char *path, BOOL subFoldering){
     BPTR lockPath = Lock(path, ACCESS_READ);
     if (!lockPath){
-        printf("Path Doesn't Exist\n");
+        printf("Path Doesn't Exist: %s\n", path);
         return;
     }
 
@@ -64,7 +64,7 @@ void scanPath(char *path, BOOL subFoldering){
                 // Scan SubFolders
                 char newPath[256];
                 strcpy(newPath, path);
-                if(newPath[strlen(newPath) -1] != ':'){
+                if(newPath[strlen(newPath) -1] != ':' && newPath[strlen(newPath) -1] != '/'){
                     strcat(newPath, "/");
                 }
                 strcat(newPath, fib->fib_FileName);
