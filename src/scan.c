@@ -35,15 +35,12 @@ int scan(void)
 
     return 0;
 }
-void scanPath(char *path){
-    printf("Path: %s\n", path);
+void scanPath(char *path, BOOL subFoldering){
     BPTR lockPath = Lock(path, ACCESS_READ);
     if (!lockPath){
         printf("Path Doesn't Exist\n");
         return;
     }
-
-    printf("Path Exists\n");
 
     // Check if path is file or folder with Examine()
     struct FileInfoBlock *fib = (struct FileInfoBlock *)AllocVec(sizeof(struct FileInfoBlock), MEMF_CLEAR);
@@ -55,16 +52,14 @@ void scanPath(char *path){
 
     // If file return size
     if(fib->fib_DirEntryType < 0){
-        printf("%s: %ld bytes\n",fib->fib_FileName , fib->fib_Size);
+        if(!subFoldering)
+            printf("%s: %ld bytes\n",fib->fib_FileName , fib->fib_Size);
         totalSize += fib->fib_Size;
         goto exit;
     }
     // If folder scan recursivly and return size for each child
     if(fib->fib_DirEntryType > 0){
-        printf("This is a Directory\n");
         while(ExNext(lockPath, fib)){
-            printf("%s: %ld bytes\n",fib->fib_FileName , fib->fib_Size);
-            totalSize += fib->fib_Size;
             if(fib->fib_DirEntryType > 0){
                 // Scan SubFolders
                 char newPath[256];
@@ -73,12 +68,20 @@ void scanPath(char *path){
                     strcat(newPath, "/");
                 }
                 strcat(newPath, fib->fib_FileName);
-                printf("---- Scanning SubFolder: %s\n", newPath);
-                scanPath(newPath);
-
+                // if(!subFoldering)
+                //     printf("---- Scanning SubFolder: %s\n", newPath);
+                long oldTotalSize = totalSize;
+                scanPath(newPath, TRUE);
+                if(!subFoldering)
+                    printf("%s/: %ld bytes\n",fib->fib_FileName , totalSize - oldTotalSize);
+                continue;
             }
+            if(!subFoldering)
+                printf("%s: %ld bytes\n",fib->fib_FileName , fib->fib_Size);
+            totalSize += fib->fib_Size;
         }
-        printf("Total Size Of Path Given: %ld bytes\n\n", totalSize);
+        if(!subFoldering)
+            printf("\nTotal Size Of Path Given: %ld bytes\n\n", totalSize);
     }
 
 exit:

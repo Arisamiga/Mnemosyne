@@ -1,5 +1,8 @@
 #include <stdio.h>
 #include <ctype.h>
+
+#include <exec/types.h>
+
 #include "scan.h"
 
 // Declare functions after main
@@ -31,7 +34,7 @@ int main(int argc, char **argv)
         return 0;
     }
 
-    scanPath(argv[1]);
+    scanPath(argv[1], FALSE);
 
     return 0;
 }
