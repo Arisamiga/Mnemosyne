@@ -67,6 +67,7 @@ void scanPath(char *path, BOOL subFoldering)
     {
         while (ExNext(lockPath, fib))
         {
+            // TODO: Check that IoErr will return ERROR_NO_MORE_ENTRIES if it returns anything else throw error or notify user
             if (fib->fib_DirEntryType > 0)
             {
                 // Scan SubFolders
