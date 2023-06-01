@@ -4,6 +4,7 @@
 #include <exec/types.h>
 
 #include "scan.h"
+#include "window.h"
 
 // Declare functions after main
 void initialChoice(int);
@@ -31,6 +32,12 @@ int main(int argc, char **argv)
     if (argv[1][0] == '?')
     {
         info();
+        return 0;
+    }
+    if (argv[1][0] == '!')
+    {
+        createWindow();
+        printf("Window created!\n");
         return 0;
     }
     // Printf a line

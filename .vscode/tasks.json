@@ -47,6 +47,7 @@
                         "/opt/code/src/main.c",
                         "/opt/code/src/scan.c",
                         "/opt/code/src/funcs.c",
+                        "/opt/code/src/window.c",
                         "-o",
                         "/opt/code/build/main",
                 ]
