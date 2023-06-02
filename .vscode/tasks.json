@@ -94,5 +94,60 @@
                 "isDefault": true
             }
         },
+        {
+            "label": "Compile with Makefile",
+            "type": "shell",
+            "linux":{
+                "command": "make",
+                // Set the working directory
+                "options": {
+                    "cwd": "/opt/code"
+                },
+            },
+            "problemMatcher": {
+                "owner": "cpp",
+                "fileLocation": ["relative", "${workspaceFolder}"],
+                "pattern": {
+                    "regexp": "^(warning|error) ([0-9]*) in line ([0-9]*) of \"(.*)\": (.*)$",
+                    "severity": 1,
+                    "line": 3,
+                    "file": 4,
+                    "message": 5
+                }
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "Clean (Makefile)",
+            "type": "shell",
+            "linux":{
+                "command": "make",
+                "args": [
+                        "clean"
+                ],
+                // Set the working directory
+                "options": {
+                    "cwd": "/opt/code"
+                },
+            },
+            "problemMatcher": {
+                "owner": "cpp",
+                "fileLocation": ["relative", "${workspaceFolder}"],
+                "pattern": {
+                    "regexp": "^(warning|error) ([0-9]*) in line ([0-9]*) of \"(.*)\": (.*)$",
+                    "severity": 1,
+                    "line": 3,
+                    "file": 4,
+                    "message": 5
+                }
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
     ]
 }

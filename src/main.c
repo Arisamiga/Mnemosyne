@@ -13,8 +13,6 @@ void credits(void);
 int mainNoArgs(void);
 void info(void);
 
-
-
 int main(int argc, char **argv)
 {
     if (argc <= 1)
