@@ -25,7 +25,7 @@
 
 
 // TODO: Make a standard Intuition Window
-
+// TODO: Find out why Reference to _LabelBase and _ListBrowserBase which are used for the Label and ListBrowser classes are undefined.
 struct Library *ButtonBase = NULL,
                *LayoutBase = NULL,
                *WindowBase = NULL;
