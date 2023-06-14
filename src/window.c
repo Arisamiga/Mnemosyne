@@ -1,150 +1,148 @@
-#include <clib/macros.h>
-#include <clib/alib_protos.h>
-
-#include <proto/exec.h>
-#include <proto/dos.h>
-#include <proto/utility.h>
-#include <proto/graphics.h>
-#include <proto/intuition.h>
-
-#include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-
-#include <proto/button.h>
-#include <proto/layout.h>
-#include <proto/window.h>
-
-#include <libraries/gadtools.h>
-#include <reaction/reaction.h>
-#include <reaction/reaction_macros.h>
-
+#include <intuition/classusr.h>
+#include <gadgets/layout.h>
+#include <gadgets/listbrowser.h>
 #include <classes/window.h>
+#define __CLIB_PRAGMA_LIBCALL
+#include <proto/alib.h>
+#include <proto/exec.h>
+#include <proto/layout.h>
+#include <proto/listbrowser.h>
+#include <proto/window.h>
+#include <proto/intuition.h>
+#include <proto/utility.h>
+char *vers = "\0$VER: BOOPSIdemo 1 (09.12.2019)";
+struct IntuitionBase *IntuitionBase;
+struct Library *WindowBase;
+struct Library *LayoutBase;
+struct Library *ListBrowserBase;
 
-#include "window.h"
-
-
-// TODO: Make a standard Intuition Window
-// TODO: Find out why Reference to _LabelBase and _ListBrowserBase which are used for the Label and ListBrowser classes are undefined.
-struct Library *ButtonBase = NULL,
-               *LayoutBase = NULL,
-               *WindowBase = NULL;
-
-void createWindow( void )
+struct ColumnInfo ci[] =
 {
-	struct Window *window;
-	Object *Win_Object;
-	ULONG signal, result;
-	ULONG done = FALSE;
+	{ 80, "Name", 0 },
+	{ 60, "Size", 0 },
+	{ -1, (STRPTR)~0, -1 }
+};
 
-	/* Open the classes we will use. Note, reaction.lib SAS/C or DICE autoinit
-	 * can do this for you automatically.
-	 */
-	if( WindowBase = (struct Library*) OpenLibrary("window.class",0L) )
+struct {STRPTR text; LONG size;} file[] =
+{
+	{ "File 1", 100 },
+	{ "File 2", 200 },
+	{ "File 3", 300 },
+	{ NULL, 0 }
+};
+
+void cleanexit(Object *windowObject);
+void processEvents(Object *windowObject);
+void createWindow(void)
+{
+	struct Window *intuiwin = NULL;
+	Object *windowObject = NULL;
+	Object *mainLayout = NULL;
+	Object *listBrowser = NULL;
+	struct List contents;
+	WORD i;
+	if (!(IntuitionBase = (struct IntuitionBase *)OpenLibrary("intuition.library", 47)))
+		cleanexit(NULL);
+	if (!(UtilityBase = OpenLibrary("utility.library", 47)))
+		cleanexit(NULL);
+	if (!(WindowBase = OpenLibrary("window.class", 47)))
+		cleanexit(NULL);
+	if (!(LayoutBase = OpenLibrary("gadgets/layout.gadget", 47)))
+		cleanexit(NULL);
+	if (!(ListBrowserBase = OpenLibrary("gadgets/listbrowser.gadget", 47)))
+		cleanexit(NULL);
+	NewList(&contents);
+	for (i = 0; i < 3; i++)
 	{
-		if( LayoutBase = (struct Library*) OpenLibrary("gadgets/layout.gadget",0L) )
+		UBYTE buffer[64];
+		UBYTE buffer2[64];
+		struct Node *node;
+		SNPrintf(buffer, 64, "Number %ld", i);
+		SNPrintf(buffer2, 64, "Size %ld", i * 100);
+		node = AllocListBrowserNode(3,
+						LBNA_Column, 0,
+							LBNCA_CopyText, TRUE,
+							LBNCA_Text, buffer,
+							LBNCA_MaxChars, 40,
+						LBNA_Column, 1,
+							LBNCA_CopyText, TRUE,
+							LBNCA_Text, buffer2,
+							LBNCA_MaxChars, 40,
+						TAG_DONE);
+		if (node)
+			AddTail(&contents, node);
+	}
+
+	listBrowser = NewObject(LISTBROWSER_GetClass(), NULL,
+							GA_ID, 1,
+							GA_RelVerify, TRUE,
+							LISTBROWSER_Labels, (ULONG)&contents,
+							LISTBROWSER_ColumnInfo, (ULONG)&ci,
+							LISTBROWSER_ColumnTitles, TRUE,
+							LISTBROWSER_MultiSelect, FALSE,
+							LISTBROWSER_Separators, TRUE,
+							LISTBROWSER_ShowSelected, FALSE,
+							LISTBROWSER_Editable, TRUE,
+							TAG_END);
+	mainLayout = NewObject(LAYOUT_GetClass(), NULL,
+						   LAYOUT_Orientation, LAYOUT_ORIENT_VERT,
+						   LAYOUT_DeferLayout, TRUE,
+						   LAYOUT_SpaceInner, TRUE,
+						   LAYOUT_SpaceOuter, TRUE,
+						   LAYOUT_AddChild, listBrowser,
+						   TAG_DONE);
+	windowObject = NewObject(WINDOW_GetClass(), NULL,
+							 WINDOW_Position, WPOS_CENTERSCREEN,
+							 WA_Activate, TRUE,
+							 WA_Title, "Mnemosyne 0.1",
+							 WA_DragBar, TRUE,
+							 WA_CloseGadget, TRUE,
+							 WA_DepthGadget, TRUE,
+							 WA_SizeGadget, TRUE,
+							 WA_InnerWidth, 300,
+							 WA_InnerHeight, 150,
+							 WA_IDCMP, IDCMP_CLOSEWINDOW,
+							 WINDOW_Layout, mainLayout,
+							 TAG_DONE);
+	if (!windowObject)
+		cleanexit(NULL);
+	if (!(intuiwin = (struct Window *)DoMethod(windowObject, WM_OPEN, NULL)))
+		cleanexit(windowObject);
+	processEvents(windowObject);
+	DoMethod(windowObject, WM_CLOSE);
+	cleanexit(windowObject);
+}
+void processEvents(Object *windowObject)
+{
+	ULONG windowsignal;
+	ULONG receivedsignal;
+	ULONG result;
+	ULONG code;
+	BOOL end = FALSE;
+	GetAttr(WINDOW_SigMask, windowObject, &windowsignal);
+	while (!end)
+	{
+		receivedsignal = Wait(windowsignal);
+		while ((result = DoMethod(windowObject, WM_HANDLEINPUT, &code)) != WMHI_LASTMSG)
 		{
-			if( ButtonBase = (struct Library*) OpenLibrary("gadgets/button.gadget",0L) )
+			switch (result & WMHI_CLASSMASK)
 			{
-				/* Create the window object.
-				 */
-				Win_Object = WindowObject,
-					WA_ScreenTitle, "ReAction",
-					WA_Title, "Window",
-					WA_SizeGadget, TRUE,
-					WA_Left, 40,
-					WA_Top, 30,
-					WA_DepthGadget, TRUE,
-					WA_DragBar, TRUE,
-					WA_CloseGadget, TRUE,
-					WA_Activate, TRUE,
-					WINDOW_ParentGroup, HGroupObject,
-						TAligned, 
-						LAYOUT_SpaceOuter, TRUE,
-						StartVGroup,
-							StartMember, ButtonObject,
-								GA_Text, "Button",
-							EndMember,
-							StartMember, ButtonObject,
-								GA_Text, "Button",
-							EndMember,
-							StartMember, ButtonObject,
-								GA_Text, "Button",
-							EndMember,
-							StartMember, ButtonObject,
-								GA_Text, "Button",
-							EndMember,
-							StartMember, ButtonObject,
-								GA_Text, "Button",
-							EndMember,
-							StartMember, ButtonObject,
-								GA_Text, "Button",
-							EndMember,
-							StartMember, ButtonObject,
-								GA_Text, "Button",
-							EndMember,
-							StartMember, ButtonObject,
-								GA_Text, "Button",
-							EndMember,
-							StartMember, ButtonObject,
-								GA_Text, "Button",
-							EndMember,
-							StartMember, ButtonObject,
-								GA_Text, "Button",
-							EndMember,
-						End,
-					EndMember,
-				EndWindow;
-
-				/*  Object creation sucessful?
-				 */
-				if( Win_Object )
-				{
-					/*  Open the window.
-					 */
-					if( window = (struct Window *) RA_OpenWindow(Win_Object) )
-					{
-						ULONG wait;
-						
-						/* Obtain the window wait signal mask.
-						 */
-						GetAttr( WINDOW_SigMask, Win_Object, &signal );
-
-						/* Input Event Loop
-						 */
-						while( !done )
-						{
-							wait = Wait(signal|SIGBREAKF_CTRL_C);
-							
-							if (wait & SIGBREAKF_CTRL_C) done = TRUE;
-							else
-
-							while ((result = RA_HandleInput(Win_Object,NULL)) != WMHI_LASTMSG)
-							{
-								switch(result)
-								{
-									case WMHI_CLOSEWINDOW:
-										done = TRUE;
-										break;
-								}
-							}
-						}
-					}
-
-					/* Disposing of the window object will
-					 * also close the window if it is
-					 * already opened and it will dispose of
-					 * all objects attached to it.
-					 */
-					DisposeObject( Win_Object );
-				}
+			case WMHI_CLOSEWINDOW:
+				end = TRUE;
+				break;
 			}
 		}
 	}
-
-	/* Close the classes.
-	 */
-	if (LayoutBase) CloseLibrary( (struct Library *)LayoutBase );
-	if (ButtonBase) CloseLibrary( (struct Library *)ButtonBase );
-	if (WindowBase) CloseLibrary( (struct Library *)WindowBase );
+}
+void cleanexit(Object *windowObject)
+{
+	if (windowObject)
+		DisposeObject(windowObject);
+	CloseLibrary((struct Library *)IntuitionBase);
+	CloseLibrary(UtilityBase);
+	CloseLibrary(WindowBase);
+	CloseLibrary(LayoutBase);
+	CloseLibrary(ListBrowserBase);
+	exit(0);
 }
