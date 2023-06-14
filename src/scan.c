@@ -18,32 +18,32 @@ long totalSize = 0;
 
 struct List contents;
 
-int scan(void)
-{
-    printf("Please enter the name of the file you want to scan: ");
-    char name[100];
-    scanf("%s", name);
-    FILE *file;
-    file = fopen(name, "r");
-    if (file == NULL)
-    {
-        printf("File does not exist.\n");
-        return 0;
-    }
-    else
-    {
-        printf("File exists.\n");
+// int scan(void)
+// {
+//     printf("Please enter the name of the file you want to scan: ");
+//     char name[100];
+//     scanf("%s", name);
+//     FILE *file;
+//     file = fopen(name, "r");
+//     if (file == NULL)
+//     {
+//         printf("File does not exist.\n");
+//         return 0;
+//     }
+//     else
+//     {
+//         printf("File exists.\n");
 
-        printf("Scanning...\n");
-        char *filename = name;
-        printf(
-            "Size of file `%s` is %ld bytes.\n",
-            filename,
-            get_file_size(filename));
-    }
+//         printf("Scanning...\n");
+//         char *filename = name;
+//         printf(
+//             "Size of file `%s` is %ld bytes.\n",
+//             filename,
+//             get_file_size(filename));
+//     }
 
-    return 0;
-}
+//     return 0;
+// }
 
 void addToList(char *name, long size)
 {
@@ -95,6 +95,7 @@ void scanPath(char *path, BOOL subFoldering, Object *listGadget)
         }
         if (!subFoldering && !listGadget)
             printf("%s: %ld bytes\n", fib->fib_FileName, fib->fib_Size);
+
         totalSize += fib->fib_Size;
         goto exit;
     }
@@ -141,17 +142,16 @@ void scanPath(char *path, BOOL subFoldering, Object *listGadget)
                 printf("| %-20s: %12ld bytes\n", fib->fib_FileName, fib->fib_Size);
             totalSize += fib->fib_Size;
         }
-        if (listGadget)
-        {
-            SetAttrs(listGadget, LISTBROWSER_Labels, (ULONG)&contents, TAG_DONE);
-        }
-        if (!subFoldering && !listGadget)
-        {
-            printf("\n--> Total Size Of Path Given: %ld bytes\n\n", totalSize);
-        }
     }
-
 exit:
+    if (listGadget)
+    {
+        SetAttrs(listGadget, LISTBROWSER_Labels, (ULONG)&contents, TAG_DONE);
+    }
+    if (!subFoldering && !listGadget)
+    {
+        printf("\n--> Total Size Of Path Given: %ld bytes\n\n", totalSize);
+    }
     FreeVec(fib);
     UnLock(lockPath);
     return;
