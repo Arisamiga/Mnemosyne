@@ -4,11 +4,19 @@
 
 #include <proto/dos.h>
 #include <proto/exec.h>
+#include <proto/intuition.h>
+#include <proto/listbrowser.h>
+#include <proto/window.h>
+#include <proto/layout.h>
+#include <proto/alib.h>
+#include <proto/utility.h>
 
 #include "scan.h"
 #include "funcs.h"
 
 long totalSize = 0;
+
+struct List contents;
 
 int scan(void)
 {
@@ -36,8 +44,32 @@ int scan(void)
 
     return 0;
 }
-void scanPath(char *path, BOOL subFoldering)
+
+void addToList(char *name, long size)
 {
+    UBYTE buffer[64];
+    UBYTE buffer2[64];
+    SNPrintf(buffer, 64, "%s", name);
+    SNPrintf(buffer2, 64, "%ld", size);
+    struct Node *node = AllocListBrowserNode(3,
+                                             LBNA_Column, 0,
+                                             LBNCA_CopyText, TRUE,
+                                             LBNCA_Text, buffer,
+                                             LBNCA_MaxChars, 40,
+                                             LBNA_Column, 1,
+                                             LBNCA_CopyText, TRUE,
+                                             LBNCA_Text, buffer2,
+                                             LBNCA_MaxChars, 40,
+                                             TAG_DONE);
+
+    AddTail(&contents, node);
+}
+
+void scanPath(char *path, BOOL subFoldering, Object *listGadget)
+{
+    if (!subFoldering)
+        NewList(&contents);
+
     BPTR lockPath = Lock(path, ACCESS_READ);
     if (!lockPath)
     {
@@ -57,7 +89,11 @@ void scanPath(char *path, BOOL subFoldering)
     // If file return size
     if (fib->fib_DirEntryType < 0)
     {
-        if (!subFoldering)
+        if (listGadget)
+        {
+            addToList(fib->fib_FileName, fib->fib_Size);
+        }
+        if (!subFoldering && !listGadget)
             printf("%s: %ld bytes\n", fib->fib_FileName, fib->fib_Size);
         totalSize += fib->fib_Size;
         goto exit;
@@ -65,6 +101,7 @@ void scanPath(char *path, BOOL subFoldering)
     // If folder scan recursivly and return size for each child
     if (fib->fib_DirEntryType > 0)
     {
+
         while (ExNext(lockPath, fib))
         {
             // TODO: Check that IoErr will return ERROR_NO_MORE_ENTRIES if it returns anything else throw error or notify user
@@ -78,24 +115,37 @@ void scanPath(char *path, BOOL subFoldering)
                     strcat(newPath, "/");
                 }
                 strcat(newPath, fib->fib_FileName);
-                // if(!subFoldering)
+                // if(!subFoldering && !listGadget)
                 //     printf("---- Scanning SubFolder: %s\n", newPath);
                 long oldTotalSize = totalSize;
-                scanPath(newPath, TRUE);
-                if (!subFoldering)
+                scanPath(newPath, TRUE, 0);
+                if (!subFoldering && !listGadget)
                 {
                     strcat(fib->fib_FileName, "/");
                     // TODO: Manage names above 20 chars long so it doesn't break the table
                     printf("| %-20s: %12ld bytes\n", fib->fib_FileName, totalSize - oldTotalSize);
                 }
+                if (listGadget)
+                {
+                    strcat(fib->fib_FileName, "/");
+                    addToList(fib->fib_FileName, totalSize - oldTotalSize);
+                }
                 continue;
             }
-            if (!subFoldering)
+            if (listGadget)
+            {
+                addToList(fib->fib_FileName, fib->fib_Size);
+            }
+            if (!subFoldering && !listGadget)
                 // TODO: Manage names above 20 chars long so it doesn't break the table
                 printf("| %-20s: %12ld bytes\n", fib->fib_FileName, fib->fib_Size);
             totalSize += fib->fib_Size;
         }
-        if (!subFoldering)
+        if (listGadget)
+        {
+            SetAttrs(listGadget, LISTBROWSER_Labels, (ULONG)&contents, TAG_DONE);
+        }
+        if (!subFoldering && !listGadget)
         {
             printf("\n--> Total Size Of Path Given: %ld bytes\n\n", totalSize);
         }

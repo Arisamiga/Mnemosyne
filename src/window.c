@@ -11,6 +11,10 @@
 #include <proto/window.h>
 #include <proto/intuition.h>
 #include <proto/utility.h>
+
+#include "window.h"
+#include "scan.h"
+
 char *vers = "\0$VER: BOOPSIdemo 1 (09.12.2019)";
 struct IntuitionBase *IntuitionBase;
 struct Library *WindowBase;
@@ -18,22 +22,13 @@ struct Library *LayoutBase;
 struct Library *ListBrowserBase;
 
 struct ColumnInfo ci[] =
-{
-	{ 80, "Name", 0 },
-	{ 60, "Size", 0 },
-	{ -1, (STRPTR)~0, -1 }
-};
-
-struct {STRPTR text; LONG size;} file[] =
-{
-	{ "File 1", 100 },
-	{ "File 2", 200 },
-	{ "File 3", 300 },
-	{ NULL, 0 }
-};
+	{
+		{80, "Name", 0},
+		{60, "Size", 0},
+		{-1, (STRPTR)~0, -1}};
 
 void cleanexit(Object *windowObject);
-void processEvents(Object *windowObject);
+void processEvents(Object *windowObject, Object *listBrowser);
 void createWindow(void)
 {
 	struct Window *intuiwin = NULL;
@@ -53,26 +48,24 @@ void createWindow(void)
 	if (!(ListBrowserBase = OpenLibrary("gadgets/listbrowser.gadget", 47)))
 		cleanexit(NULL);
 	NewList(&contents);
-	for (i = 0; i < 3; i++)
-	{
-		UBYTE buffer[64];
-		UBYTE buffer2[64];
-		struct Node *node;
-		SNPrintf(buffer, 64, "Number %ld", i);
-		SNPrintf(buffer2, 64, "Size %ld", i * 100);
-		node = AllocListBrowserNode(3,
-						LBNA_Column, 0,
-							LBNCA_CopyText, TRUE,
-							LBNCA_Text, buffer,
-							LBNCA_MaxChars, 40,
-						LBNA_Column, 1,
-							LBNCA_CopyText, TRUE,
-							LBNCA_Text, buffer2,
-							LBNCA_MaxChars, 40,
-						TAG_DONE);
-		if (node)
-			AddTail(&contents, node);
-	}
+
+	UBYTE buffer[64];
+	UBYTE buffer2[64];
+	struct Node *node;
+	SNPrintf(buffer, 64, "Click here to start");
+	SNPrintf(buffer2, 64, "Scanning...");
+	node = AllocListBrowserNode(3,
+								LBNA_Column, 0,
+								LBNCA_CopyText, TRUE,
+								LBNCA_Text, buffer,
+								LBNCA_MaxChars, 40,
+								LBNA_Column, 1,
+								LBNCA_CopyText, TRUE,
+								LBNCA_Text, buffer2,
+								LBNCA_MaxChars, 40,
+								TAG_DONE);
+	if (node)
+		AddTail(&contents, node);
 
 	listBrowser = NewObject(LISTBROWSER_GetClass(), NULL,
 							GA_ID, 1,
@@ -83,7 +76,7 @@ void createWindow(void)
 							LISTBROWSER_MultiSelect, FALSE,
 							LISTBROWSER_Separators, TRUE,
 							LISTBROWSER_ShowSelected, FALSE,
-							LISTBROWSER_Editable, TRUE,
+							LISTBROWSER_Spacing, 1,
 							TAG_END);
 	mainLayout = NewObject(LAYOUT_GetClass(), NULL,
 						   LAYOUT_Orientation, LAYOUT_ORIENT_VERT,
@@ -109,11 +102,11 @@ void createWindow(void)
 		cleanexit(NULL);
 	if (!(intuiwin = (struct Window *)DoMethod(windowObject, WM_OPEN, NULL)))
 		cleanexit(windowObject);
-	processEvents(windowObject);
+	processEvents(windowObject, listBrowser);
 	DoMethod(windowObject, WM_CLOSE);
 	cleanexit(windowObject);
 }
-void processEvents(Object *windowObject)
+void processEvents(Object *windowObject, Object *listBrowser)
 {
 	ULONG windowsignal;
 	ULONG receivedsignal;
@@ -131,6 +124,22 @@ void processEvents(Object *windowObject)
 			case WMHI_CLOSEWINDOW:
 				end = TRUE;
 				break;
+			case WMHI_GADGETUP:
+				switch (result & WMHI_GADGETMASK)
+				{
+				case 1:
+				{
+					SetAttrs(windowObject, WA_Title, "Scanning...", TAG_DONE);
+					scanPath("Amiga:", FALSE, listBrowser);
+					SetAttrs(windowObject, WA_Title, "Mnemosyne 0.1", TAG_DONE);
+					DoMethod(windowObject, WM_NEWPREFS);
+					break;
+				}
+				break;
+				}
+				break;
+				// default:
+				// 	printf("Unhandled event of category %ld\n", result & WMHI_CLASSMASK);
 			}
 		}
 	}
