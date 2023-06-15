@@ -28,7 +28,7 @@ struct ColumnInfo ci[] =
 		{-1, (STRPTR)~0, -1}};
 
 void cleanexit(Object *windowObject);
-void processEvents(Object *windowObject, Object *listBrowser);
+void processEvents(Object *windowObject, Object *listBrowser, BOOL doneFirst);
 void createWindow(void)
 {
 	struct Window *intuiwin = NULL;
@@ -37,6 +37,10 @@ void createWindow(void)
 	Object *listBrowser = NULL;
 	struct List contents;
 	WORD i;
+
+	BOOL doneFirst = FALSE;
+
+
 	if (!(IntuitionBase = (struct IntuitionBase *)OpenLibrary("intuition.library", 47)))
 		cleanexit(NULL);
 	if (!(UtilityBase = OpenLibrary("utility.library", 47)))
@@ -102,17 +106,18 @@ void createWindow(void)
 		cleanexit(NULL);
 	if (!(intuiwin = (struct Window *)DoMethod(windowObject, WM_OPEN, NULL)))
 		cleanexit(windowObject);
-	processEvents(windowObject, listBrowser);
+	processEvents(windowObject, listBrowser, doneFirst);
 	DoMethod(windowObject, WM_CLOSE);
 	cleanexit(windowObject);
 }
-void processEvents(Object *windowObject, Object *listBrowser)
+void processEvents(Object *windowObject, Object *listBrowser, BOOL doneFirst)
 {
 	ULONG windowsignal;
 	ULONG receivedsignal;
 	ULONG result;
 	ULONG code;
 	BOOL end = FALSE;
+	BOOL scanning = FALSE;
 	GetAttr(WINDOW_SigMask, windowObject, &windowsignal);
 	while (!end)
 	{
@@ -129,12 +134,58 @@ void processEvents(Object *windowObject, Object *listBrowser)
 				{
 				case 1:
 				{
-					SetAttrs(windowObject, WA_Title, "Scanning...", TAG_DONE);
-					scanPath("Amiga:", FALSE, listBrowser);
-					SetAttrs(windowObject, WA_Title, "Mnemosyne 0.1", TAG_DONE);
-					DoMethod(windowObject, WM_NEWPREFS);
+					if (scanning)
+					{
+						printf("Scanning already in progress\n");
+						break;
+					}
+					printf("CLicked on gadget 1\n");
+					// Get the current selection
+					struct Node *node = NULL;
+					WORD selected = 0;
+					GetAttr(LISTBROWSER_SelectedNode, listBrowser, &node);
+					GetAttr(LISTBROWSER_Selected, listBrowser, &selected);
+					if (node)
+					{
+						// Get the text of the first column
+						STRPTR text = NULL;
+						GetListBrowserNodeAttrs(node, LBNA_Column, 0, LBNCA_Text, &text, TAG_DONE);
+						if (text)
+						{
+							const int len = strlen(text);
+							if ( len > 0 && text[len-1] != '/' && doneFirst )
+							{ 
+								printf("Not a folder\n");
+								break;
+							}
+							printf("Selected %s\n", text);
+							SetAttrs(windowObject, WA_Title, "Scanning...", TAG_DONE);
+							if(doneFirst && text){
+								char newPath[256];
+								SNPrintf(newPath, 256, "Amiga:%s%s", text, "/");
+								scanning = TRUE;
+								scanPath(newPath, FALSE, listBrowser);
+								scanning = FALSE;
+							}
+							else{
+								scanning = TRUE;
+								scanPath("Amiga:", FALSE, listBrowser);
+								scanning = FALSE;
+								doneFirst = TRUE;
+							}
+							SetAttrs(windowObject, WA_Title, "Mnemosyne 0.1", TAG_DONE);
+							DoMethod(windowObject, WM_NEWPREFS);
+						}
+					}
+					// SetAttrs(windowObject, WA_Title, "Scanning...", TAG_DONE);
+					// scanPath("Amiga:", FALSE, listBrowser);
+					// SetAttrs(windowObject, WA_Title, "Mnemosyne 0.1", TAG_DONE);
+					// DoMethod(windowObject, WM_NEWPREFS);
 					break;
 				}
+				default:
+					printf("Unhandled event of category %ld\n", result & WMHI_GADGETMASK);
+
 				break;
 				}
 				break;
@@ -142,6 +193,7 @@ void processEvents(Object *windowObject, Object *listBrowser)
 				// 	printf("Unhandled event of category %ld\n", result & WMHI_CLASSMASK);
 			}
 		}
+		
 	}
 }
 void cleanexit(Object *windowObject)
