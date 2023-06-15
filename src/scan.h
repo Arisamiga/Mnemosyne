@@ -2,7 +2,9 @@
 #ifndef SCAN_H
 #define SCAN_H
 
-int scan(void);
+extern char pastPath[256]; // This is the path that was last Scanned
+
+
 void scanPath(char *, BOOL, Object *);
 
 #endif

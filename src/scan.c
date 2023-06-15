@@ -15,35 +15,10 @@
 #include "funcs.h"
 
 long totalSize = 0;
-
 struct List contents;
 
-// int scan(void)
-// {
-//     printf("Please enter the name of the file you want to scan: ");
-//     char name[100];
-//     scanf("%s", name);
-//     FILE *file;
-//     file = fopen(name, "r");
-//     if (file == NULL)
-//     {
-//         printf("File does not exist.\n");
-//         return 0;
-//     }
-//     else
-//     {
-//         printf("File exists.\n");
+char pastPath[256];
 
-//         printf("Scanning...\n");
-//         char *filename = name;
-//         printf(
-//             "Size of file `%s` is %ld bytes.\n",
-//             filename,
-//             get_file_size(filename));
-//     }
-
-//     return 0;
-// }
 
 void addToList(char *name, long size)
 {
@@ -67,8 +42,11 @@ void addToList(char *name, long size)
 
 void scanPath(char *path, BOOL subFoldering, Object *listGadget)
 {
-    if (!subFoldering)
+    if (!subFoldering){
+        printf("Path: %s\n", path);
+        strncpy(pastPath, path, 256);
         NewList(&contents);
+    }
 
     BPTR lockPath = Lock(path, ACCESS_READ);
     if (!lockPath)

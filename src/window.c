@@ -156,13 +156,14 @@ void processEvents(Object *windowObject, Object *listBrowser, BOOL doneFirst)
 							if ( len > 0 && text[len-1] != '/' && doneFirst )
 							{ 
 								printf("Not a folder\n");
+								printf("Path: %s\n", pastPath);
 								break;
 							}
 							printf("Selected %s\n", text);
 							SetAttrs(windowObject, WA_Title, "Scanning...", TAG_DONE);
 							if(doneFirst && text){
 								char newPath[256];
-								SNPrintf(newPath, 256, "Amiga:%s%s", text, "/");
+								SNPrintf(newPath, 256, "%s%s",&pastPath, text);
 								scanning = TRUE;
 								scanPath(newPath, FALSE, listBrowser);
 								scanning = FALSE;
