@@ -4,6 +4,10 @@
 
 #include <proto/alib.h>
 #include <proto/utility.h>
+#include <proto/dos.h>
+#include <proto/exec.h>
+
+#include <exec/types.h>
 
 #include "funcs.h"
 
@@ -33,4 +37,32 @@ int GetListLength(struct List *list)
     for (node = list->lh_Head; node->ln_Succ; node = node->ln_Succ)
         count++;
     return count;
+}
+
+void getParentPath(char *filename, char *result, int resultSize)
+{
+    BPTR fileLock = Lock(filename, SHARED_LOCK);
+    if (fileLock)
+    {
+        BPTR folderLock = ParentDir(fileLock);
+        NameFromLock(folderLock, result, resultSize);
+
+        UnLock(folderLock);
+        UnLock(fileLock);
+    }
+}
+void getNameFromPath(char *path, char *result, unsigned int resultSize)
+{
+    BPTR pathLock = Lock(path, SHARED_LOCK);
+    if (pathLock)
+    {
+        struct FileInfoBlock *FIblock = (struct FileInfoBlock *)AllocVec(sizeof(struct FileInfoBlock), MEMF_CLEAR);
+
+        if (Examine(pathLock, FIblock))
+        {
+            strncpy(result, FIblock->fib_FileName, resultSize);
+            FreeVec(FIblock);
+        }
+        UnLock(pathLock);
+    }
 }

@@ -31,7 +31,7 @@ src/main.o:	src/main.c	src/scan.h src/window.h
 
 src/scan.o:	src/scan.h	src/scan.c src/funcs.h
 
-src/window.o: src/window.h src/window.c
+src/window.o: src/window.h src/window.c src/funcs.h
 
 # Clean command for .o files and current Executable
 clean:
