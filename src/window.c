@@ -57,7 +57,7 @@ void toggleButtons(Object *windowObject, Object *backButton, Object *listBrowser
 }
 
 void cleanexit(Object *windowObject);
-void processEvents(Object *windowObject, struct Window *intuiwin, Object *listBrowser, Object *backButton, BOOL doneFirst, struct Hook CompareHook);
+void processEvents(Object *windowObject, struct Window *intuiwin, Object *listBrowser, Object *backButton, BOOL doneFirst, struct Hook CompareHook, Object *bottomText);
 void createWindow(void)
 {
 	struct Window *intuiwin = NULL;
@@ -72,6 +72,8 @@ void createWindow(void)
 	Object *listBrowser = NULL;
 	Object *backButton = NULL;
 	Object *spaceGadget = NULL;
+	Object *bottomText = NULL;
+
 	struct List contents;
 	WORD i;
 
@@ -155,6 +157,12 @@ void createWindow(void)
 							LISTBROWSER_TitleClickable, TRUE,
 							LISTBROWSER_Spacing, 1,
 							TAG_END);
+
+	bottomText = NewObject(BUTTON_GetClass(), NULL,
+						   GA_Text, "",
+						   GA_ReadOnly, TRUE,
+						   TAG_END);
+
 	upperLayout = NewObject(LAYOUT_GetClass(), NULL,
 							LAYOUT_Orientation, LAYOUT_ORIENT_HORIZ,
 							LAYOUT_DeferLayout, TRUE,
@@ -173,6 +181,8 @@ void createWindow(void)
 						   LAYOUT_AddChild, upperLayout,
 						   		CHILD_MaxHeight, 32,
 						   LAYOUT_AddChild, listBrowser,
+						   LAYOUT_AddChild, bottomText,
+						   		CHILD_MaxHeight, 10,
 						   TAG_DONE);
 
 	windowObject = NewObject(WINDOW_GetClass(), NULL,
@@ -192,11 +202,11 @@ void createWindow(void)
 		cleanexit(NULL);
 	if (!(intuiwin = (struct Window *)DoMethod(windowObject, WM_OPEN, NULL)))
 		cleanexit(windowObject);
-	processEvents(windowObject, intuiwin, listBrowser, backButton, doneFirst, CompareHook);
+	processEvents(windowObject, intuiwin, listBrowser, backButton, doneFirst, CompareHook, bottomText);
 	DoMethod(windowObject, WM_CLOSE);
 	cleanexit(windowObject);
 }
-void processEvents(Object *windowObject, struct Window *intuiwin, Object *listBrowser, Object *backButton, BOOL doneFirst, struct Hook CompareHook)
+void processEvents(Object *windowObject, struct Window *intuiwin, Object *listBrowser, Object *backButton, BOOL doneFirst, struct Hook CompareHook, Object *bottomText)
 {
 	ULONG windowsignal;
 	ULONG receivedsignal;
@@ -250,7 +260,7 @@ void processEvents(Object *windowObject, struct Window *intuiwin, Object *listBr
 					}
 
 					SNPrintf(title, resultSize, "Scanning: %s", parentName);
-					SetAttrs(windowObject, WA_Title, title, TAG_DONE);
+					SetAttrs(bottomText, GA_Text, title, TAG_DONE);
 					scanning = TRUE;
 					toggleButtons(windowObject, backButton, listBrowser, TRUE);
 
@@ -258,7 +268,8 @@ void processEvents(Object *windowObject, struct Window *intuiwin, Object *listBr
 
 					scanning = FALSE;
 					toggleButtons(windowObject, backButton, listBrowser, FALSE);
-					SetAttrs(windowObject, WA_Title, "Mnemosyne 0.1", TAG_DONE);
+					SNPrintf(title, resultSize, "Current: %s", parentName);
+					SetAttrs(bottomText, GA_Text, title, TAG_DONE);
 
 					if (pastPath[strlen(pastPath) - 1] == ':' || !doneFirst)
 						SetAttrs(backButton, GA_Disabled, TRUE, TAG_DONE);
@@ -303,6 +314,8 @@ void processEvents(Object *windowObject, struct Window *intuiwin, Object *listBr
 
 							printf("Selected %s\n", text);
 							getParentPath(text, parentPath, resultSize);
+
+
 							printf("Parent Path: %s\n", parentPath);
 							if (len > 0 && text[len - 1] != '/' && doneFirst)
 							{
@@ -312,7 +325,7 @@ void processEvents(Object *windowObject, struct Window *intuiwin, Object *listBr
 							}
 							char *title = AllocVec(sizeof(char) * 256, MEMF_CLEAR);
 							SNPrintf(title, resultSize, "Scanning: %s", text);
-							SetAttrs(windowObject, WA_Title, title, TAG_DONE);
+							SetAttrs(bottomText, GA_Text, title, TAG_DONE);
 							if (doneFirst && text)
 							{
 								char newPath[256];
@@ -338,8 +351,11 @@ void processEvents(Object *windowObject, struct Window *intuiwin, Object *listBr
 								SetAttrs(backButton, GA_Disabled, TRUE, TAG_DONE);
 							else
 								SetAttrs(backButton, GA_Disabled, FALSE, TAG_DONE);
+							char *parentName = AllocVec(sizeof(char) * resultSize, MEMF_CLEAR);
+							getNameFromPath(pastPath, parentName, resultSize);
 
-							SetAttrs(windowObject, WA_Title, "Mnemosyne 0.1", TAG_DONE);
+							SNPrintf(title, resultSize, "Current: %s", parentName);
+							SetAttrs(bottomText, GA_Text, title, TAG_DONE);
 							DoMethod(windowObject, WM_NEWPREFS);
 						}
 					}
