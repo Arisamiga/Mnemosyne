@@ -54,6 +54,7 @@ void toggleButtons(Object *windowObject, Object *backButton, Object *listBrowser
 	SetAttrs(backButton, GA_Disabled, option, TAG_DONE);
 	SetAttrs(listBrowser, LISTBROWSER_TitleClickable, !option, TAG_DONE);
 	SetAttrs(listBrowser, GA_Disabled, option, TAG_DONE);
+	DoMethod(windowObject, WM_NEWPREFS);
 }
 
 void cleanexit(Object *windowObject);
@@ -161,6 +162,7 @@ void createWindow(void)
 	bottomText = NewObject(BUTTON_GetClass(), NULL,
 						   GA_Text, "",
 						   GA_ReadOnly, TRUE,
+						   BUTTON_BevelStyle, BVS_GROUP,
 						   TAG_END);
 
 	upperLayout = NewObject(LAYOUT_GetClass(), NULL,
@@ -326,6 +328,7 @@ void processEvents(Object *windowObject, struct Window *intuiwin, Object *listBr
 							char *title = AllocVec(sizeof(char) * 256, MEMF_CLEAR);
 							SNPrintf(title, resultSize, "Scanning: %s", text);
 							SetAttrs(bottomText, GA_Text, title, TAG_DONE);
+							DoMethod(windowObject, WM_NEWPREFS);
 							if (doneFirst && text)
 							{
 								char newPath[256];
@@ -353,8 +356,8 @@ void processEvents(Object *windowObject, struct Window *intuiwin, Object *listBr
 								SetAttrs(backButton, GA_Disabled, FALSE, TAG_DONE);
 							char *parentName = AllocVec(sizeof(char) * resultSize, MEMF_CLEAR);
 							getNameFromPath(pastPath, parentName, resultSize);
-
 							SNPrintf(title, resultSize, "Current: %s", parentName);
+							FreeVec(parentName);
 							SetAttrs(bottomText, GA_Text, title, TAG_DONE);
 							DoMethod(windowObject, WM_NEWPREFS);
 						}
