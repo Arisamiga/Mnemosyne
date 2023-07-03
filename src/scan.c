@@ -24,7 +24,6 @@ void addToList(char *name, long size)
     UBYTE buffer[64];
     SNPrintf(buffer, 64, "%s", name);
     STRPTR buffer2 = longToString(size);
-    printf("Adding to list: %s, %s\n", buffer, buffer2);
     struct Node *node = AllocListBrowserNode(3,
                                              LBNA_Column, 0,
                                              LBNCA_CopyText, TRUE,

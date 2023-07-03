@@ -49,7 +49,8 @@ static ULONG __SAVE_DS__ __ASM__ myCompare(__REG__(a0, struct Hook *hook), __REG
 	return asValue(msg->lbsm_DataA.Text) - asValue(msg->lbsm_DataB.Text);
 }
 
-void toggleButtons(Object *windowObject, Object *backButton, Object *listBrowser, BOOL option){
+void toggleButtons(Object *windowObject, Object *backButton, Object *listBrowser, BOOL option)
+{
 	SetAttrs(backButton, GA_Disabled, option, TAG_DONE);
 	SetAttrs(listBrowser, LISTBROWSER_TitleClickable, !option, TAG_DONE);
 	SetAttrs(listBrowser, GA_Disabled, option, TAG_DONE);
@@ -121,10 +122,12 @@ void createWindow(void)
 
 	spaceGadget = NewObject(SPACE_GetClass(), NULL,
 							GA_ReadOnly, TRUE);
+
 	/* initialize CompareHook for sorting the column */
 	CompareHook.h_Entry = (ULONG(*)())myCompare;
 	CompareHook.h_SubEntry = NULL;
 	CompareHook.h_Data = NULL;
+
 	ci = AllocLBColumnInfo(2,
 						   LBCIA_Column, 0,
 						   LBCIA_Title, "Name",
@@ -171,6 +174,7 @@ void createWindow(void)
 						   		CHILD_MaxHeight, 32,
 						   LAYOUT_AddChild, listBrowser,
 						   TAG_DONE);
+
 	windowObject = NewObject(WINDOW_GetClass(), NULL,
 							 WINDOW_Position, WPOS_CENTERSCREEN,
 							 WA_Activate, TRUE,
@@ -231,7 +235,6 @@ void processEvents(Object *windowObject, Object *listBrowser, Object *backButton
 						printf("Cannot go back\n");
 						break;
 					}
-					printf("Going Back..\n");
 					int resultSize = 256;
 					char *parentPath = AllocVec(sizeof(char) * resultSize, MEMF_CLEAR);
 					getParentPath(pastPath, parentPath, resultSize);
@@ -250,14 +253,18 @@ void processEvents(Object *windowObject, Object *listBrowser, Object *backButton
 					SetAttrs(windowObject, WA_Title, title, TAG_DONE);
 					scanning = TRUE;
 					toggleButtons(windowObject, backButton, listBrowser, TRUE);
+
 					scanPath(parentPath, FALSE, listBrowser);
+
 					scanning = FALSE;
 					toggleButtons(windowObject, backButton, listBrowser, FALSE);
 					SetAttrs(windowObject, WA_Title, "Mnemosyne 0.1", TAG_DONE);
+
 					if (pastPath[strlen(pastPath) - 1] == ':' || !doneFirst)
 						SetAttrs(backButton, GA_Disabled, TRUE, TAG_DONE);
 					else
 						SetAttrs(backButton, GA_Disabled, FALSE, TAG_DONE);
+
 					DoMethod(windowObject, WM_NEWPREFS);
 					break;
 				}
@@ -268,7 +275,7 @@ void processEvents(Object *windowObject, Object *listBrowser, Object *backButton
 						printf("Scanning already in progress\n");
 						break;
 					}
-					printf("CLicked on gadget 1\n");
+
 					// Get the current selection
 					struct Node *node = NULL;
 					ULONG selected = 0;
@@ -277,12 +284,12 @@ void processEvents(Object *windowObject, Object *listBrowser, Object *backButton
 					GetAttr(LISTBROWSER_SelectedNode, listBrowser, (ULONG *)&node);
 					GetAttr(LISTBROWSER_Selected, listBrowser, &selected);
 
-					if(event == 0) {
+					if (event == 0)
+					{
 						printf("No event\n");
 						break;
 					}
 
-					printf("Event: %d\n", event);
 					if (node)
 					{
 						// Get the text of the first column
@@ -325,28 +332,23 @@ void processEvents(Object *windowObject, Object *listBrowser, Object *backButton
 								toggleButtons(windowObject, backButton, listBrowser, FALSE);
 								doneFirst = TRUE;
 							}
+
 							if (pastPath[strlen(pastPath) - 1] == ':' || !doneFirst)
 								SetAttrs(backButton, GA_Disabled, TRUE, TAG_DONE);
 							else
 								SetAttrs(backButton, GA_Disabled, FALSE, TAG_DONE);
+
 							SetAttrs(windowObject, WA_Title, "Mnemosyne 0.1", TAG_DONE);
 							DoMethod(windowObject, WM_NEWPREFS);
 						}
 					}
-					// SetAttrs(windowObject, WA_Title, "Scanning...", TAG_DONE);
-					// scanPath("Amiga:", FALSE, listBrowser);
-					// SetAttrs(windowObject, WA_Title, "Mnemosyne 0.1", TAG_DONE);
-					// DoMethod(windowObject, WM_NEWPREFS);
 					break;
 				}
 				default:
 					printf("Unhandled event of category %ld\n", result & WMHI_GADGETMASK);
-
 					break;
 				}
 				break;
-				// default:
-				// 	printf("Unhandled event of category %ld\n", result & WMHI_CLASSMASK);
 			}
 		}
 	}
