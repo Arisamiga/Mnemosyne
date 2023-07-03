@@ -19,13 +19,12 @@ struct List contents;
 
 char pastPath[256];
 
-
 void addToList(char *name, long size)
 {
     UBYTE buffer[64];
-    UBYTE buffer2[64];
     SNPrintf(buffer, 64, "%s", name);
-    SNPrintf(buffer2, 64, "%ld", size);
+    STRPTR buffer2 = longToString(size);
+    printf("Adding to list: %s, %s\n", buffer, buffer2);
     struct Node *node = AllocListBrowserNode(3,
                                              LBNA_Column, 0,
                                              LBNCA_CopyText, TRUE,

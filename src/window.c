@@ -38,11 +38,22 @@ enum
 	OID_LAST
 };
 
-struct ColumnInfo ci[] =
-	{
-		{80, "Name", 0},
-		{60, "Size (bytes)", 0},
-		{-1, (STRPTR)~0, -1}};
+static ULONG asValue(STRPTR s)
+{
+	ULONG v = atoi(s);
+	return v;
+}
+static ULONG __SAVE_DS__ __ASM__ myCompare(__REG__(a0, struct Hook *hook), __REG__(a2, Object *obj),
+										   __REG__(a1, struct LBSortMsg *msg))
+{
+	return asValue(msg->lbsm_DataA.Text) - asValue(msg->lbsm_DataB.Text);
+}
+
+void toggleButtons(Object *windowObject, Object *backButton, Object *listBrowser, BOOL option){
+	SetAttrs(backButton, GA_Disabled, option, TAG_DONE);
+	SetAttrs(listBrowser, LISTBROWSER_TitleClickable, !option, TAG_DONE);
+	SetAttrs(listBrowser, GA_Disabled, option, TAG_DONE);
+}
 
 void cleanexit(Object *windowObject);
 void processEvents(Object *windowObject, Object *listBrowser, Object *backButton, BOOL doneFirst);
@@ -50,6 +61,9 @@ void createWindow(void)
 {
 	struct Window *intuiwin = NULL;
 	Object *windowObject = NULL;
+
+	struct ColumnInfo *ci;
+	struct Hook CompareHook;
 
 	Object *mainLayout = NULL;
 	Object *upperLayout = NULL;
@@ -107,16 +121,35 @@ void createWindow(void)
 
 	spaceGadget = NewObject(SPACE_GetClass(), NULL,
 							GA_ReadOnly, TRUE);
+	/* initialize CompareHook for sorting the column */
+	CompareHook.h_Entry = (ULONG(*)())myCompare;
+	CompareHook.h_SubEntry = NULL;
+	CompareHook.h_Data = NULL;
+	ci = AllocLBColumnInfo(2,
+						   LBCIA_Column, 0,
+						   LBCIA_Title, "Name",
+						   LBCIA_Weight, 80,
+						   LBCIA_AutoSort, TRUE,
+						   LBCIA_Sortable, FALSE,
+						   LBCIA_Column, 1,
+						   LBCIA_Title, "Size (bytes)",
+						   LBCIA_SortArrow, TRUE,
+						   LBCIA_AutoSort, TRUE,
+						   LBCIA_Sortable, TRUE,
+						   LBCIA_CompareHook, &CompareHook,
+						   LBCIA_Weight, 60,
+						   TAG_DONE);
 
 	listBrowser = NewObject(LISTBROWSER_GetClass(), NULL,
 							GA_ID, OID_MAIN_LIST,
 							GA_RelVerify, TRUE,
 							LISTBROWSER_Labels, (ULONG)&contents,
-							LISTBROWSER_ColumnInfo, (ULONG)&ci,
+							LISTBROWSER_ColumnInfo, ci,
 							LISTBROWSER_ColumnTitles, TRUE,
 							LISTBROWSER_MultiSelect, FALSE,
 							LISTBROWSER_Separators, TRUE,
 							LISTBROWSER_ShowSelected, FALSE,
+							LISTBROWSER_TitleClickable, TRUE,
 							LISTBROWSER_Spacing, 1,
 							TAG_END);
 	upperLayout = NewObject(LAYOUT_GetClass(), NULL,
@@ -208,15 +241,18 @@ void processEvents(Object *windowObject, Object *listBrowser, Object *backButton
 					getNameFromPath(parentPath, parentName, resultSize);
 					char *title = AllocVec(sizeof(char) * resultSize, MEMF_CLEAR);
 
-					if (parentPath[strlen(parentPath) - 1] != ':') {
+					if (parentPath[strlen(parentPath) - 1] != ':')
+					{
 						strcat(parentPath, "/");
 					}
 
 					SNPrintf(title, resultSize, "Scanning: %s", parentName);
 					SetAttrs(windowObject, WA_Title, title, TAG_DONE);
 					scanning = TRUE;
+					toggleButtons(windowObject, backButton, listBrowser, TRUE);
 					scanPath(parentPath, FALSE, listBrowser);
 					scanning = FALSE;
+					toggleButtons(windowObject, backButton, listBrowser, FALSE);
 					SetAttrs(windowObject, WA_Title, "Mnemosyne 0.1", TAG_DONE);
 					if (pastPath[strlen(pastPath) - 1] == ':' || !doneFirst)
 						SetAttrs(backButton, GA_Disabled, TRUE, TAG_DONE);
@@ -236,8 +272,17 @@ void processEvents(Object *windowObject, Object *listBrowser, Object *backButton
 					// Get the current selection
 					struct Node *node = NULL;
 					ULONG selected = 0;
+					ULONG event = 0;
+					GetAttr(LISTBROWSER_RelEvent, listBrowser, &event);
 					GetAttr(LISTBROWSER_SelectedNode, listBrowser, (ULONG *)&node);
 					GetAttr(LISTBROWSER_Selected, listBrowser, &selected);
+
+					if(event == 0) {
+						printf("No event\n");
+						break;
+					}
+
+					printf("Event: %d\n", event);
 					if (node)
 					{
 						// Get the text of the first column
@@ -265,15 +310,19 @@ void processEvents(Object *windowObject, Object *listBrowser, Object *backButton
 							{
 								char newPath[256];
 								SNPrintf(newPath, 256, "%s%s", &pastPath, text);
+								toggleButtons(windowObject, backButton, listBrowser, TRUE);
 								scanning = TRUE;
 								scanPath(newPath, FALSE, listBrowser);
+								toggleButtons(windowObject, backButton, listBrowser, FALSE);
 								scanning = FALSE;
 							}
 							else
 							{
+								toggleButtons(windowObject, backButton, listBrowser, TRUE);
 								scanning = TRUE;
 								scanPath("Amiga:", FALSE, listBrowser);
 								scanning = FALSE;
+								toggleButtons(windowObject, backButton, listBrowser, FALSE);
 								doneFirst = TRUE;
 							}
 							if (pastPath[strlen(pastPath) - 1] == ':' || !doneFirst)
@@ -311,5 +360,7 @@ void cleanexit(Object *windowObject)
 	CloseLibrary(WindowBase);
 	CloseLibrary(LayoutBase);
 	CloseLibrary(ListBrowserBase);
+	CloseLibrary(ButtonBase);
+	CloseLibrary(SpaceBase);
 	exit(0);
 }

@@ -66,3 +66,10 @@ void getNameFromPath(char *path, char *result, unsigned int resultSize)
         UnLock(pathLock);
     }
 }
+
+STRPTR longToString(long num)
+{
+    STRPTR buffer = AllocVec(64, MEMF_ANY);
+    SNPrintf(buffer, 64, "%ld", num);
+    return buffer;
+}
