@@ -36,6 +36,7 @@ void addToList(char *name, long size)
                                              TAG_DONE);
 
     AddTail(&contents, node);
+    FreeVec(buffer2);
 }
 
 void scanPath(char *path, BOOL subFoldering, Object *listGadget)

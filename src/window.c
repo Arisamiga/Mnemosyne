@@ -277,7 +277,10 @@ void processEvents(Object *windowObject, struct Window *intuiwin, Object *listBr
 						SetAttrs(backButton, GA_Disabled, TRUE, TAG_DONE);
 					else
 						SetAttrs(backButton, GA_Disabled, FALSE, TAG_DONE);
-
+					
+					FreeVec(parentPath);
+					FreeVec(parentName);
+					FreeVec(title);
 					DoMethod(windowObject, WM_NEWPREFS);
 					break;
 				}
@@ -316,7 +319,6 @@ void processEvents(Object *windowObject, struct Window *intuiwin, Object *listBr
 
 							printf("Selected %s\n", text);
 							getParentPath(text, parentPath, resultSize);
-
 
 							printf("Parent Path: %s\n", parentPath);
 							if (len > 0 && text[len - 1] != '/' && doneFirst)
@@ -357,8 +359,10 @@ void processEvents(Object *windowObject, struct Window *intuiwin, Object *listBr
 							char *parentName = AllocVec(sizeof(char) * resultSize, MEMF_CLEAR);
 							getNameFromPath(pastPath, parentName, resultSize);
 							SNPrintf(title, resultSize, "Current: %s", parentName);
-							FreeVec(parentName);
 							SetAttrs(bottomText, GA_Text, title, TAG_DONE);
+							FreeVec(parentName);
+							FreeVec(parentPath);
+							FreeVec(title);
 							DoMethod(windowObject, WM_NEWPREFS);
 						}
 					}
