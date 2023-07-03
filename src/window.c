@@ -57,7 +57,7 @@ void toggleButtons(Object *windowObject, Object *backButton, Object *listBrowser
 }
 
 void cleanexit(Object *windowObject);
-void processEvents(Object *windowObject, Object *listBrowser, Object *backButton, BOOL doneFirst);
+void processEvents(Object *windowObject, struct Window *intuiwin, Object *listBrowser, Object *backButton, BOOL doneFirst, struct Hook CompareHook);
 void createWindow(void)
 {
 	struct Window *intuiwin = NULL;
@@ -192,11 +192,11 @@ void createWindow(void)
 		cleanexit(NULL);
 	if (!(intuiwin = (struct Window *)DoMethod(windowObject, WM_OPEN, NULL)))
 		cleanexit(windowObject);
-	processEvents(windowObject, listBrowser, backButton, doneFirst);
+	processEvents(windowObject, intuiwin, listBrowser, backButton, doneFirst, CompareHook);
 	DoMethod(windowObject, WM_CLOSE);
 	cleanexit(windowObject);
 }
-void processEvents(Object *windowObject, Object *listBrowser, Object *backButton, BOOL doneFirst)
+void processEvents(Object *windowObject, struct Window *intuiwin, Object *listBrowser, Object *backButton, BOOL doneFirst, struct Hook CompareHook)
 {
 	ULONG windowsignal;
 	ULONG receivedsignal;
@@ -331,6 +331,7 @@ void processEvents(Object *windowObject, Object *listBrowser, Object *backButton
 								scanning = FALSE;
 								toggleButtons(windowObject, backButton, listBrowser, FALSE);
 								doneFirst = TRUE;
+								DoGadgetMethod(listBrowser, intuiwin, NULL, LBM_SORT, NULL, 1, LBMSORT_REVERSE, &CompareHook);
 							}
 
 							if (pastPath[strlen(pastPath) - 1] == ':' || !doneFirst)
