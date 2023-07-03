@@ -207,6 +207,11 @@ void processEvents(Object *windowObject, Object *listBrowser, Object *backButton
 					char *parentName = AllocVec(sizeof(char) * resultSize, MEMF_CLEAR);
 					getNameFromPath(parentPath, parentName, resultSize);
 					char *title = AllocVec(sizeof(char) * resultSize, MEMF_CLEAR);
+
+					if (parentPath[strlen(parentPath) - 1] != ':') {
+						strcat(parentPath, "/");
+					}
+
 					SNPrintf(title, resultSize, "Scanning: %s", parentName);
 					SetAttrs(windowObject, WA_Title, title, TAG_DONE);
 					scanning = TRUE;
