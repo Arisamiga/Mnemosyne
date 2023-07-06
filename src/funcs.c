@@ -1,6 +1,7 @@
 // This is where function that can be used by multiple files are defined.
 #include <stdio.h>
 #include <ctype.h>
+#include <string.h>
 
 #include <proto/alib.h>
 #include <proto/utility.h>
