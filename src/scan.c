@@ -15,6 +15,7 @@
 #include "funcs.h"
 
 long totalSize = 0;
+
 struct List contents;
 
 char pastPath[256];
