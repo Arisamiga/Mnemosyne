@@ -67,8 +67,6 @@ void toggleButtons(Object *windowObject, Object *backButton, Object *listBrowser
 	DoMethod(windowObject, WM_NEWPREFS);
 }
 
-BOOL fileEntered = FALSE;
-
 void updateBottomTextW2Text(Object *bottomText, Object *windowObject, char *firstText, STRPTR secondText)
 {
 	char *title = AllocVec(sizeof(char) * 256, MEMF_CLEAR);
@@ -76,6 +74,12 @@ void updateBottomTextW2Text(Object *bottomText, Object *windowObject, char *firs
 	SetAttrs(bottomText, GA_Text, title, TAG_DONE);
 	DoMethod(windowObject, WM_NEWPREFS);
 	FreeVec(title);
+}
+
+void updateBottomText(Object *bottomText, Object *windowObject, STRPTR secondText)
+{
+	SetAttrs(bottomText, GA_Text, secondText, TAG_DONE);
+	DoMethod(windowObject, WM_NEWPREFS);
 }
 
 void updatePathText(Object *fileRequester, STRPTR path) {
@@ -86,12 +90,13 @@ void updatePathText(Object *fileRequester, STRPTR path) {
 }
 
 void checkBackButton(char *pastPath, BOOL doneFirst, Object *backButton) {
-	if (pastPath[strlen(pastPath) - 1] == ':' || !doneFirst)
-		SetAttrs(backButton, GA_Disabled, TRUE, TAG_DONE);
-	else
+	if (pastPath[strlen(pastPath) - 1] != ':' && doneFirst)
 		SetAttrs(backButton, GA_Disabled, FALSE, TAG_DONE);
+	else
+		SetAttrs(backButton, GA_Disabled, TRUE, TAG_DONE);
 }
 
+BOOL fileEntered = FALSE;
 
 void cleanexit(Object *windowObject);
 void processEvents(Object *windowObject, struct Window *intuiwin, Object *listBrowser, Object *backButton, BOOL doneFirst, struct Hook CompareHook, Object *bottomText, Object *fileRequester);
@@ -374,6 +379,7 @@ void processEvents(Object *windowObject, struct Window *intuiwin, Object *listBr
 						if (!fileEntered)
 						{
 							printf("No file entered\n");
+							updateBottomText(bottomText, windowObject, "Please Select a file");
 							break;
 						}
 
