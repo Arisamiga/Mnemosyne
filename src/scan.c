@@ -136,8 +136,6 @@ exit:
         while (node->ln_Succ)
         {
             struct Node *nextNode = node->ln_Succ;
-            // Create tag list for GetListBrowserNodeAttrsA
-            // Create pointer area to store the ulong
             ULONG *initBuffer = AllocVec(sizeof(ULONG), MEMF_CLEAR);
             struct TagItem *tagList = (struct TagItem *)AllocVec(sizeof(struct TagItem) * 2, MEMF_CLEAR);
             tagList[0].ti_Tag = LBNA_Column;
@@ -152,19 +150,11 @@ exit:
 
             int totalNumber = longToInt(totalSize);
 
-
-            printf("Presentage: %d\n", presentageFromInts(firstNumber, totalNumber));
-            printf("First Number: %d\n", firstNumber);
-            printf("Total Number: %d\n", totalNumber);
-            // printf("%s\n", initBuffer2[0]);
-            // STRPTR presentage = presentageFromStrings(&initBuffer2[0], &totalSize);
-            // printf("%s\n", presentage);
-
             STRPTR buffer = longToString(presentageFromInts(firstNumber, totalNumber));
             tagList[0].ti_Tag = LBNA_Column;
             tagList[0].ti_Data = 1;
             tagList[1].ti_Tag = LBNCA_Text;
-            tagList[1].ti_Data = (ULONG) buffer;
+            tagList[1].ti_Data = (ULONG)buffer;
             tagList[2].ti_Tag = TAG_DONE;
 
             SetListBrowserNodeAttrsA(node, tagList);
