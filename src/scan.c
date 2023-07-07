@@ -151,6 +151,7 @@ exit:
             int totalNumber = longToInt(totalSize);
 
             STRPTR buffer = longToString(presentageFromInts(firstNumber, totalNumber));
+            strcat(buffer, "%");
             tagList[0].ti_Tag = LBNA_Column;
             tagList[0].ti_Data = 1;
             tagList[1].ti_Tag = LBNCA_Text;
