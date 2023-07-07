@@ -74,3 +74,52 @@ STRPTR longToString(long num)
     SNPrintf(buffer, 64, "%ld", num);
     return buffer;
 }
+
+STRPTR intToString(int num)
+{
+    STRPTR buffer = AllocVec(64, MEMF_ANY);
+    SNPrintf(buffer, 64, "%d", num);
+    return buffer;
+}
+
+int presentageFromInts(int num1, int num2)
+{
+    int presentage = (num1 * 100) / num2;
+    if (presentage == 0)
+        return 1;
+    return presentage;
+}
+
+int stringToInt(char *string)
+{
+    int result = 0;
+    int i = 0;
+    while (string[i] != '\0')
+    {
+        if (isdigit(string[i]))
+        {
+            result *= 10;
+            result += string[i] - '0';
+        }
+        i++;
+    }
+    return result;
+}
+
+int longToInt(long num)
+{
+    int result = 0;
+    int i = 0;
+    char buffer[64];
+    SNPrintf(buffer, 64, "%ld", num);
+    while (buffer[i] != '\0')
+    {
+        if (isdigit(buffer[i]))
+        {
+            result *= 10;
+            result += buffer[i] - '0';
+        }
+        i++;
+    }
+    return result;
+}

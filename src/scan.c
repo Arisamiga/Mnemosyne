@@ -17,6 +17,7 @@
 long totalSize = 0;
 
 struct List contents;
+// struct List Finalcontents;
 
 char pastPath[256];
 
@@ -32,6 +33,10 @@ void addToList(char *name, long size)
                                              LBNCA_MaxChars, 40,
                                              LBNA_Column, 1,
                                              LBNCA_CopyText, TRUE,
+                                             LBNCA_Text, "",
+                                             LBNCA_MaxChars, 40,
+                                             LBNA_Column, 2,
+                                             LBNCA_CopyText, TRUE,
                                              LBNCA_Text, buffer2,
                                              LBNCA_MaxChars, 40,
                                              TAG_DONE);
@@ -42,10 +47,12 @@ void addToList(char *name, long size)
 
 void scanPath(char *path, BOOL subFoldering, Object *listGadget)
 {
-    if (!subFoldering){
+    if (!subFoldering)
+    {
         printf("Path: %s\n", path);
         strncpy(pastPath, path, 256);
         NewList(&contents);
+        totalSize = 0;
     }
 
     BPTR lockPath = Lock(path, ACCESS_READ);
@@ -124,6 +131,48 @@ void scanPath(char *path, BOOL subFoldering, Object *listGadget)
 exit:
     if (listGadget)
     {
+        struct List *list = (struct List *)&contents;
+        struct Node *node = list->lh_Head;
+        while (node->ln_Succ)
+        {
+            struct Node *nextNode = node->ln_Succ;
+            // Create tag list for GetListBrowserNodeAttrsA
+            // Create pointer area to store the ulong
+            ULONG *initBuffer = AllocVec(sizeof(ULONG), MEMF_CLEAR);
+            struct TagItem *tagList = (struct TagItem *)AllocVec(sizeof(struct TagItem) * 2, MEMF_CLEAR);
+            tagList[0].ti_Tag = LBNA_Column;
+            tagList[0].ti_Data = 2;
+            tagList[1].ti_Tag = LBNCA_Text;
+            tagList[1].ti_Data = (ULONG)initBuffer;
+            tagList[2].ti_Tag = TAG_DONE;
+
+            GetListBrowserNodeAttrsA(node, tagList);
+
+            int firstNumber = stringToInt((char *)initBuffer[0]);
+
+            int totalNumber = longToInt(totalSize);
+
+
+            printf("Presentage: %d\n", presentageFromInts(firstNumber, totalNumber));
+            printf("First Number: %d\n", firstNumber);
+            printf("Total Number: %d\n", totalNumber);
+            // printf("%s\n", initBuffer2[0]);
+            // STRPTR presentage = presentageFromStrings(&initBuffer2[0], &totalSize);
+            // printf("%s\n", presentage);
+
+            STRPTR buffer = longToString(presentageFromInts(firstNumber, totalNumber));
+            tagList[0].ti_Tag = LBNA_Column;
+            tagList[0].ti_Data = 1;
+            tagList[1].ti_Tag = LBNCA_Text;
+            tagList[1].ti_Data = (ULONG) buffer;
+            tagList[2].ti_Tag = TAG_DONE;
+
+            SetListBrowserNodeAttrsA(node, tagList);
+            node = nextNode;
+            FreeVec(tagList);
+            FreeVec(initBuffer);
+            FreeVec(buffer);
+        }
         SetAttrs(listGadget, LISTBROWSER_Labels, (ULONG)&contents, TAG_DONE);
     }
     if (!subFoldering && !listGadget)

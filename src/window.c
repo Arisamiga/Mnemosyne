@@ -48,6 +48,10 @@ enum
 	OID_LAST
 };
 
+// -------------
+// Functions and such
+// -------------
+
 static ULONG asValue(STRPTR s)
 {
 	ULONG v = atoi(s);
@@ -68,6 +72,7 @@ void checkBackButton(char *pastPath, BOOL doneFirst, Object *backButton) {
 
 void toggleButtons(Object *windowObject, Object *backButton, Object *listBrowser, Object *fileRequester, char *pastPath, BOOL doneFirst, BOOL option)
 {
+	SetAttrs(windowObject, WA_BusyPointer, option, TAG_DONE);
 	SetAttrs(backButton, GA_Disabled, option, TAG_DONE);
 	SetAttrs(listBrowser, LISTBROWSER_TitleClickable, !option, TAG_DONE);
 	SetAttrs(fileRequester, GA_Disabled, option, TAG_DONE);
@@ -148,9 +153,12 @@ void createWindow(void)
 	NewList(&contents);
 
 	UBYTE buffer[64];
+	UBYTE buffer1[64];
 	UBYTE buffer2[64];
+
 	struct Node *node;
-	SNPrintf(buffer, 64, "Select a directory");
+	SNPrintf(buffer, 64, "Select a");
+	SNPrintf(buffer1, 64, "directory");
 	SNPrintf(buffer2, 64, "to scan!");
 	node = AllocListBrowserNode(3,
 								LBNA_Column, 0,
@@ -158,6 +166,10 @@ void createWindow(void)
 								LBNCA_Text, buffer,
 								LBNCA_MaxChars, 40,
 								LBNA_Column, 1,
+								LBNCA_CopyText, TRUE,
+								LBNCA_Text, buffer1,
+								LBNCA_MaxChars, 40,
+								LBNA_Column, 2,
 								LBNCA_CopyText, TRUE,
 								LBNCA_Text, buffer2,
 								LBNCA_MaxChars, 40,
@@ -182,13 +194,18 @@ void createWindow(void)
 	CompareHook.h_SubEntry = NULL;
 	CompareHook.h_Data = NULL;
 
-	ci = AllocLBColumnInfo(2,
+	ci = AllocLBColumnInfo(3,
 						   LBCIA_Column, 0,
 						   LBCIA_Title, "Name",
 						   LBCIA_Weight, 80,
 						   LBCIA_AutoSort, TRUE,
 						   LBCIA_Sortable, FALSE,
-						   LBCIA_Column, 1,
+						   LBCIA_Column,1,
+						   LBCIA_Title, "%",
+						   LBCIA_Weight, 50,
+						   LBCIA_AutoSort, TRUE,
+						   LBCIA_Sortable, FALSE,
+						   LBCIA_Column, 2,
 						   LBCIA_Title, "Size (bytes)",
 						   LBCIA_SortArrow, TRUE,
 						   LBCIA_AutoSort, TRUE,
@@ -255,7 +272,7 @@ void createWindow(void)
 							 WA_CloseGadget, TRUE,
 							 WA_DepthGadget, TRUE,
 							 WA_SizeGadget, TRUE,
-							 WA_InnerWidth, 300,
+							 WA_InnerWidth, 350,
 							 WA_InnerHeight, 150,
 							 WA_IDCMP, IDCMP_CLOSEWINDOW,
 							 WINDOW_Layout, mainLayout,
@@ -299,9 +316,11 @@ void processEvents(Object *windowObject, struct Window *intuiwin, Object *listBr
 							NewList(&contents);
 
 							UBYTE buffer[64];
+							UBYTE buffer1[64];
 							UBYTE buffer2[64];
 							struct Node *node;
-							SNPrintf(buffer, 64, "Click here to start");
+							SNPrintf(buffer, 64, "Click here to");
+							SNPrintf(buffer1, 64, "start");
 							SNPrintf(buffer2, 64, "Scanning...");
 							node = AllocListBrowserNode(3,
 														LBNA_Column, 0,
@@ -309,6 +328,10 @@ void processEvents(Object *windowObject, struct Window *intuiwin, Object *listBr
 														LBNCA_Text, buffer,
 														LBNCA_MaxChars, 40,
 														LBNA_Column, 1,
+														LBNCA_CopyText, TRUE,
+														LBNCA_Text, buffer1,
+														LBNCA_MaxChars, 40,
+														LBNA_Column, 2,
 														LBNCA_CopyText, TRUE,
 														LBNCA_Text, buffer2,
 														LBNCA_MaxChars, 40,
@@ -450,7 +473,7 @@ void processEvents(Object *windowObject, struct Window *intuiwin, Object *listBr
 									scanning = FALSE;
 									toggleButtons(windowObject, backButton, listBrowser, fileRequester, pastPath, doneFirst, FALSE);
 									doneFirst = TRUE;
-									DoGadgetMethod((struct Gadget*)listBrowser, intuiwin, NULL, LBM_SORT, NULL, 1, LBMSORT_REVERSE, &CompareHook);
+									DoGadgetMethod((struct Gadget*)listBrowser, intuiwin, NULL, LBM_SORT, NULL, 2, LBMSORT_REVERSE, &CompareHook);
 								}
 
 								printf("Donefirst: %d\n", doneFirst);
