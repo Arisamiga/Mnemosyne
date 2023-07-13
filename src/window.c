@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include <intuition/classusr.h>
+#include <intuition/intuition.h>
 
 #include <gadgets/layout.h>
 #include <gadgets/listbrowser.h>
@@ -23,6 +24,8 @@
 #include <proto/space.h>
 #include <proto/getfile.h>
 #include <proto/asl.h>
+
+#include <libraries/gadtools.h>
 
 #include "window.h"
 #include "scan.h"
@@ -45,6 +48,9 @@ enum
 	OID_BACK_BUTTON,
 	OID_MAIN_LIST,
 	OID_FILE_REQUESTER,
+	OID_MENU_OPEN,
+	OID_MENU_ABOUT,
+	OID_MENU_QUIT,
 	OID_LAST
 };
 
@@ -119,6 +125,15 @@ void createWindow(void)
 	struct ColumnInfo *ci;
 	struct Hook CompareHook;
 
+	static struct NewMenu MenuArray[] = {
+		{NM_TITLE, "Project", 0, 0, 0, 0},
+		{NM_ITEM, "Open", "N", 0, 0, (APTR)OID_MENU_OPEN},
+		{NM_ITEM, "About", 0, 0, 0, (APTR)OID_MENU_ABOUT},
+		{NM_ITEM, "Quit", "Q", 0, 0, (APTR)OID_MENU_QUIT},
+
+		{NM_END, NULL, 0, 0, 0, NULL}
+	};
+
 	Object *mainLayout = NULL;
 	Object *upperLayout = NULL;
 
@@ -149,6 +164,7 @@ void createWindow(void)
 		cleanexit(NULL);
 	if (!(GetFileBase = OpenLibrary("gadgets/getfile.gadget", 47)))
 		cleanexit(NULL);
+	
 
 	NewList(&contents);
 
@@ -213,7 +229,6 @@ void createWindow(void)
 						   LBCIA_CompareHook, &CompareHook,
 						   LBCIA_Weight, 60,
 						   TAG_DONE);
-
 	listBrowser = NewObject(LISTBROWSER_GetClass(), NULL,
 							GA_ID, OID_MAIN_LIST,
 							GA_RelVerify, TRUE,
@@ -266,12 +281,14 @@ void createWindow(void)
 
 	windowObject = NewObject(WINDOW_GetClass(), NULL,
 							 WINDOW_Position, WPOS_CENTERSCREEN,
+							 WINDOW_NewMenu, MenuArray,
 							 WA_Activate, TRUE,
 							 WA_Title, "Mnemosyne 0.1",
 							 WA_DragBar, TRUE,
 							 WA_CloseGadget, TRUE,
 							 WA_DepthGadget, TRUE,
 							 WA_SizeGadget, TRUE,
+							 WA_NewLookMenus, TRUE,
 							 WA_InnerWidth, 355,
 							 WA_InnerHeight, 150,
 							 WA_IDCMP, IDCMP_CLOSEWINDOW,
@@ -290,7 +307,7 @@ void processEvents(Object *windowObject, struct Window *intuiwin, Object *listBr
 	ULONG windowsignal;
 	ULONG receivedsignal;
 	ULONG result;
-	ULONG code;
+	WORD code;
 	BOOL end = FALSE;
 	BOOL scanning = FALSE;
 	GetAttr(WINDOW_SigMask, windowObject, &windowsignal);
@@ -304,6 +321,29 @@ void processEvents(Object *windowObject, struct Window *intuiwin, Object *listBr
 			case WMHI_CLOSEWINDOW:
 				end = TRUE;
 				break;
+			case WMHI_MENUPICK: {
+				struct Menu *menuStrip;
+				GetAttr(WINDOW_MenuStrip, windowObject, (ULONG *)&menuStrip);
+				struct MenuItem *menuItem = ItemAddress(menuStrip, code);
+				APTR item = GTMENUITEM_USERDATA(menuItem);
+				ULONG itemIndex = (ULONG)item;
+				switch (itemIndex)
+				{
+				case OID_MENU_OPEN:
+					printf("Clicked Open\n");
+					break;
+				case OID_MENU_ABOUT:
+					printf("Clicked About\n");
+					break;
+				case OID_MENU_QUIT:
+					end = TRUE;
+					break;
+				default:
+					printf("Unhandled event: %d\n", result & WMHI_MENUMASK);
+					break;
+				}
+				break;
+			}
 			case WMHI_GADGETUP:
 				switch (result & WMHI_GADGETMASK)
 				{
