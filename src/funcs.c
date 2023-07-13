@@ -84,11 +84,15 @@ STRPTR intToString(int num)
 
 int presentageFromInts(int num1, int num2)
 {
-    int presentage = (num1 * 100) / num2;
-    if (presentage == 0)
-        return 1;
+    // int presentage = (num1 * 100) / num2;
+    int presentage = (  num1 * 200 + num2 ) / ( num2 * 2 );
+
+    // printf("presentageDec: %d\n", result);
+    // if (presentage == 0)
+    //     return 1;
     return presentage;
 }
+
 
 int stringToInt(char *string)
 {
