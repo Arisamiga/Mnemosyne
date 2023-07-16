@@ -9,4 +9,6 @@ STRPTR intToString(int);
 int presentageFromInts(int, int);
 int stringToInt(char *);
 int longToInt(long);
+BOOL clearList(struct List);
+BOOL clearPointerList(struct List *);
 #endif

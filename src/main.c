@@ -6,6 +6,8 @@
 #include "scan.h"
 #include "window.h"
 
+char *vers = "\0$VER: Mnemosyne 0.1";
+
 // Declare functions after main
 void cancel(void);
 void credits(void);
@@ -40,9 +42,4 @@ void cancel(void)
 {
     // TODO: Enable ability to CTRL+C to cancel ongoing scan.
     printf("Cancelling... Thanks so much for using Mnemosyne!\n");
-}
-
-void credits(void)
-{
-    printf("Credits: (SoonTM)\n");
 }

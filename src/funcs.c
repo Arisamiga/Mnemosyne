@@ -114,7 +114,7 @@ int longToInt(long num)
 {
     int result = 0;
     int i = 0;
-    char buffer[64];
+    char *buffer = AllocVec(64, MEMF_ANY);
     SNPrintf(buffer, 64, "%ld", num);
     while (buffer[i] != '\0')
     {
@@ -125,6 +125,30 @@ int longToInt(long num)
         }
         i++;
     }
+    FreeVec(buffer);
     return result;
 }
 
+BOOL clearList(struct List list){
+    struct Node *node = list.lh_Head;
+    while (node->ln_Succ)
+    {
+        struct Node *nextNode = node->ln_Succ;
+        Remove(node);
+        FreeVec(node);
+        node = nextNode;
+    }
+    return TRUE;
+}
+
+BOOL clearPointerList(struct List *list){
+    struct Node *node = list->lh_Head;
+    while (node->ln_Succ)
+    {
+        struct Node *nextNode = node->ln_Succ;
+        Remove(node);
+        FreeVec(node);
+        node = nextNode;
+    }
+    return TRUE;
+}

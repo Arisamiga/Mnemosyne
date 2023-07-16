@@ -17,13 +17,12 @@
 long totalSize = 0;
 
 struct List contents;
-// struct List Finalcontents;
 
 char pastPath[256];
 
 void addToList(char *name, long size)
 {
-    UBYTE buffer[64];
+    UBYTE *buffer = AllocVec(64, MEMF_CLEAR);
     SNPrintf(buffer, 64, "%s", name);
     STRPTR buffer2 = longToString(size);
     struct Node *node = AllocListBrowserNode(3,
@@ -42,6 +41,7 @@ void addToList(char *name, long size)
                                              TAG_DONE);
 
     AddTail(&contents, node);
+    FreeVec(buffer);
     FreeVec(buffer2);
 }
 
@@ -94,7 +94,9 @@ void scanPath(char *path, BOOL subFoldering, Object *listGadget)
             if (fib->fib_DirEntryType > 0)
             {
                 // Scan SubFolders
-                char newPath[256];
+                // char newPath[256];
+                // Change newpath to be dynamically allocated
+                char *newPath = (char *)AllocVec(256, MEMF_CLEAR);
                 strcpy(newPath, path);
                 if (newPath[strlen(newPath) - 1] != ':' && newPath[strlen(newPath) - 1] != '/')
                 {
@@ -173,4 +175,10 @@ exit:
     FreeVec(fib);
     UnLock(lockPath);
     return;
+}
+
+void clearScanning (void) {
+    clearList(contents);
+    pastPath[0] = '\0';
+    totalSize = 0;
 }

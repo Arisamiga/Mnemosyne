@@ -6,5 +6,6 @@ extern char pastPath[256]; // This is the path that was last Scanned
 
 
 void scanPath(char *, BOOL, Object *);
+void clearScanning(void);
 
 #endif
