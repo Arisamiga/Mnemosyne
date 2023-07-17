@@ -44,7 +44,7 @@ void aboutWin(BOOL value)
                                                         GA_TEXTEDITOR_ReadOnly, TRUE,
                                                         TAG_DONE),
                                 CHILD_MinWidth,   320,
-                                CHILD_MinHeight,  170,
+                                CHILD_MinHeight,  200,
                             TAG_DONE);
     AwindowObject = NewObject(WINDOW_GetClass(), NULL,
                               WINDOW_Position, WPOS_CENTERSCREEN,
@@ -55,7 +55,7 @@ void aboutWin(BOOL value)
                               WA_DepthGadget, TRUE,
                               WA_SizeGadget, TRUE,
                               WA_InnerWidth, 320,
-                              WA_InnerHeight, 170,
+                              WA_InnerHeight, 200,
                               WINDOW_Layout, AmainLayout,
                               TAG_DONE);
     if (!(Aintuiwin = (struct Window *)DoMethod(AwindowObject, WM_OPEN, NULL)))

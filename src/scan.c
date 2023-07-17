@@ -49,7 +49,7 @@ void scanPath(char *path, BOOL subFoldering, Object *listGadget)
 {
     if (!subFoldering)
     {
-        printf("Path: %s\n", path);
+        // printf("Path: %s\n", path);
         strncpy(pastPath, path, 256);
         NewList(&contents);
         totalSize = 0;
@@ -90,12 +90,9 @@ void scanPath(char *path, BOOL subFoldering, Object *listGadget)
 
         while (ExNext(lockPath, fib))
         {
-            // TODO: Check that IoErr will return ERROR_NO_MORE_ENTRIES if it returns anything else throw error or notify user
             if (fib->fib_DirEntryType > 0)
             {
                 // Scan SubFolders
-                // char newPath[256];
-                // Change newpath to be dynamically allocated
                 char *newPath = (char *)AllocVec(256, MEMF_CLEAR);
                 strcpy(newPath, path);
                 if (newPath[strlen(newPath) - 1] != ':' && newPath[strlen(newPath) - 1] != '/')
@@ -110,7 +107,6 @@ void scanPath(char *path, BOOL subFoldering, Object *listGadget)
                 if (!subFoldering && !listGadget)
                 {
                     strcat(fib->fib_FileName, "/");
-                    // TODO: Manage names above 20 chars long so it doesn't break the table
                     printf("| %-20s: %12ld bytes\n", fib->fib_FileName, totalSize - oldTotalSize);
                 }
                 if (listGadget)
@@ -125,7 +121,6 @@ void scanPath(char *path, BOOL subFoldering, Object *listGadget)
                 addToList(fib->fib_FileName, fib->fib_Size);
             }
             if (!subFoldering && !listGadget)
-                // TODO: Manage names above 20 chars long so it doesn't break the table
                 printf("| %-20s: %12ld bytes\n", fib->fib_FileName, fib->fib_Size);
             totalSize += fib->fib_Size;
         }

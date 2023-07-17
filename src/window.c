@@ -13,6 +13,8 @@
 
 #define __CLIB_PRAGMA_LIBCALL
 
+#define MAX_BUFFER 256
+
 #include <proto/alib.h>
 #include <proto/exec.h>
 #include <proto/layout.h>
@@ -25,6 +27,8 @@
 #include <proto/getfile.h>
 #include <proto/asl.h>
 #include <proto/wb.h>
+#include <proto/icon.h>
+#include <proto/dos.h>
 
 #include <libraries/gadtools.h>
 
@@ -77,7 +81,7 @@ void checkBackButton(char *pastPath, BOOL doneFirst, Object *backButton) {
 		SetAttrs(backButton, GA_Disabled, TRUE, TAG_DONE);
 }
 
-void toggleButtons(Object *windowObject, Object *backButton, Object *listBrowser, Object *fileRequester, char *pastPath, BOOL doneFirst, BOOL option)
+void toggleButtons(Object *windowObject, Object *backButton, Object *listBrowser, Object *fileRequester, char *pastPath, BOOL doneFirst, BOOL option, BOOL Refresh)
 {
 	SetAttrs(windowObject, WA_BusyPointer, option, TAG_DONE);
 	SetAttrs(backButton, GA_Disabled, option, TAG_DONE);
@@ -88,7 +92,8 @@ void toggleButtons(Object *windowObject, Object *backButton, Object *listBrowser
 	if(!option){
 		checkBackButton(pastPath, doneFirst, backButton);
 	}
-	DoMethod(windowObject, WM_NEWPREFS);
+	if (Refresh)
+		DoMethod(windowObject, WM_NEWPREFS);
 }
 
 
@@ -97,17 +102,24 @@ void toggleBusyPointer(Object *windowObject, BOOL option)
 	SetAttrs(windowObject, WA_BusyPointer, option, TAG_DONE);
 }
 
-void updateBottomTextW2Text(Object *bottomText, Object *windowObject, char *firstText, STRPTR secondText)
+void updateBottomTextW2Text(Object *bottomText, Object *windowObject, char *firstText, STRPTR secondText, BOOL Refresh)
 {
-	char *title = AllocVec(sizeof(char) * 256, MEMF_CLEAR);
-	SNPrintf(title, 256, "%s%s", firstText, secondText);
+	char *title = AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
+	SNPrintf(title, MAX_BUFFER, "%s%s", firstText, secondText);
 	SetAttrs(bottomText, GA_Text, title, TAG_DONE);
-	DoMethod(windowObject, WM_NEWPREFS);
+	if (Refresh)
+		DoMethod(windowObject, WM_NEWPREFS);
 	FreeVec(title);
 }
 
 void updateBottomText(Object *bottomText, Object *windowObject, STRPTR secondText)
 {
+	// Check that the text is not the same as the current text
+	STRPTR bottomTextString = NULL;
+	GetAttr(GA_Text, bottomText, (ULONG *)&bottomTextString);
+	if (strcmp(bottomTextString, secondText) == 0)
+		return;
+	
 	SetAttrs(bottomText, GA_Text, secondText, TAG_DONE);
 	DoMethod(windowObject, WM_NEWPREFS);
 }
@@ -116,10 +128,13 @@ void updatePathText(Object *fileRequester, STRPTR path) {
 
 	SetAttrs(fileRequester, GETFILE_FullFile, path, TAG_DONE);
 	DoMethod(fileRequester, OM_UPDATE);
-
 }
 
 BOOL fileEntered = FALSE;
+
+// -------------
+// Main Window Functions
+// -------------
 
 void cleanexit(Object *windowObject);
 void processEvents(Object *windowObject, struct Window *intuiwin, Object *listBrowser, Object *backButton, BOOL doneFirst, struct Hook CompareHook, Object *bottomText, Object *fileRequester);
@@ -130,6 +145,8 @@ void createWindow(void)
 
 	struct ColumnInfo *ci;
 	struct Hook CompareHook;
+
+	struct MsgPort *appPort;
 
 	static struct NewMenu MenuArray[] = {
 		{NM_TITLE, "Project", 0, 0, 0, 0},
@@ -156,30 +173,53 @@ void createWindow(void)
 	BOOL doneFirst = FALSE;
 
 	if (!(IntuitionBase = (struct IntuitionBase *)OpenLibrary("intuition.library", 47)))
+	{
+		printf("Failed to open intuition.library!\n");
 		cleanexit(NULL);
+	}
 	if (!(UtilityBase = OpenLibrary("utility.library", 47)))
+	{
+		printf("Failed to open utility.library!\n");
 		cleanexit(NULL);
+	}
 	if (!(WindowBase = OpenLibrary("window.class", 47)))
+	{
+		printf("Failed to open window.class!\n");
 		cleanexit(NULL);
+	}
 	if (!(LayoutBase = OpenLibrary("gadgets/layout.gadget", 47)))
+	{
+		printf("Failed to open gadgets/layout.gadget!\n");
 		cleanexit(NULL);
+	}
 	if (!(ListBrowserBase = OpenLibrary("gadgets/listbrowser.gadget", 47)))
+	{
+		printf("Failed to open gadgets/listbrowser.gadget!\n");
 		cleanexit(NULL);
+	}
 	if (!(ButtonBase = OpenLibrary("gadgets/button.gadget", 47)))
+	{
+		printf("Failed to open gadgets/button.gadget!\n");
 		cleanexit(NULL);
+	}
 	if (!(SpaceBase = OpenLibrary("gadgets/space.gadget", 47)))
+	{
+		printf("Failed to open gadgets/space.gadget!\n");
 		cleanexit(NULL);
+	}
 	if (!(GetFileBase = OpenLibrary("gadgets/getfile.gadget", 47)))
+	{
+		printf("Failed to open gadgets/getfile.gadget!\n");
 		cleanexit(NULL);
+	}
 	if (!(TextFieldBase = OpenLibrary("gadgets/texteditor.gadget", 47)))
+	{
+		printf("Failed to open gadgets/texteditor.gadget!\n");
 		cleanexit(NULL);
+	}
 	
 
 	NewList(&contents);
-
-	// UBYTE buffer[64];
-	// UBYTE buffer1[64];
-	// UBYTE buffer2[64];
 
 	UBYTE *buffer = AllocVec(64, MEMF_ANY);
 	UBYTE *buffer1 = AllocVec(64, MEMF_ANY);
@@ -187,7 +227,7 @@ void createWindow(void)
 
 	struct Node *node;
 	SNPrintf(buffer, 64, "Select a");
-	SNPrintf(buffer1, 64, "directory");
+	SNPrintf(buffer1, 64, "folder");
 	SNPrintf(buffer2, 64, "to scan!");
 	node = AllocListBrowserNode(3,
 								LBNA_Column, 0,
@@ -256,7 +296,7 @@ void createWindow(void)
 							LISTBROWSER_MultiSelect, FALSE,
 							LISTBROWSER_Separators, TRUE,
 							LISTBROWSER_ShowSelected, FALSE,
-							LISTBROWSER_TitleClickable, TRUE,
+							LISTBROWSER_TitleClickable, FALSE, 
 							LISTBROWSER_Spacing, 1,
 							TAG_END);
 
@@ -270,7 +310,7 @@ void createWindow(void)
 								GA_ID, OID_FILE_REQUESTER,
 								GETFILE_DrawersOnly, TRUE, 
 								GETFILE_ReadOnly, TRUE,
-								GETFILE_TitleText, "Select a Directory to Scan:",
+								GETFILE_TitleText, "Select a Folder to Scan:",
 							    GA_RelVerify, TRUE,
 								TAG_END);
 
@@ -297,9 +337,14 @@ void createWindow(void)
 						   		CHILD_MaxHeight, 10,
 						   TAG_DONE);
 
+	appPort = CreateMsgPort();
 	windowObject = NewObject(WINDOW_GetClass(), NULL,
 							 WINDOW_Position, WPOS_CENTERSCREEN,
 							 WINDOW_NewMenu, MenuArray,
+							 WINDOW_IconifyGadget, TRUE,
+							 WINDOW_IconTitle, "Mnemosyne",
+							 WINDOW_Icon, GetDiskObject("PROGDIR:Mnemosyne"),
+							 WINDOW_AppPort, appPort,
 							 WA_Activate, TRUE,
 							 WA_Title, "Mnemosyne 0.1",
 							 WA_DragBar, TRUE,
@@ -343,6 +388,12 @@ void processEvents(Object *windowObject, struct Window *intuiwin, Object *listBr
 					case WMHI_CLOSEWINDOW:
 						end = TRUE;
 						break;
+					case WMHI_ICONIFY:
+						DoMethod(windowObject, WM_ICONIFY, NULL);
+						break;
+					case WMHI_UNICONIFY:
+						DoMethod(windowObject, WM_OPEN, NULL);
+						break;
 					case WMHI_MENUPICK: {
 						struct Menu *menuStrip;
 						GetAttr(WINDOW_MenuStrip, windowObject, (ULONG *)&menuStrip);
@@ -351,24 +402,28 @@ void processEvents(Object *windowObject, struct Window *intuiwin, Object *listBr
 						ULONG itemIndex = (ULONG)item;
 						switch (itemIndex)
 						{
-						case OID_MENU_OPEN:
-							printf("Clicked Open");
-							if(pastPath && doneFirst)
-								OpenWorkbenchObjectA(pastPath, TAG_DONE);
-							break;
-						case OID_MENU_ABOUT:
-							printf("Clicked About\n");
-							toggleBusyPointer(windowObject, TRUE);
-							aboutWin(TRUE);
-							printf("About window closed\n");
-							toggleBusyPointer(windowObject, FALSE);
-							break;
-						case OID_MENU_QUIT:
-							end = TRUE;
-							break;
-						default:
-							printf("Unhandled event: %d\n", result & WMHI_MENUMASK);
-							break;
+							case OID_MENU_OPEN:
+								// printf("Clicked Open");
+								if(pastPath && doneFirst)
+									OpenWorkbenchObjectA(pastPath, TAG_DONE);
+								break;
+							case OID_MENU_ABOUT:
+								// printf("Clicked About\n");
+								toggleBusyPointer(windowObject, TRUE);
+
+								aboutWin(TRUE);
+								
+								// printf("About window closed\n");
+								toggleBusyPointer(windowObject, FALSE);
+								break;
+							case OID_MENU_QUIT:
+								end = TRUE;
+								break;
+
+							// default:
+							//  // This is for testing only
+							// 	printf("Unhandled event: %d\n", result & WMHI_MENUMASK);
+							// 	break;
 						}
 						break;
 					}
@@ -379,14 +434,23 @@ void processEvents(Object *windowObject, struct Window *intuiwin, Object *listBr
 							{
 								int fileSelect = gfRequestDir(fileRequester, intuiwin);
 								if (fileSelect){
-									printf("file selected\n");
+
 									struct List contents;
 									NewList(&contents);
 
-									// UBYTE buffer[64];
-									// UBYTE buffer1[64];
-									// UBYTE buffer2[64];
-									// change the buffer variables to be dynamically allocated
+									TEXT *path = AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
+									ULONG pathPtr;
+									GetAttr(GETFILE_FullFile, fileRequester, &pathPtr);
+									SNPrintf(path, MAX_BUFFER, "%s", pathPtr);
+									BPTR lock = Lock(path, ACCESS_READ);
+									if (!lock)
+									{
+										updateBottomText(bottomText, windowObject, "Invalid Path, Select a valid path");
+										FreeVec(path);
+										break;
+									}
+									UnLock(lock);
+
 									UBYTE *buffer = AllocVec(64, MEMF_ANY);
 									UBYTE *buffer1 = AllocVec(64, MEMF_ANY);
 									UBYTE *buffer2 = AllocVec(64, MEMF_ANY);
@@ -411,9 +475,12 @@ void processEvents(Object *windowObject, struct Window *intuiwin, Object *listBr
 									if (node)
 										AddTail(&contents, node);
 									SetAttrs(listBrowser, LISTBROWSER_Labels, (ULONG)&contents, TAG_DONE);
+
 									updateBottomText(bottomText, windowObject, "Ready to Scan!");
 									fileEntered = TRUE;
 									doneFirst = FALSE;
+									SetAttrs(listBrowser, LISTBROWSER_TitleClickable, FALSE, TAG_DONE);
+
 									// free the buffer variables
 									FreeVec(buffer);
 									FreeVec(buffer1);
@@ -423,65 +490,53 @@ void processEvents(Object *windowObject, struct Window *intuiwin, Object *listBr
 							}
 							case OID_BACK_BUTTON:
 							{
-								if (scanning)
-								{
-									printf("Scanning already in progress\n");
+								if (scanning || !doneFirst || pastPath[strlen(pastPath) - 1] == ':')
 									break;
-								}
-								if (!doneFirst)
-								{
-									printf("No previous path\n");
-									break;
-								}
-								if (pastPath[strlen(pastPath) - 1] == ':')
-								{
-									printf("Cannot go back\n");
-									break;
-								}
-								int resultSize = 256;
-								char *parentPath = AllocVec(sizeof(char) * resultSize, MEMF_CLEAR);
-								getParentPath(pastPath, parentPath, resultSize);
-								printf("Parent Path: %s\n", parentPath);
+								
+								char *parentPath = AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
+								getParentPath(pastPath, parentPath, MAX_BUFFER);
+								// printf("Parent Path: %s\n", parentPath);
 
-								char *parentName = AllocVec(sizeof(char) * resultSize, MEMF_CLEAR);
-								getNameFromPath(parentPath, parentName, resultSize);
+								char *parentName = AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
+								getNameFromPath(parentPath, parentName, MAX_BUFFER);
 
 								if (parentPath[strlen(parentPath) - 1] != ':')
 								{
 									strcat(parentPath, "/");
 								}
 
-								updateBottomTextW2Text(bottomText, windowObject, "Scanning: ", parentName);
+								updateBottomTextW2Text(bottomText, windowObject, "Scanning: ", parentName, FALSE);
 								
+								toggleButtons(windowObject, backButton, listBrowser, fileRequester, pastPath, doneFirst, TRUE, TRUE);
+
 								scanning = TRUE;
-								toggleButtons(windowObject, backButton, listBrowser, fileRequester, pastPath, doneFirst, TRUE);
 
 								scanPath(parentPath, FALSE, listBrowser);
 
 								scanning = FALSE;
-								toggleButtons(windowObject, backButton, listBrowser, fileRequester, pastPath, doneFirst, FALSE);
-								
+
 								updatePathText(fileRequester, parentPath);
 
-								updateBottomTextW2Text(bottomText, windowObject, "Current: ", parentName);
+								updateBottomTextW2Text(bottomText, windowObject, "Current: ", parentName, FALSE);
+								
+								toggleButtons(windowObject, backButton, listBrowser, fileRequester, pastPath, doneFirst, FALSE, TRUE);
 								
 								FreeVec(parentPath);
 								FreeVec(parentName);
-								DoMethod(windowObject, WM_NEWPREFS);
 								break;
 							}
 							case OID_MAIN_LIST:
 							{
 								if (scanning)
 								{
-									printf("Scanning already in progress\n");
+									// printf("Scanning already in progress\n");
 									break;
 								}
 
 								if (!fileEntered)
 								{
-									printf("No file entered\n");
-									updateBottomText(bottomText, windowObject, "Please Select a file");
+									// printf("No file entered\n");
+									updateBottomText(bottomText, windowObject, "Please Select a folder");
 									break;
 								}
 
@@ -495,72 +550,75 @@ void processEvents(Object *windowObject, struct Window *intuiwin, Object *listBr
 
 								if (event == 0)
 								{
-									printf("No event\n");
+									// printf("No event\n");
 									break;
 								}
 
 								if (node)
 								{
-									// Get the text of the first column
 									STRPTR text = NULL;
 									GetListBrowserNodeAttrs(node, LBNA_Column, 0, LBNCA_Text, &text, TAG_DONE);
 									if (text)
 									{
 										const int len = strlen(text);
-										int resultSize = 256;
-										char *parentPath = AllocVec(sizeof(char) * resultSize, MEMF_CLEAR);
 
-										printf("Selected %s\n", text);
-										getParentPath(text, parentPath, resultSize);
+										char *parentPath = AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
 
-										printf("Parent Path: %s\n", parentPath);
+										// printf("Selected %s\n", text);
+										getParentPath(text, parentPath, MAX_BUFFER);
+
+										// Check if the selected item is a directory
 										if (len > 0 && text[len - 1] != '/' && doneFirst)
 										{
-											printf("Not a folder\n");
-											printf("Path: %s\n", pastPath);
 											break;
 										}
+
 										if (doneFirst && text)
 										{
-											printf("1");
-											updateBottomTextW2Text(windowObject, bottomText, "Scanning: ", text);
-
-											char *newPath = (char *)AllocVec(256, MEMF_CLEAR);
+											char *newPath = (char *)AllocVec(MAX_BUFFER, MEMF_CLEAR);
 											if (pastPath[strlen(pastPath) - 1] != '/' && pastPath[strlen(pastPath) - 1] != ':'){
 												strcat(pastPath, "/");
 											}
-											SNPrintf(newPath, 256, "%s%s", &pastPath, text);
-											toggleButtons(windowObject, backButton, listBrowser, fileRequester, pastPath, doneFirst, TRUE);
-											scanning = TRUE;
+
+											SNPrintf(newPath, MAX_BUFFER, "%s%s", &pastPath, text);
 											updatePathText(fileRequester, newPath);
+											updateBottomTextW2Text(bottomText, windowObject, "Scanning: ", text, FALSE);
+											toggleButtons(windowObject, backButton, listBrowser, fileRequester, pastPath, doneFirst, TRUE, TRUE);
+
+											scanning = TRUE;
+
 											scanPath(newPath, FALSE, listBrowser);
-											toggleButtons(windowObject, backButton, listBrowser, fileRequester, pastPath, doneFirst, FALSE);
+
+											toggleButtons(windowObject, backButton, listBrowser, fileRequester, pastPath, doneFirst, FALSE, FALSE);
+
 											scanning = FALSE;
 										}
 										else
 										{
-											printf("2");
-											toggleButtons(windowObject, backButton, listBrowser, fileRequester, pastPath, doneFirst, TRUE);
 											scanning = TRUE;
-											TEXT *buffer = AllocVec(sizeof(char) * 256, MEMF_CLEAR);
+											TEXT *buffer = AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
 											ULONG pathPtr;
 											GetAttr(GETFILE_FullFile, fileRequester, &pathPtr);
-											SNPrintf(buffer, 256, "%s", pathPtr);
+											SNPrintf(buffer, MAX_BUFFER, "%s", pathPtr);
 
-											updateBottomTextW2Text(windowObject, bottomText, "Scanning: ", (STRPTR)pathPtr);
-											
+											updateBottomTextW2Text(bottomText, windowObject, "Scanning: ", (STRPTR)pathPtr, FALSE);
+
+											toggleButtons(windowObject, backButton, listBrowser, fileRequester, pastPath, doneFirst, TRUE, TRUE);
+
+
 											scanPath((char *)pathPtr, FALSE, listBrowser);
+
 											FreeVec(buffer);
 											scanning = FALSE;
-											toggleButtons(windowObject, backButton, listBrowser, fileRequester, pastPath, doneFirst, FALSE);
+											toggleButtons(windowObject, backButton, listBrowser, fileRequester, pastPath, doneFirst, FALSE, FALSE);
 											doneFirst = TRUE;
 											DoGadgetMethod((struct Gadget*)listBrowser, intuiwin, NULL, LBM_SORT, NULL, 2, LBMSORT_REVERSE, &CompareHook);
 										}
 
-										printf("Donefirst: %d\n", doneFirst);
-										char *parentName = AllocVec(sizeof(char) * resultSize, MEMF_CLEAR);
-										getNameFromPath(pastPath, parentName, resultSize);
-										updateBottomTextW2Text(bottomText, windowObject, "Current: ", parentName);
+										// printf("Donefirst: %d\n", doneFirst);
+										char *parentName = AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
+										getNameFromPath(pastPath, parentName, MAX_BUFFER);
+										updateBottomTextW2Text(bottomText, windowObject, "Current: ", parentName, TRUE);
 
 										FreeVec(parentName);
 										FreeVec(parentPath);
@@ -569,12 +627,12 @@ void processEvents(Object *windowObject, struct Window *intuiwin, Object *listBr
 								break;
 							}
 							// default:
-							// 	// This is for testing only and will be removed
+							// 	// This is for testing only
 							// 	printf("Unhandled event of category %ld\n", result & WMHI_GADGETMASK);
 							// 	break;
 						}
 						// default:
-						// 	// This is for testing only and will be removed
+						// 	// This is for testing only
 						// 	printf("Unhandled event of class %ld\n", result & WMHI_CLASSMASK);
 						// 	break;
 						break;
@@ -595,6 +653,7 @@ void cleanexit(Object *windowObject)
 	CloseLibrary(ButtonBase);
 	CloseLibrary(SpaceBase);
 	CloseLibrary(GetFileBase);
+	CloseLibrary(TextFieldBase);
 	clearScanning();
 	exit(0);
 }

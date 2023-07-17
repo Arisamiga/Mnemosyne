@@ -6,11 +6,10 @@
 #include "scan.h"
 #include "window.h"
 
+// Mnemosyne Version
 char *vers = "\0$VER: Mnemosyne 0.1";
 
 // Declare functions after main
-void cancel(void);
-void credits(void);
 void info(void);
 
 int main(int argc, char **argv)
@@ -36,10 +35,4 @@ int main(int argc, char **argv)
 void info(void)
 {
     printf("Mnemosyne: Starts Application\nMnemosyne (PATH): Scans Selected Path\n");
-}
-
-void cancel(void)
-{
-    // TODO: Enable ability to CTRL+C to cancel ongoing scan.
-    printf("Cancelling... Thanks so much for using Mnemosyne!\n");
 }
