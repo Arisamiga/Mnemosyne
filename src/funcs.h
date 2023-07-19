@@ -6,9 +6,12 @@ void getParentPath(char *, char *, int);
 void getNameFromPath(char *, char *, unsigned int);
 STRPTR longToString(long);
 STRPTR intToString(int);
+STRPTR ULongToString(ULONG);
 int presentageFromInts(int, int);
 int stringToInt(char *);
 int longToInt(long);
 BOOL clearList(struct List);
 BOOL clearPointerList(struct List *);
+ULONG stringToULONG(char *);
+int presentageFromULongs(ULONG, ULONG, STRPTR, STRPTR);
 #endif

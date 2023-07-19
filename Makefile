@@ -6,7 +6,7 @@ LINK = vc
 
 # CFAGS and Linker Settings
 CFLAGS = +aos68k -c99
-LFLAGS = +aos68k -lauto -lamiga
+LFLAGS = +aos68k -lauto -lamiga -lmieee
 
 
 # INCLUDES settings

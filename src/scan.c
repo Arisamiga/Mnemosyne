@@ -11,20 +11,157 @@
 #include <proto/alib.h>
 #include <proto/utility.h>
 
+#define MAX_BUFFER 256
+
+
 #include "scan.h"
 #include "funcs.h"
 
-long totalSize = 0;
+ULONG totalSize = 0;
+
+int currentFormat = 0; // 0 = Bytes, 1 = KB, 2 = MB, 3 = GB, 4 = TB
 
 struct List contents;
 
 char pastPath[256];
 
-void addToList(char *name, long size)
+STRPTR returnFormat(void) {
+    switch (currentFormat)
+    {
+    case 0:
+        return "B";
+        break;
+    case 1:
+        return "KB";
+        break;
+    case 2:
+        return "MB";
+        break;
+    case 3:
+        return "GB";
+        break;
+    case 4:
+        return "TB";
+        break;
+    default:
+        return "B";
+        break;
+    }
+}
+
+STRPTR returnGivenFormat(int format) {
+    switch (format)
+    {
+    case 0:
+        return "B";
+        break;
+    case 1:
+        return "KB";
+        break;
+    case 2:
+        return "MB";
+        break;
+    case 3:
+        return "GB";
+        break;
+    case 4:
+        return "TB";
+        break;
+    default:
+        return "B";
+        break;
+    }
+}
+
+int correctFormat(ULONG size){
+    if (size / 1024 / 1024 / 1024 / 1024 > 0)
+        return 4;
+    else if (size / 1024 / 1024 / 1024 > 0)
+        return 3;
+    else if (size / 1024 / 1024 > 0)
+        return 2;
+    else if (size / 1024 > 0)
+        return 1;
+    else
+        return 0;
+}
+
+ULONG devideByFormat(ULONG size){
+    switch (currentFormat)
+        {
+        case 0:
+            return size;
+            break;
+        case 1:
+            return size / 1024;
+            break;
+        case 2:
+            return size / 1024 / 1024;
+            break;
+        case 3:
+            return size / 1024 / 1024 / 1024;
+            break;
+        case 4:
+            return size / 1024 / 1024 / 1024 / 1024;
+            break;
+        default:
+            return size;
+            break;
+        }
+}
+
+ULONG devideByGivenFormat(ULONG size, int format){
+    switch (format)
+        {
+        case 0:
+            return size;
+            break;
+        case 1:
+            return size / 1024;
+            break;
+        case 2:
+            return size / 1024 / 1024;
+            break;
+        case 3:
+            return size / 1024 / 1024 / 1024;
+            break;
+        case 4:
+            return size / 1024 / 1024 / 1024 / 1024;
+            break;
+        default:
+            return size;
+            break;
+        }
+}
+
+void addToTotalSize(ULONG size)
 {
+    if (totalSize + size < totalSize)
+    {
+        // switch to higher format
+        currentFormat++;
+        totalSize = totalSize / 1024;
+        // printf("Switched to %s\n", returnFormat());
+        addToTotalSize(size);
+        return;
+    }
+    
+    totalSize += devideByFormat(size);
+}
+
+void addToList(char *name, ULONG size, STRPTR format)
+{
+    if (!format)
+        format = returnFormat();
+    // printf("Size: %ld\n", size);
     UBYTE *buffer = AllocVec(64, MEMF_CLEAR);
     SNPrintf(buffer, 64, "%s", name);
-    STRPTR buffer2 = longToString(size);
+
+    STRPTR prebuffer2 = ULongToString(size);
+
+    UBYTE *buffer2 = AllocVec(64, MEMF_CLEAR);
+    SNPrintf(buffer2, 64, "%s %s", prebuffer2, format);
+    
     struct Node *node = AllocListBrowserNode(3,
                                              LBNA_Column, 0,
                                              LBNCA_CopyText, TRUE,
@@ -42,6 +179,7 @@ void addToList(char *name, long size)
 
     AddTail(&contents, node);
     FreeVec(buffer);
+    FreeVec(prebuffer2);
     FreeVec(buffer2);
 }
 
@@ -53,6 +191,7 @@ void scanPath(char *path, BOOL subFoldering, Object *listGadget)
         strncpy(pastPath, path, 256);
         NewList(&contents);
         totalSize = 0;
+        currentFormat = 0;
     }
 
     BPTR lockPath = Lock(path, ACCESS_READ);
@@ -76,12 +215,16 @@ void scanPath(char *path, BOOL subFoldering, Object *listGadget)
     {
         if (listGadget)
         {
-            addToList(fib->fib_FileName, fib->fib_Size);
+            int format = correctFormat(fib->fib_Size);
+            addToList(fib->fib_FileName, devideByGivenFormat(fib->fib_Size, format), returnGivenFormat(format));
         }
         if (!subFoldering && !listGadget)
-            printf("%s: %ld bytes\n", fib->fib_FileName, fib->fib_Size);
+        {
+            int format = correctFormat(fib->fib_Size);
+            printf("%s: %ld %s\n", fib->fib_FileName, devideByGivenFormat(fib->fib_Size, format), returnGivenFormat(format));
+        }
 
-        totalSize += fib->fib_Size;
+        addToTotalSize(fib->fib_Size);
         goto exit;
     }
     // If folder scan recursivly and return size for each child
@@ -102,32 +245,46 @@ void scanPath(char *path, BOOL subFoldering, Object *listGadget)
                 strcat(newPath, fib->fib_FileName);
                 // if(!subFoldering && !listGadget)
                 //     printf("---- Scanning SubFolder: %s\n", newPath);
-                long oldTotalSize = totalSize;
+                ULONG oldTotalSize = totalSize;
                 scanPath(newPath, TRUE, 0);
+
                 if (!subFoldering && !listGadget)
                 {
                     strcat(fib->fib_FileName, "/");
-                    printf("| %-20s: %12ld bytes\n", fib->fib_FileName, totalSize - oldTotalSize);
+                    printf("| %-20s: %12ld %s\n", fib->fib_FileName, totalSize - oldTotalSize, returnFormat());
                 }
                 if (listGadget)
                 {
                     strcat(fib->fib_FileName, "/");
-                    addToList(fib->fib_FileName, totalSize - oldTotalSize);
+                    // printf("Adding to list: %s \t Size: %ld\n", fib->fib_FileName, fib->fib_Size);
+                    // printf("Old Total Size: %ld\t TotalSize: %ld\n", oldTotalSize, totalSize);
+
+                    if (totalSize < oldTotalSize){
+                        // Devide oldTotalSize according to currentFormat
+                        oldTotalSize = devideByFormat(oldTotalSize);
+                    }
+                    addToList(fib->fib_FileName, totalSize - oldTotalSize, NULL);
                 }
                 continue;
             }
             if (listGadget)
             {
-                addToList(fib->fib_FileName, fib->fib_Size);
+                // printf("Adding to list: %s \t Size: %ld\n", fib->fib_FileName, fib->fib_Size);
+                int format = correctFormat(fib->fib_Size);
+                addToList(fib->fib_FileName, devideByGivenFormat(fib->fib_Size, format), returnGivenFormat(format));
             }
             if (!subFoldering && !listGadget)
-                printf("| %-20s: %12ld bytes\n", fib->fib_FileName, fib->fib_Size);
-            totalSize += fib->fib_Size;
+            {
+                int format = correctFormat(fib->fib_Size);
+                printf("| %-20.20s: %12ld %s\n", fib->fib_FileName, devideByGivenFormat(fib->fib_Size, format), returnGivenFormat(format));
+            }
+            addToTotalSize(fib->fib_Size);
         }
     }
 exit:
     if (listGadget)
     {
+        // Presentage of total size Calculations
         struct List *list = (struct List *)&contents;
         struct Node *node = list->lh_Head;
         while (node->ln_Succ)
@@ -142,12 +299,11 @@ exit:
             tagList[2].ti_Tag = TAG_DONE;
 
             GetListBrowserNodeAttrsA(node, tagList);
-
-            int firstNumber = stringToInt((char *)initBuffer[0]);
-
-            int totalNumber = longToInt(totalSize);
-
-            STRPTR buffer = longToString(presentageFromInts(firstNumber, totalNumber));
+            // Get last 2 characters from word
+            char *format = (char *)AllocVec(3, MEMF_CLEAR);
+            strncpy(format, (char *)initBuffer[0] + strlen((char *)initBuffer[0]) - 2, 2);
+            ULONG firstNumber = stringToULONG((char *)initBuffer[0]);
+            STRPTR buffer = longToString(presentageFromULongs(firstNumber, totalSize, format, returnFormat()));
             strcat(buffer, "%");
             tagList[0].ti_Tag = LBNA_Column;
             tagList[0].ti_Data = 1;
@@ -157,6 +313,7 @@ exit:
 
             SetListBrowserNodeAttrsA(node, tagList);
             node = nextNode;
+            FreeVec(format);
             FreeVec(tagList);
             FreeVec(initBuffer);
             FreeVec(buffer);
@@ -165,7 +322,7 @@ exit:
     }
     if (!subFoldering && !listGadget)
     {
-        printf("\n--> Total Size Of Path Given: %ld bytes\n\n", totalSize);
+        printf("\n--> Total Size Of Path Given: %ld %s\n\n", totalSize, returnFormat());
     }
     FreeVec(fib);
     UnLock(lockPath);
