@@ -263,7 +263,8 @@ void scanPath(char *path, BOOL subFoldering, Object *listGadget)
                         // Devide oldTotalSize according to currentFormat
                         oldTotalSize = devideByFormat(oldTotalSize);
                     }
-                    addToList(fib->fib_FileName, totalSize - oldTotalSize, NULL);
+                    int format = correctFormat(totalSize - oldTotalSize);
+                    addToList(fib->fib_FileName, devideByGivenFormat(totalSize - oldTotalSize, format), returnGivenFormat(format));
                 }
                 continue;
             }

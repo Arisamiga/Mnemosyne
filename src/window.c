@@ -65,27 +65,12 @@ enum
 
 static ULONG asValue(STRPTR s)
 {
-	STRPTR format = AllocVec(sizeof(char) * 3, MEMF_CLEAR);
-	// Get last 2 characters of string
-	SNPrintf(format, 3, "%s", &s[strlen(s) - 2]);
 	ULONG v = atoi(s);
-	// Add amount so the gb values are more favored than mb values
-
-	if (strcmp(format, "GB") == 0)
-		v += 1000000000;
-	else if (strcmp(format, "MB") == 0)
-		v += 1000000;
-	else if (strcmp(format, "KB") == 0)
-		v += 1000;
-	else if (strcmp(format, "TB") == 0)
-		v += 1000000000000;
-	FreeVec(format);
 	return v;
 }
 static ULONG __SAVE_DS__ __ASM__ myCompare(__REG__(a0, struct Hook *hook), __REG__(a2, Object *obj),
 										   __REG__(a1, struct LBSortMsg *msg))
 {
-	// printf("Compare: %s - %s\n", msg->lbsm_DataA.Text, msg->lbsm_DataB.Text);
 	return asValue(msg->lbsm_DataA.Text) - asValue(msg->lbsm_DataB.Text);
 }
 
@@ -287,7 +272,7 @@ void createWindow(void)
 						   LBCIA_Title, "Name",
 						   LBCIA_Weight, 80,
 						   LBCIA_AutoSort, TRUE,
-						   LBCIA_Sortable, FALSE,
+						   LBCIA_Sortable, TRUE,
 						   LBCIA_Column,1,
 						   LBCIA_Title, "%",
 						   LBCIA_Weight, 45,
@@ -296,10 +281,6 @@ void createWindow(void)
 							LBCIA_CompareHook, &CompareHook,
 						   LBCIA_Column, 2,
 						   LBCIA_Title, "Size",
-						   LBCIA_SortArrow, TRUE,
-						   LBCIA_AutoSort, TRUE,
-						   LBCIA_Sortable, TRUE,
-						   LBCIA_CompareHook, &CompareHook,
 						   LBCIA_Weight, 60,
 						   TAG_DONE);
 	listBrowser = NewObject(LISTBROWSER_GetClass(), NULL,
@@ -627,7 +608,7 @@ void processEvents(Object *windowObject, struct Window *intuiwin, Object *listBr
 											scanning = FALSE;
 											toggleButtons(windowObject, backButton, listBrowser, fileRequester, pastPath, doneFirst, FALSE, FALSE);
 											doneFirst = TRUE;
-											DoGadgetMethod((struct Gadget*)listBrowser, intuiwin, NULL, LBM_SORT, NULL, 2, LBMSORT_REVERSE, &CompareHook);
+											DoGadgetMethod((struct Gadget*)listBrowser, intuiwin, NULL, LBM_SORT, NULL, 1, LBMSORT_REVERSE, &CompareHook);
 										}
 
 										// printf("Donefirst: %d\n", doneFirst);
