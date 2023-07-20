@@ -309,7 +309,7 @@ exit:
             char *format = (char *)AllocVec(3, MEMF_CLEAR);
             strncpy(format, (char *)initBuffer[0] + strlen((char *)initBuffer[0]) - 2, 2);
             ULONG firstNumber = stringToULONG((char *)initBuffer[0]);
-            STRPTR buffer = longToString(presentageFromULongs(firstNumber, totalSize, format, returnFormat()));
+            STRPTR buffer = floatToString(presentageFromULongs(firstNumber, totalSize, format, returnFormat()));
             strcat(buffer, "%");
             tagList[0].ti_Tag = LBNA_Column;
             tagList[0].ti_Data = 1;

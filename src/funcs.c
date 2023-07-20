@@ -102,6 +102,13 @@ STRPTR longToString(long num)
     return buffer;
 }
 
+STRPTR floatToString(float num)
+{
+    STRPTR buffer = AllocVec(64, MEMF_ANY);
+    sprintf(buffer, "%.2f", num);
+    return buffer;
+}
+
 STRPTR ULongToString(ULONG num)
 {
     STRPTR buffer = AllocVec(64, MEMF_ANY);
@@ -125,7 +132,7 @@ int presentageFromInts(int num1, int num2)
     return presentage;
 }
 
-int presentageFromULongs(ULONG num1, ULONG num2, STRPTR num1Format, STRPTR num2Format)
+float presentageFromULongs(ULONG num1, ULONG num2, STRPTR num1Format, STRPTR num2Format)
 {
     // printf("%ld\t%ld\n", num1, num2);
     if (num1Format != num2Format){
@@ -155,11 +162,7 @@ int presentageFromULongs(ULONG num1, ULONG num2, STRPTR num1Format, STRPTR num2F
     // printf("%ld\t%ld\t%f\n", num1, num2, percentage);
     // printf("Both Formats: %s\t%s\n", num1Format, num2Format);
     // printf("Float: %f\n", percentage);
-    if (percentage < 1.0 && percentage >0.2){
-        percentage = 1.0;
-    }
-
-    return (int)percentage;
+    return percentage;
 }
 
 

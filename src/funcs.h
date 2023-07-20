@@ -7,11 +7,12 @@ void getNameFromPath(char *, char *, unsigned int);
 STRPTR longToString(long);
 STRPTR intToString(int);
 STRPTR ULongToString(ULONG);
+STRPTR floatToString(float);
 int presentageFromInts(int, int);
 int stringToInt(char *);
 int longToInt(long);
 BOOL clearList(struct List);
 BOOL clearPointerList(struct List *);
 ULONG stringToULONG(char *);
-int presentageFromULongs(ULONG, ULONG, STRPTR, STRPTR);
+float presentageFromULongs(ULONG, ULONG, STRPTR, STRPTR);
 #endif

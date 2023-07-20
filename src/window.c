@@ -63,12 +63,12 @@ enum
 // Functions and such
 // -------------
 
-static ULONG asValue(STRPTR s)
+static float asValue(STRPTR s)
 {
-	ULONG v = atoi(s);
+	float v = atof(s);
 	return v;
 }
-static ULONG __SAVE_DS__ __ASM__ myCompare(__REG__(a0, struct Hook *hook), __REG__(a2, Object *obj),
+static float __SAVE_DS__ __ASM__ myCompare(__REG__(a0, struct Hook *hook), __REG__(a2, Object *obj),
 										   __REG__(a1, struct LBSortMsg *msg))
 {
 	return asValue(msg->lbsm_DataA.Text) - asValue(msg->lbsm_DataB.Text);
@@ -263,7 +263,7 @@ void createWindow(void)
 							GA_ReadOnly, TRUE);
 
 	/* initialize CompareHook for sorting the column */
-	CompareHook.h_Entry = (ULONG(*)())myCompare;
+	CompareHook.h_Entry = (float(*)())myCompare;
 	CompareHook.h_SubEntry = NULL;
 	CompareHook.h_Data = NULL;
 
@@ -278,7 +278,7 @@ void createWindow(void)
 						   LBCIA_Weight, 45,
 						   LBCIA_AutoSort, TRUE,
 						   LBCIA_Sortable, TRUE,
-							LBCIA_CompareHook, &CompareHook,
+							LBCIA_CompareHook, &CompareHook,	
 						   LBCIA_Column, 2,
 						   LBCIA_Title, "Size",
 						   LBCIA_Weight, 60,
