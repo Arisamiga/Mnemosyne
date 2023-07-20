@@ -155,6 +155,9 @@ int presentageFromULongs(ULONG num1, ULONG num2, STRPTR num1Format, STRPTR num2F
     // printf("%ld\t%ld\t%f\n", num1, num2, percentage);
     // printf("Both Formats: %s\t%s\n", num1Format, num2Format);
     // printf("Float: %f\n", percentage);
+    if (percentage < 1.0 && percentage >0.2){
+        percentage = 1.0;
+    }
 
     return (int)percentage;
 }
