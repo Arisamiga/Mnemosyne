@@ -49,6 +49,12 @@ STRPTR returnFormat(void) {
     }
 }
 
+STRPTR returnFormatWithTotal(void){
+    STRPTR buffer = AllocVec(64, MEMF_CLEAR);
+    SNPrintf(buffer, 64, " (%ld %s)", totalSize, returnFormat());
+    return buffer;
+}
+
 STRPTR returnGivenFormat(int format) {
     switch (format)
     {

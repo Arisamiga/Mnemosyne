@@ -113,6 +113,16 @@ void updateBottomTextW2Text(Object *bottomText, Object *windowObject, char *firs
 	FreeVec(title);
 }
 
+void updateBottomTextW2AndTotal(Object *bottomText, Object *windowObject, char *firstText, STRPTR secondText, STRPTR totalText, BOOL Refresh)
+{
+	char *title = AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
+	SNPrintf(title, MAX_BUFFER, "%s%s%s", firstText, secondText, totalText);
+	SetAttrs(bottomText, GA_Text, title, TAG_DONE);
+	if (Refresh)
+		DoMethod(windowObject, WM_NEWPREFS);
+	FreeVec(title);
+}
+
 void updateBottomText(Object *bottomText, Object *windowObject, STRPTR secondText)
 {
 	// Check that the text is not the same as the current text
@@ -509,10 +519,12 @@ void processEvents(Object *windowObject,
 
 								updatePathText(fileRequester, parentPath);
 
-								updateBottomTextW2Text(bottomText, windowObject, "Current: ", parentName, FALSE);
+								STRPTR TotalText = returnFormatWithTotal();
+								updateBottomTextW2AndTotal(bottomText, windowObject, "Current: ", parentName, TotalText, FALSE);
 								
 								toggleButtons(windowObject, backButton, listBrowser, fileRequester, pastPath, doneFirst, FALSE, TRUE);
-								
+
+								FreeVec(TotalText);
 								FreeVec(parentPath);
 								FreeVec(parentName);
 								break;
@@ -540,7 +552,11 @@ void processEvents(Object *windowObject,
 
 								SNPrintf(buffer, MAX_BUFFER, "%s", pathPtr);
 
-								updateBottomTextW2Text(bottomText, windowObject, "Scanning: ", (STRPTR)pathPtr, FALSE);
+								char *parentName = AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
+
+								getNameFromPath(buffer, parentName, MAX_BUFFER);
+
+								updateBottomTextW2Text(bottomText, windowObject, "Scanning: ", (STRPTR)parentName, FALSE);
 
 								SetAttrs(scanButton, GA_Disabled, TRUE, TAG_DONE);
 
@@ -560,11 +576,11 @@ void processEvents(Object *windowObject,
 								DoGadgetMethod((struct Gadget*)listBrowser, intuiwin, NULL, LBM_SORT, NULL, 1, LBMSORT_REVERSE, &CompareHook);
 
 								// printf("Donefirst: %d\n", doneFirst);
-								char *parentName = AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
-								getNameFromPath(pastPath, parentName, MAX_BUFFER);
-								updateBottomTextW2Text(bottomText, windowObject, "Current: ", parentName, TRUE);
-
+								STRPTR TotalText = returnFormatWithTotal();
+								updateBottomTextW2AndTotal(bottomText, windowObject, "Current: ", parentName, TotalText, TRUE);
+								
 								FreeVec(parentName);
+								FreeVec(TotalText);
 								break;
 							}
 							case OID_MAIN_LIST:
@@ -639,8 +655,10 @@ void processEvents(Object *windowObject,
 										// printf("Donefirst: %d\n", doneFirst);
 										char *parentName = AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
 										getNameFromPath(pastPath, parentName, MAX_BUFFER);
-										updateBottomTextW2Text(bottomText, windowObject, "Current: ", parentName, TRUE);
+										STRPTR TotalText = returnFormatWithTotal();
+										updateBottomTextW2AndTotal(bottomText, windowObject, "Current: ", parentName, TotalText, TRUE);
 
+										FreeVec(TotalText);
 										FreeVec(parentName);
 										FreeVec(parentPath);
 									}
