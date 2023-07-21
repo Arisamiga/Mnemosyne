@@ -168,11 +168,12 @@ void createWindow(void)
 	struct Hook CompareHook;
 
 	struct MsgPort *appPort;
+	
 
 	static struct NewMenu MenuArray[] = {
 		{NM_TITLE, "Project", 0, 0, 0, 0},
 		{NM_ITEM, "Open", 0, 0, 0, (APTR)OID_SCAN_OPEN},
-		{NM_ITEM, "Open Current Dir...", 0, 0, 0, (APTR)OID_MENU_OPEN_DIR},
+		{NM_ITEM, "Open Current Dir...", 0, ITEMENABLED, 0, (APTR)OID_MENU_OPEN_DIR},
 		{NM_ITEM, NM_BARLABEL,0,0,0,0 },
 		{NM_ITEM, "About...", 0, 0, 0, (APTR)OID_MENU_ABOUT},
 		{NM_ITEM, "Quit...", 0, 0, 0, (APTR)OID_MENU_QUIT},
@@ -409,6 +410,27 @@ void processEvents(Object *windowObject,
 	BOOL end = FALSE;
 	BOOL scanning = FALSE;
 
+	static struct NewMenu MenuArrayE[] = {
+		{NM_TITLE, "Project", 0, 0, 0, 0},
+		{NM_ITEM, "Open", 0, 0, 0, (APTR)OID_SCAN_OPEN},
+		{NM_ITEM, "Open Current Dir...", 0, 0, 0, (APTR)OID_MENU_OPEN_DIR},
+		{NM_ITEM, NM_BARLABEL,0,0,0,0 },
+		{NM_ITEM, "About...", 0, 0, 0, (APTR)OID_MENU_ABOUT},
+		{NM_ITEM, "Quit...", 0, 0, 0, (APTR)OID_MENU_QUIT},
+
+		{NM_END, NULL, 0, 0, 0, NULL}
+	};
+	static struct NewMenu MenuArrayD[] = {
+		{NM_TITLE, "Project", 0, 0, 0, 0},
+		{NM_ITEM, "Open", 0, 0, 0, (APTR)OID_SCAN_OPEN},
+		{NM_ITEM, "Open Current Dir...", 0, ITEMENABLED, 0, (APTR)OID_MENU_OPEN_DIR},
+		{NM_ITEM, NM_BARLABEL,0,0,0,0 },
+		{NM_ITEM, "About...", 0, 0, 0, (APTR)OID_MENU_ABOUT},
+		{NM_ITEM, "Quit...", 0, 0, 0, (APTR)OID_MENU_QUIT},
+
+		{NM_END, NULL, 0, 0, 0, NULL}
+	};
+
 	GetAttr(WINDOW_SigMask, windowObject, &windowsignal);
 	while (!end)
 	{
@@ -458,6 +480,9 @@ void processEvents(Object *windowObject,
 									UnLock(lock);
 									SetAttrs(scanButton, GA_Disabled, FALSE, TAG_DONE);
 									SetAttrs(listBrowser, GA_DISABLED, TRUE, TAG_DONE);
+									
+									SetAttrs(windowObject, WINDOW_NewMenu, MenuArrayD, TAG_DONE);
+
 									updateBottomText(bottomText, windowObject, "Ready to Scan!");
 									fileEntered = TRUE;
 									doneFirst = FALSE;
@@ -515,6 +540,9 @@ void processEvents(Object *windowObject,
 									UnLock(lock);
 									SetAttrs(scanButton, GA_Disabled, FALSE, TAG_DONE);
 									SetAttrs(listBrowser, GA_DISABLED, TRUE, TAG_DONE);
+									
+									SetAttrs(windowObject, WINDOW_NewMenu, MenuArrayD, TAG_DONE);
+
 									updateBottomText(bottomText, windowObject, "Ready to Scan!");
 									fileEntered = TRUE;
 									doneFirst = FALSE;
@@ -550,6 +578,9 @@ void processEvents(Object *windowObject,
 								scanning = FALSE;
 
 								updatePathText(fileRequester, parentPath);
+
+								
+								SetAttrs(windowObject, WINDOW_NewMenu, MenuArrayE, TAG_DONE);
 
 								STRPTR TotalText = returnFormatWithTotal();
 								updateBottomTextW2AndTotal(bottomText, windowObject, "Current: ", parentName, TotalText, FALSE);
@@ -606,6 +637,8 @@ void processEvents(Object *windowObject,
 								doneFirst = TRUE;
 								
 								DoGadgetMethod((struct Gadget*)listBrowser, intuiwin, NULL, LBM_SORT, NULL, 1, LBMSORT_REVERSE, &CompareHook);
+									
+								SetAttrs(windowObject, WINDOW_NewMenu, MenuArrayE, TAG_DONE);
 
 								// printf("Donefirst: %d\n", doneFirst);
 								STRPTR TotalText = returnFormatWithTotal();
@@ -683,7 +716,8 @@ void processEvents(Object *windowObject,
 
 											scanning = FALSE;
 										}
-
+									
+										SetAttrs(windowObject, WINDOW_NewMenu, MenuArrayE, TAG_DONE);
 										// printf("Donefirst: %d\n", doneFirst);
 										char *parentName = AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
 										getNameFromPath(pastPath, parentName, MAX_BUFFER);
