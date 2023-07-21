@@ -53,10 +53,11 @@ enum
 	OID_BACK_BUTTON,
 	OID_MAIN_LIST,
 	OID_FILE_REQUESTER,
-	OID_MENU_OPEN,
+	OID_MENU_OPEN_DIR,
 	OID_MENU_ABOUT,
 	OID_MENU_QUIT,
 	OID_SCAN_BUTTON,
+	OID_SCAN_OPEN,
 	OID_LAST
 };
 
@@ -170,7 +171,8 @@ void createWindow(void)
 
 	static struct NewMenu MenuArray[] = {
 		{NM_TITLE, "Project", 0, 0, 0, 0},
-		{NM_ITEM, "Open Current Dir...", 0, 0, 0, (APTR)OID_MENU_OPEN},
+		{NM_ITEM, "Open", 0, 0, 0, (APTR)OID_SCAN_OPEN},
+		{NM_ITEM, "Open Current Dir...", 0, 0, 0, (APTR)OID_MENU_OPEN_DIR},
 		{NM_ITEM, NM_BARLABEL,0,0,0,0 },
 		{NM_ITEM, "About...", 0, 0, 0, (APTR)OID_MENU_ABOUT},
 		{NM_ITEM, "Quit...", 0, 0, 0, (APTR)OID_MENU_QUIT},
@@ -434,7 +436,36 @@ void processEvents(Object *windowObject,
 						ULONG itemIndex = (ULONG)item;
 						switch (itemIndex)
 						{
-							case OID_MENU_OPEN:
+							case OID_SCAN_OPEN:
+							{
+								int fileSelect = gfRequestDir(fileRequester, intuiwin);
+								if (fileSelect){
+
+									struct List contents;
+									NewList(&contents);
+
+									TEXT *path = AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
+									ULONG pathPtr;
+									GetAttr(GETFILE_FullFile, fileRequester, &pathPtr);
+									SNPrintf(path, MAX_BUFFER, "%s", pathPtr);
+									BPTR lock = Lock(path, ACCESS_READ);
+									if (!lock)
+									{
+										updateBottomText(bottomText, windowObject, "Invalid Path, Select a valid path");
+										FreeVec(path);
+										break;
+									}
+									UnLock(lock);
+									SetAttrs(scanButton, GA_Disabled, FALSE, TAG_DONE);
+									SetAttrs(listBrowser, GA_DISABLED, TRUE, TAG_DONE);
+									updateBottomText(bottomText, windowObject, "Ready to Scan!");
+									fileEntered = TRUE;
+									doneFirst = FALSE;
+									SetAttrs(listBrowser, LISTBROWSER_TitleClickable, FALSE, TAG_DONE);
+								}
+								break;
+							}
+							case OID_MENU_OPEN_DIR:
 								// printf("Clicked Open");
 								if(pastPath && doneFirst)
 									OpenWorkbenchObjectA(pastPath, TAG_DONE);
@@ -483,6 +514,7 @@ void processEvents(Object *windowObject,
 									}
 									UnLock(lock);
 									SetAttrs(scanButton, GA_Disabled, FALSE, TAG_DONE);
+									SetAttrs(listBrowser, GA_DISABLED, TRUE, TAG_DONE);
 									updateBottomText(bottomText, windowObject, "Ready to Scan!");
 									fileEntered = TRUE;
 									doneFirst = FALSE;
@@ -578,7 +610,7 @@ void processEvents(Object *windowObject,
 								// printf("Donefirst: %d\n", doneFirst);
 								STRPTR TotalText = returnFormatWithTotal();
 								updateBottomTextW2AndTotal(bottomText, windowObject, "Current: ", parentName, TotalText, TRUE);
-								
+
 								FreeVec(parentName);
 								FreeVec(TotalText);
 								break;
