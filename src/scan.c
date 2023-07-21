@@ -175,6 +175,7 @@ void addToList(char *name, ULONG size, STRPTR format)
                                              LBNCA_CopyText, TRUE,
                                              LBNCA_Text, buffer2,
                                              LBNCA_MaxChars, 40,
+                                             LBNCA_Justification, LCJ_RIGHT,
                                              TAG_DONE);
 
     AddTail(&contents, node);
