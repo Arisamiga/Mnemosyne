@@ -147,7 +147,6 @@ void addToTotalSize(ULONG size)
         // switch to higher format
         currentFormat++;
         totalSize = totalSize / 1024;
-        // printf("Switched to %s\n", returnFormat());
         addToTotalSize(size);
         return;
     }
@@ -160,6 +159,7 @@ void addToList(char *name, ULONG size, STRPTR format)
     if (!format)
         format = returnFormat();
     // printf("Size: %ld\n", size);
+
     UBYTE *buffer = AllocVec(64, MEMF_CLEAR);
     SNPrintf(buffer, 64, "%s", name);
 
@@ -228,7 +228,9 @@ void scanPath(char *path, BOOL subFoldering, Object *listGadget)
         if (!subFoldering && !listGadget)
         {
             int format = correctFormat(fib->fib_Size);
-            printf("%s: %ld %s\n", fib->fib_FileName, devideByGivenFormat(fib->fib_Size, format), returnGivenFormat(format));
+            STRPTR text;
+            SNPrintf(text, 256, "%s: %ld %s\n", fib->fib_FileName, devideByGivenFormat(fib->fib_Size, format), returnGivenFormat(format));
+            printf(text);
         }
 
         addToTotalSize(fib->fib_Size);
@@ -258,20 +260,20 @@ void scanPath(char *path, BOOL subFoldering, Object *listGadget)
                 if (!subFoldering && !listGadget)
                 {
                     strcat(fib->fib_FileName, "/");
-                    printf("| %-20s: %12ld %s\n", fib->fib_FileName, totalSize - oldTotalSize, returnFormat());
+                    STRPTR text;
+                    SNPrintf(text, 256, "| %-20s: %12ld %s\n", fib->fib_FileName, totalSize - oldTotalSize, returnFormat());
+                    printf(text);
                 }
                 if (listGadget)
                 {
                     strcat(fib->fib_FileName, "/");
-                    // printf("Adding to list: %s \t Size: %ld\n", fib->fib_FileName, fib->fib_Size);
-                    // printf("Old Total Size: %ld\t TotalSize: %ld\n", oldTotalSize, totalSize);
 
                     if (totalSize < oldTotalSize){
                         // Devide oldTotalSize according to currentFormat
                         oldTotalSize = devideByFormat(oldTotalSize);
                     }
                     // printf("Total: %ld - %ld = %ld\n", totalSize, oldTotalSize, totalSize - oldTotalSize);
-                    if(totalSize - oldTotalSize < 0 || currentFormat == 0){
+                    if((long)(totalSize - oldTotalSize) < 0 || currentFormat == 0){
                         int format = correctFormat(totalSize - oldTotalSize);
                         addToList(fib->fib_FileName, devideByGivenFormat(totalSize - oldTotalSize, format), returnGivenFormat(format));
                     } else {
@@ -282,14 +284,16 @@ void scanPath(char *path, BOOL subFoldering, Object *listGadget)
             }
             if (listGadget)
             {
-                // printf("Adding to list: %s \t Size: %ld\n", fib->fib_FileName, fib->fib_Size);
                 int format = correctFormat(fib->fib_Size);
+                // printf("Adding to list: %s \t Size: %ld\n", fib->fib_FileName, fib->fib_Size);
                 addToList(fib->fib_FileName, devideByGivenFormat(fib->fib_Size, format), returnGivenFormat(format));
             }
             if (!subFoldering && !listGadget)
             {
                 int format = correctFormat(fib->fib_Size);
-                printf("| %-20.20s: %12ld %s\n", fib->fib_FileName, devideByGivenFormat(fib->fib_Size, format), returnGivenFormat(format));
+                STRPTR text;
+                SNPrintf(text, 256, "| %-20.20s: %12ld %s\n", fib->fib_FileName, devideByGivenFormat(fib->fib_Size, format), returnGivenFormat(format));
+                printf(text);
             }
             addToTotalSize(fib->fib_Size);
         }
@@ -346,4 +350,5 @@ void clearScanning (void) {
     clearList(contents);
     pastPath[0] = '\0';
     totalSize = 0;
+    currentFormat = 0;
 }

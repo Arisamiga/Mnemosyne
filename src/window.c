@@ -277,7 +277,7 @@ void createWindow(void)
 							GA_ReadOnly, TRUE);
 
 	/* initialize CompareHook for sorting the column */
-	CompareHook.h_Entry = (float(*)())myCompare;
+	CompareHook.h_Entry = (ULONG(*)())myCompare;
 	CompareHook.h_SubEntry = NULL;
 	CompareHook.h_Data = NULL;
 
