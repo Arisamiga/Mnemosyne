@@ -1,0 +1,126 @@
+@database Mnemosyne.guide
+
+@author "Aris (Arisamiga) Sokianos"
+@$VER: 0.9
+
+@Node "Main" "Mnemosyne"
+
+@wordwrap
+
+@{jcenter}
+
+
+  __  __                                                 
+ |  \\/  |_ __   ___ _ __ ___   ___  ___ _   _ _ __   ___ 
+ | |\\/| | __ \\ / _ \\ __ _ _ \\ / _ \\/ __| | | | __ \\ / _ \\
+ | |  | | | | |  __/ | | | | | |_| \\__ \\ |_| | | | |  __/
+ |_|  |_|_| |_|\\___|_| |_| |_|\\___/|___/\\___ |_| |_|\\___|
+                                        |___/            
+
+Mnemosyne is an open source disk utility application for AmigaOS 3.x, which can be used to manage your files and your disk space.
+
+@{jleft}
+
+ @{" About " Link "About"} 
+ @{" Requirements " Link "Requirements"}
+ @{" Installation " Link "Installation"}
+ @{" Usage " Link "Usage"}
+
+
+@EndNode
+
+@Node "About"
+@Next "Requirements"
+@Prev "Main"
+@Toc "Main"
+
+@{jleft}@{lindent 3}
+
+@{b}About@{ub}
+=====
+
+Mnemosyne is an open source disk utility application for AmigaOS 3.x,
+which can be used to manage your files and your disk space.
+
+It is coded in C and uses the NDK 3.2. and ReAction.
+     
+"Mnemosyne", in Greek mythology is the goddess of memory.
+     
+Mnemosyne is a free software, released under the GNU General Public
+License (GPL). You can find the source code of Mnemosyne on GitHub:
+
+Thank you so much for using Mnemosyne!
+
+@EndNode
+
+@Node "Requirements" "Requirements"
+@Next "Installation"
+@Prev "About"
+@Toc "Main"
+
+@{jleft}@{lindent 3}
+
+@{b}Requirements@{ub}
+==========
+
+Mnemosyne requires AmigaOS 3.x with atleast 1MB of RAM.
+
+(Note not all processors have been tested, but it should work on all)
+
+
+@EndNode
+
+@Node "Installation"
+@Next "Usage"
+@Prev "Requirements"
+@Toc "Main"
+
+@{jleft}@{lindent 3}
+
+@{b}Installation@{ub}
+===============
+
+To install Mnemosyne, just copy the Mnemosyne drawer to your hard disk.
+
+Make sure you have ReAction installed on your system.
+
+@EndNode
+
+@Node "Usage" "Usage"
+@Prev "Installation"
+@Toc "Main"
+
+@{jleft}@{lindent 3}
+@{b}Usage@{ub}
+***************
+
+There are 2 ways to use Mnemosyne:
+
+  Using the CLI (Command Line Interface)
+  --------------------------------------
+
+   To use Mnemosyne from the CLI, just type on your shell:
+
+     @{b}Mnemosyne <path>@{ub}
+
+   Where <path> is the path to the directory you want to scan.
+
+
+
+  Using the GUI (Graphical User Interface)
+  -----------------------------------------
+
+  To use Mnemosyne from the GUI, just double click on the Mnemosyne icon
+  and using the GUI, click on the button to select the directory you want
+  after that click on the "Scan" button to start scanning the directory.
+
+  When the scanning is finished, it will show you the results.
+
+  @{b}For more information about the GUI, 
+  please check the Github Wiki page where it will 
+  include images and more information about the GUI. @{ub}
+
+
+
+
+@EndNode
