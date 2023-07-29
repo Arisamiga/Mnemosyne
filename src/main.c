@@ -7,7 +7,7 @@
 #include "window.h"
 
 // Mnemosyne Version
-char *vers = "\0$VER: Mnemosyne 0.1";
+char *vers = "\0$VER: Mnemosyne 0.9";
 
 // Declare functions after main
 void info(void);
