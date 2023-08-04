@@ -199,47 +199,47 @@ void createWindow(void)
 
 	if (!(IntuitionBase = (struct IntuitionBase *)OpenLibrary("intuition.library", 47)))
 	{
-		printf("Failed to open intuition.library!\n");
+		printf("Failed to open intuition.library! Make sure the version is above v47.\n");
 		cleanexit(NULL);
 	}
 	if (!(UtilityBase = OpenLibrary("utility.library", 47)))
 	{
-		printf("Failed to open utility.library!\n");
+		printf("Failed to open utility.library! Make sure the version is above v47.\n");
 		cleanexit(NULL);
 	}
 	if (!(WindowBase = OpenLibrary("window.class", 47)))
 	{
-		printf("Failed to open window.class!\n");
+		printf("Failed to open window.class! Make sure the version is above v47.\n");
 		cleanexit(NULL);
 	}
 	if (!(LayoutBase = OpenLibrary("gadgets/layout.gadget", 47)))
 	{
-		printf("Failed to open gadgets/layout.gadget!\n");
+		printf("Failed to open gadgets/layout.gadget! Make sure the version is above v47.\n");
 		cleanexit(NULL);
 	}
 	if (!(ListBrowserBase = OpenLibrary("gadgets/listbrowser.gadget", 47)))
 	{
-		printf("Failed to open gadgets/listbrowser.gadget!\n");
+		printf("Failed to open gadgets/listbrowser.gadget! Make sure the version is above v47.\n");
 		cleanexit(NULL);
 	}
 	if (!(ButtonBase = OpenLibrary("gadgets/button.gadget", 47)))
 	{
-		printf("Failed to open gadgets/button.gadget!\n");
+		printf("Failed to open gadgets/button.gadget! Make sure the version is above v47.\n");
 		cleanexit(NULL);
 	}
 	if (!(SpaceBase = OpenLibrary("gadgets/space.gadget", 47)))
 	{
-		printf("Failed to open gadgets/space.gadget!\n");
+		printf("Failed to open gadgets/space.gadget! Make sure the version is above v47.\n");
 		cleanexit(NULL);
 	}
 	if (!(GetFileBase = OpenLibrary("gadgets/getfile.gadget", 47)))
 	{
-		printf("Failed to open gadgets/getfile.gadget!\n");
+		printf("Failed to open gadgets/getfile.gadget! Make sure the version is above v47.\n");
 		cleanexit(NULL);
 	}
 	if (!(TextFieldBase = OpenLibrary("gadgets/texteditor.gadget", 47)))
 	{
-		printf("Failed to open gadgets/texteditor.gadget!\n");
+		printf("Failed to open gadgets/texteditor.gadget! Make sure the version is above v47.\n");
 		cleanexit(NULL);
 	}
 	
