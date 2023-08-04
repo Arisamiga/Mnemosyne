@@ -8,6 +8,10 @@ LINK = vc
 CFLAGS = +aos68k -c99
 LFLAGS = +aos68k -lauto -lamiga -lmieee
 
+ifeq ($(DEBUG), 1)
+CFLAGS += -g -hunkdebug
+LFLAGS += -g -Bamigahunk
+endif
 
 # INCLUDES settings
 INCLUDES = -I$(NDK32_INC)

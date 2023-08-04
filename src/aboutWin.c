@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include <intuition/classusr.h>
 #include <gadgets/layout.h>
@@ -17,7 +18,7 @@ struct Library *ALayoutBase;
 
 void cleanAboutexit(Object *windowObject);
 void processAboutEvents(Object *windowObject);
-void aboutWin(BOOL value)
+void aboutWin(void)
 {
     struct Window *Aintuiwin = NULL;
     Object *AwindowObject = NULL;

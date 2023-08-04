@@ -121,6 +121,35 @@
             }
         },
         {
+            "label": "Compile with Makefile DEBUG",
+            "type": "shell",
+            "linux":{
+                "command": "make",
+                // Set the working directory
+                "options": {
+                    "cwd": "/opt/code",
+                },
+                "args": [
+                    "DEBUG=1"
+                ]
+            },
+            "problemMatcher": {
+                "owner": "cpp",
+                "fileLocation": ["relative", "${workspaceFolder}"],
+                "pattern": {
+                    "regexp": "^(warning|error) ([0-9]*) in line ([0-9]*) of \"(.*)\": (.*)$",
+                    "severity": 1,
+                    "line": 3,
+                    "file": 4,
+                    "message": 5
+                }
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
             "label": "Clean (Makefile)",
             "type": "shell",
             "linux":{

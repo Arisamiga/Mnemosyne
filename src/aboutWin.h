@@ -1,4 +1,6 @@
-#ifndef ABOUTWINDOW
-#define ABOUTWINDOW
-void aboutWin(BOOL);
+#ifndef ABOUTWIN_H
+#define ABOUTWIN_H
+
+void aboutWin(void);
+
 #endif

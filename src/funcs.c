@@ -7,6 +7,7 @@
 #include <proto/utility.h>
 #include <proto/dos.h>
 #include <proto/exec.h>
+#include <proto/listbrowser.h>
 
 #include <exec/types.h>
 
@@ -218,15 +219,15 @@ int longToInt(long num)
 }
 
 BOOL clearList(struct List list){
-    struct Node *node = list.lh_Head;
-    while (node->ln_Succ)
-    {
-        struct Node *nextNode = node->ln_Succ;
-        Remove(node);
-        FreeVec(node);
-        node = nextNode;
-    }
-    return TRUE;
+	struct Node *node = list.lh_Head;
+	while (node->ln_Succ)
+	{
+		struct Node *nextNode = node->ln_Succ;
+		Remove(node);
+		FreeListBrowserNode(node);
+		node = nextNode;
+	}
+	return TRUE;
 }
 
 BOOL clearPointerList(struct List *list){

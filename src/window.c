@@ -38,16 +38,6 @@
 #include "aboutWin.h"
 
 
-struct IntuitionBase *IntuitionBase;
-struct Library *WindowBase;
-struct Library *LayoutBase;
-struct Library *ListBrowserBase;
-struct Library *ButtonBase;
-struct Library *SpaceBase;
-struct Library *GetFileBase;
-struct Library *TextFieldBase;
-
-
 enum
 {
 	OID_BACK_BUTTON,
@@ -131,7 +121,7 @@ void updateBottomText(Object *bottomText, Object *windowObject, STRPTR secondTex
 	GetAttr(GA_Text, bottomText, (ULONG *)&bottomTextString);
 	if (strcmp(bottomTextString, secondText) == 0)
 		return;
-	
+
 	SetAttrs(bottomText, GA_Text, secondText, TAG_DONE);
 	DoMethod(windowObject, WM_NEWPREFS);
 }
@@ -168,7 +158,7 @@ void createWindow(void)
 	struct Hook CompareHook;
 
 	struct MsgPort *appPort;
-	
+
 
 	static struct NewMenu MenuArray[] = {
 		{NM_TITLE, "Project", 0, 0, 0, 0},
@@ -193,56 +183,8 @@ void createWindow(void)
 	Object *scanButton = NULL;
 
 	struct List contents;
-	WORD i;
 
 	BOOL doneFirst = FALSE;
-
-	if (!(IntuitionBase = (struct IntuitionBase *)OpenLibrary("intuition.library", 47)))
-	{
-		printf("Failed to open intuition.library! Make sure the version is above v47.\n");
-		cleanexit(NULL);
-	}
-	if (!(UtilityBase = OpenLibrary("utility.library", 47)))
-	{
-		printf("Failed to open utility.library! Make sure the version is above v47.\n");
-		cleanexit(NULL);
-	}
-	if (!(WindowBase = OpenLibrary("window.class", 47)))
-	{
-		printf("Failed to open window.class! Make sure the version is above v47.\n");
-		cleanexit(NULL);
-	}
-	if (!(LayoutBase = OpenLibrary("gadgets/layout.gadget", 47)))
-	{
-		printf("Failed to open gadgets/layout.gadget! Make sure the version is above v47.\n");
-		cleanexit(NULL);
-	}
-	if (!(ListBrowserBase = OpenLibrary("gadgets/listbrowser.gadget", 47)))
-	{
-		printf("Failed to open gadgets/listbrowser.gadget! Make sure the version is above v47.\n");
-		cleanexit(NULL);
-	}
-	if (!(ButtonBase = OpenLibrary("gadgets/button.gadget", 47)))
-	{
-		printf("Failed to open gadgets/button.gadget! Make sure the version is above v47.\n");
-		cleanexit(NULL);
-	}
-	if (!(SpaceBase = OpenLibrary("gadgets/space.gadget", 47)))
-	{
-		printf("Failed to open gadgets/space.gadget! Make sure the version is above v47.\n");
-		cleanexit(NULL);
-	}
-	if (!(GetFileBase = OpenLibrary("gadgets/getfile.gadget", 47)))
-	{
-		printf("Failed to open gadgets/getfile.gadget! Make sure the version is above v47.\n");
-		cleanexit(NULL);
-	}
-	if (!(TextFieldBase = OpenLibrary("gadgets/texteditor.gadget", 47)))
-	{
-		printf("Failed to open gadgets/texteditor.gadget! Make sure the version is above v47.\n");
-		cleanexit(NULL);
-	}
-	
 
 	NewList(&contents);
 
@@ -292,7 +234,7 @@ void createWindow(void)
 						   LBCIA_Weight, 45,
 						   LBCIA_AutoSort, TRUE,
 						   LBCIA_Sortable, TRUE,
-							LBCIA_CompareHook, &CompareHook,	
+							LBCIA_CompareHook, &CompareHook,
 						   LBCIA_Column, 2,
 						   LBCIA_Title, "Size",
 						   LBCIA_Weight, 60,
@@ -307,7 +249,7 @@ void createWindow(void)
 							LISTBROWSER_MultiSelect, FALSE,
 							LISTBROWSER_Separators, TRUE,
 							LISTBROWSER_ShowSelected, FALSE,
-							LISTBROWSER_TitleClickable, FALSE, 
+							LISTBROWSER_TitleClickable, FALSE,
 							LISTBROWSER_Spacing, 1,
 							TAG_END);
 
@@ -317,9 +259,9 @@ void createWindow(void)
 						   BUTTON_BevelStyle, BVS_GROUP,
 						   TAG_END);
 
-	fileRequester = NewObject(GETFILE_GetClass(), NULL, 
+	fileRequester = NewObject(GETFILE_GetClass(), NULL,
 								GA_ID, OID_FILE_REQUESTER,
-								GETFILE_DrawersOnly, TRUE, 
+								GETFILE_DrawersOnly, TRUE,
 								GETFILE_ReadOnly, TRUE,
 								GETFILE_TitleText, "Select a Folder to Scan:",
 							    GA_RelVerify, TRUE,
@@ -394,13 +336,13 @@ void createWindow(void)
 	cleanexit(windowObject);
 }
 void processEvents(Object *windowObject,
-				   struct Window *intuiwin, 
-				   Object *listBrowser, 
-				   Object *backButton, 
-				   BOOL doneFirst, 
-				   struct Hook CompareHook, 
-				   Object *bottomText, 
-				   Object *fileRequester, 
+				   struct Window *intuiwin,
+				   Object *listBrowser,
+				   Object *backButton,
+				   BOOL doneFirst,
+				   struct Hook CompareHook,
+				   Object *bottomText,
+				   Object *fileRequester,
 				   Object *scanButton)
 {
 	ULONG windowsignal;
@@ -480,7 +422,7 @@ void processEvents(Object *windowObject,
 									UnLock(lock);
 									SetAttrs(scanButton, GA_Disabled, FALSE, TAG_DONE);
 									SetAttrs(listBrowser, GA_DISABLED, TRUE, TAG_DONE);
-									
+
 									SetAttrs(windowObject, WINDOW_NewMenu, MenuArrayD, TAG_DONE);
 
 									updateBottomText(bottomText, windowObject, "Ready to Scan!");
@@ -499,8 +441,8 @@ void processEvents(Object *windowObject,
 								// printf("Clicked About\n");
 								toggleBusyPointer(windowObject, TRUE);
 
-								aboutWin(TRUE);
-								
+								aboutWin();
+
 								// printf("About window closed\n");
 								toggleBusyPointer(windowObject, FALSE);
 								break;
@@ -540,7 +482,7 @@ void processEvents(Object *windowObject,
 									UnLock(lock);
 									SetAttrs(scanButton, GA_Disabled, FALSE, TAG_DONE);
 									SetAttrs(listBrowser, GA_DISABLED, TRUE, TAG_DONE);
-									
+
 									SetAttrs(windowObject, WINDOW_NewMenu, MenuArrayD, TAG_DONE);
 
 									updateBottomText(bottomText, windowObject, "Ready to Scan!");
@@ -554,7 +496,7 @@ void processEvents(Object *windowObject,
 							{
 								if (scanning || !doneFirst || pastPath[strlen(pastPath) - 1] == ':')
 									break;
-								
+
 								char *parentPath = AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
 								getParentPath(pastPath, parentPath, MAX_BUFFER);
 								// printf("Parent Path: %s\n", parentPath);
@@ -568,7 +510,7 @@ void processEvents(Object *windowObject,
 								}
 
 								updateBottomTextW2Text(bottomText, windowObject, "Scanning: ", parentName, FALSE);
-								
+
 								toggleButtons(windowObject, backButton, listBrowser, fileRequester, pastPath, doneFirst, TRUE, TRUE);
 
 								scanning = TRUE;
@@ -579,12 +521,12 @@ void processEvents(Object *windowObject,
 
 								updatePathText(fileRequester, parentPath);
 
-								
+
 								SetAttrs(windowObject, WINDOW_NewMenu, MenuArrayE, TAG_DONE);
 
 								STRPTR TotalText = returnFormatWithTotal();
 								updateBottomTextW2AndTotal(bottomText, windowObject, "Current: ", parentName, TotalText, FALSE);
-								
+
 								toggleButtons(windowObject, backButton, listBrowser, fileRequester, pastPath, doneFirst, FALSE, TRUE);
 
 								FreeVec(TotalText);
@@ -635,9 +577,9 @@ void processEvents(Object *windowObject,
 								toggleButtons(windowObject, backButton, listBrowser, fileRequester, pastPath, doneFirst, FALSE, FALSE);
 
 								doneFirst = TRUE;
-								
+
 								DoGadgetMethod((struct Gadget*)listBrowser, intuiwin, NULL, LBM_SORT, NULL, 1, LBMSORT_REVERSE, &CompareHook);
-									
+
 								SetAttrs(windowObject, WINDOW_NewMenu, MenuArrayE, TAG_DONE);
 
 								// printf("Donefirst: %d\n", doneFirst);
@@ -716,7 +658,7 @@ void processEvents(Object *windowObject,
 
 											scanning = FALSE;
 										}
-									
+
 										SetAttrs(windowObject, WINDOW_NewMenu, MenuArrayE, TAG_DONE);
 										// printf("Donefirst: %d\n", doneFirst);
 										char *parentName = AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
@@ -748,17 +690,10 @@ void processEvents(Object *windowObject,
 }
 void cleanexit(Object *windowObject)
 {
-	if (windowObject)
-		DisposeObject(windowObject);
-	CloseLibrary((struct Library *)IntuitionBase);
-	CloseLibrary(UtilityBase);
-	CloseLibrary(WindowBase);
-	CloseLibrary(LayoutBase);
-	CloseLibrary(ListBrowserBase);
-	CloseLibrary(ButtonBase);
-	CloseLibrary(SpaceBase);
-	CloseLibrary(GetFileBase);
-	CloseLibrary(TextFieldBase);
-	clearScanning();
-	exit(0);
+	// if (windowObject)
+	// 	DisposeObject(windowObject);
+
+
+	// clearScanning();
+	// exit(0);
 }
