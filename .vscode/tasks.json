@@ -69,32 +69,6 @@
             }
         },
         {
-            "label": "Clean Build",
-            "type": "shell",
-            "linux":{
-                "command": "rm",
-                "args": [
-                        "-r",
-                        "/opt/code/build/*"
-                ]
-            },
-            "problemMatcher": {
-                "owner": "cpp",
-                "fileLocation": ["relative", "${workspaceFolder}"],
-                "pattern": {
-                    "regexp": "^(warning|error) ([0-9]*) in line ([0-9]*) of \"(.*)\": (.*)$",
-                    "severity": 1,
-                    "line": 3,
-                    "file": 4,
-                    "message": 5
-                }
-            },
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            }
-        },
-        {
             "label": "Compile with Makefile",
             "type": "shell",
             "linux":{
