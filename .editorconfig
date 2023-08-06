@@ -23,3 +23,16 @@ indent_size = 2
 
 [*.json]
 indent_style = space
+
+# Ignore files that end with .guide
+[*.guide]
+ignore = true
+charset = latin1
+encoding = iso-8859-1
+trim_trailing_whitespace = unset
+end_of_line = lf
+insert_final_newline = unset
+indent_style = unset
+indent_size = unset
+```
+
