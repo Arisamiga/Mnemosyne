@@ -3,18 +3,15 @@
 #include <intuition/classusr.h>
 #include <gadgets/layout.h>
 #include <classes/window.h>
+
 #define __CLIB_PRAGMA_LIBCALL
+
 #include <proto/alib.h>
 #include <proto/exec.h>
 #include <proto/layout.h>
 #include <proto/window.h>
 #include <proto/intuition.h>
-#include <proto/button.h>
 #include <proto/texteditor.h>
-
-struct IntuitionBase *AIntuitionBase;
-struct Library *AWindowBase;
-struct Library *ALayoutBase;
 
 void cleanAboutexit(Object *windowObject);
 void processAboutEvents(Object *windowObject);
