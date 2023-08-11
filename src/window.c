@@ -58,6 +58,9 @@ enum
 static float asValue(STRPTR s)
 {
 	float v = atof(s);
+	// Check if first char is a < sign
+	if (s[0] == '<')
+		v = 0.001f;
 	return v;
 }
 static float __SAVE_DS__ __ASM__ myCompare(__REG__(a0, struct Hook *hook), __REG__(a2, Object *obj),

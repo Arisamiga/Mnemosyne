@@ -159,6 +159,10 @@ float presentageFromULongs(ULONG num1, ULONG num2, STRPTR num1Format, STRPTR num
             }
         }
     }
+	if (num1 == 0 || num2 == 0)
+	{
+		return 0;
+	}
     float percentage = (((float)num1 / (float)num2) * 100.0);
     // printf("%ld\t%ld\t%f\n", num1, num2, percentage);
     // printf("Both Formats: %s\t%s\n", num1Format, num2Format);
@@ -240,4 +244,20 @@ BOOL clearPointerList(struct List *list){
         node = nextNode;
     }
     return TRUE;
+}
+
+float stringToFloat(STRPTR value)
+{
+	float result = 0;
+	int i = 0;
+	while (value[i] != '\0')
+	{
+		if (isdigit(value[i]))
+		{
+			result *= 10;
+			result += value[i] - '0';
+		}
+		i++;
+	}
+	return result;
 }

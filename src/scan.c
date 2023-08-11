@@ -150,7 +150,7 @@ void addToTotalSize(ULONG size)
         addToTotalSize(size);
         return;
     }
-    
+
     totalSize += devideByFormat(size);
 }
 
@@ -167,7 +167,7 @@ void addToList(char *name, ULONG size, STRPTR format)
 
     UBYTE *buffer2 = AllocVec(64, MEMF_CLEAR);
     SNPrintf(buffer2, 64, "%s %s", prebuffer2, format);
-    
+
     struct Node *node = AllocListBrowserNode(3,
                                              LBNA_Column, 0,
                                              LBNCA_CopyText, TRUE,
@@ -321,7 +321,11 @@ exit:
             strncpy(format, (char *)initBuffer[0] + strlen((char *)initBuffer[0]) - 2, 2);
             ULONG firstNumber = stringToULONG((char *)initBuffer[0]);
             STRPTR buffer = floatToString(presentageFromULongs(firstNumber, totalSize, format, returnFormat()));
+			if(stringToFloat(buffer) < 0.01 && firstNumber != 0){
+				strcpy(buffer, "<0.01");
+			}
             strcat(buffer, "%");
+			printf("Buffer: %s | Float: %f\n", buffer, atof(buffer));
             tagList[0].ti_Tag = LBNA_Column;
             tagList[0].ti_Data = 1;
             tagList[1].ti_Tag = LBNCA_Text;
