@@ -325,7 +325,6 @@ exit:
 				strcpy(buffer, "<0.01");
 			}
             strcat(buffer, "%");
-			printf("Buffer: %s | Float: %f\n", buffer, atof(buffer));
             tagList[0].ti_Tag = LBNA_Column;
             tagList[0].ti_Data = 1;
             tagList[1].ti_Tag = LBNCA_Text;
