@@ -194,9 +194,11 @@ void scanPath(char *path, BOOL subFoldering, Object *listGadget)
 {
     if (!subFoldering)
     {
-        // printf("Path: %s\n", path);
-        strncpy(pastPath, path, 256);
-        NewList(&contents);
+		if (listGadget)
+		{
+			strncpy(pastPath, path, 256);
+        	NewList(&contents);
+		}
         totalSize = 0;
         currentFormat = 0;
     }
@@ -228,9 +230,7 @@ void scanPath(char *path, BOOL subFoldering, Object *listGadget)
         if (!subFoldering && !listGadget)
         {
             int format = correctFormat(fib->fib_Size);
-            STRPTR text;
-            SNPrintf(text, 256, "%s: %ld %s\n", fib->fib_FileName, devideByGivenFormat(fib->fib_Size, format), returnGivenFormat(format));
-            printf(text);
+            printf("%s: %lu %s\n", fib->fib_FileName, devideByGivenFormat(fib->fib_Size, format), returnGivenFormat(format));
         }
 
         addToTotalSize(fib->fib_Size);
@@ -254,15 +254,15 @@ void scanPath(char *path, BOOL subFoldering, Object *listGadget)
                 strcat(newPath, fib->fib_FileName);
                 // if(!subFoldering && !listGadget)
                 //     printf("---- Scanning SubFolder: %s\n", newPath);
+
                 ULONG oldTotalSize = totalSize;
+
                 scanPath(newPath, TRUE, 0);
 
                 if (!subFoldering && !listGadget)
                 {
                     strcat(fib->fib_FileName, "/");
-                    STRPTR text;
-                    SNPrintf(text, 256, "| %-20s: %12ld %s\n", fib->fib_FileName, totalSize - oldTotalSize, returnFormat());
-                    printf(text);
+                    printf("| %-20s: %12lu %s\n", fib->fib_FileName, totalSize - oldTotalSize, returnFormat());
                 }
                 if (listGadget)
                 {
@@ -291,9 +291,7 @@ void scanPath(char *path, BOOL subFoldering, Object *listGadget)
             if (!subFoldering && !listGadget)
             {
                 int format = correctFormat(fib->fib_Size);
-                STRPTR text;
-                SNPrintf(text, 256, "| %-20.20s: %12ld %s\n", fib->fib_FileName, devideByGivenFormat(fib->fib_Size, format), returnGivenFormat(format));
-                printf(text);
+                printf("| %-20.20s: %12lu %s\n", fib->fib_FileName, devideByGivenFormat(fib->fib_Size, format), returnGivenFormat(format));
             }
             addToTotalSize(fib->fib_Size);
         }
@@ -342,7 +340,7 @@ exit:
     }
     if (!subFoldering && !listGadget)
     {
-        printf("\n--> Total Size Of Path Given: %ld %s\n\n", totalSize, returnFormat());
+        printf("\n--> Total Size Of Path Given: %lu %s\n\n", totalSize, returnFormat());
     }
     FreeVec(fib);
     UnLock(lockPath);

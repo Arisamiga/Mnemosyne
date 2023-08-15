@@ -114,7 +114,7 @@ int main(int argc, char **argv)
 	printf("\n----------------------------------------\n");
 	printf("Scanning: %s\n\n", argv[1]);
 	printf("| Name: \t\t Size: \n\n");
-	scanPath(argv[1], FALSE, 0);
+	scanPath(argv[1], FALSE, FALSE);
 	return 0;
 }
 
