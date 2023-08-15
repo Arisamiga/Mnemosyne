@@ -122,7 +122,7 @@ void updateBottomText(Object *bottomText, Object *windowObject, STRPTR secondTex
 	// Check that the text is not the same as the current text
 	STRPTR bottomTextString = NULL;
 	GetAttr(GA_Text, bottomText, (ULONG *)&bottomTextString);
-	if (strncmp(bottomTextString, secondText, strlen(bottomTextString)) == 0)
+	if (strcmp(bottomTextString, secondText) == 0)
 		return;
 
 	SetAttrs(bottomText, GA_Text, secondText, TAG_DONE);
