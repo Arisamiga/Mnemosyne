@@ -122,7 +122,7 @@ void updateBottomText(Object *bottomText, Object *windowObject, STRPTR secondTex
 	// Check that the text is not the same as the current text
 	STRPTR bottomTextString = NULL;
 	GetAttr(GA_Text, bottomText, (ULONG *)&bottomTextString);
-	if (strcmp(bottomTextString, secondText) == 0)
+	if (strncmp(bottomTextString, secondText, strlen(bottomTextString)) == 0)
 		return;
 
 	SetAttrs(bottomText, GA_Text, secondText, TAG_DONE);
@@ -130,9 +130,7 @@ void updateBottomText(Object *bottomText, Object *windowObject, STRPTR secondTex
 }
 
 void updatePathText(Object *fileRequester, STRPTR path) {
-
 	SetAttrs(fileRequester, GETFILE_FullFile, path, TAG_DONE);
-	DoMethod(fileRequester, OM_UPDATE);
 }
 
 BOOL fileEntered = FALSE;
@@ -393,7 +391,10 @@ void processEvents(Object *windowObject,
 						DoMethod(windowObject, WM_ICONIFY, NULL);
 						break;
 					case WMHI_UNICONIFY:
-						DoMethod(windowObject, WM_OPEN, NULL);
+					{
+						if (( intuiwin = (struct Window *)DoMethod(windowObject, WM_OPEN, NULL)))
+							GetAttr(WINDOW_SigMask, windowObject, &windowsignal);
+					}
 						break;
 					case WMHI_MENUPICK: {
 						struct Menu *menuStrip;
@@ -646,6 +647,7 @@ void processEvents(Object *windowObject,
 										if (doneFirst && text)
 										{
 											char *newPath = (char *)AllocVec(MAX_BUFFER, MEMF_CLEAR);
+
 											if (pastPath[strlen(pastPath) - 1] != '/' && pastPath[strlen(pastPath) - 1] != ':'){
 												strcat(pastPath, "/");
 											}
