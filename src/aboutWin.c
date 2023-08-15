@@ -86,8 +86,8 @@ void processAboutEvents(Object *windowObject)
     }
 }
 
-void cleanAboutexit(Object *windowObject)
+void cleanAboutexit(Object *AwindowObject)
 {
-    if (windowObject)
-        DisposeObject(windowObject);
+    if (AwindowObject)
+        DisposeObject(AwindowObject);
 }

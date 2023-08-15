@@ -399,6 +399,8 @@ void processEvents(Object *windowObject,
 						struct Menu *menuStrip;
 						GetAttr(WINDOW_MenuStrip, windowObject, (ULONG *)&menuStrip);
 						struct MenuItem *menuItem = ItemAddress(menuStrip, code);
+						if (!menuItem)
+							break;
 						APTR item = GTMENUITEM_USERDATA(menuItem);
 						ULONG itemIndex = (ULONG)item;
 						switch (itemIndex)
@@ -693,8 +695,8 @@ void processEvents(Object *windowObject,
 }
 void cleanexit(Object *windowObject)
 {
-	// if (windowObject)
-	// 	DisposeObject(windowObject);
+	if (windowObject)
+		DisposeObject(windowObject);
 
 
 	// clearScanning();

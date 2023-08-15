@@ -334,7 +334,7 @@ exit:
             SetListBrowserNodeAttrsA(node, tagList);
             node = nextNode;
             FreeVec(format);
-            FreeVec(tagList);
+            // FreeVec(tagList);
             FreeVec(initBuffer);
             FreeVec(buffer);
         }
