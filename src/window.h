@@ -1,4 +1,4 @@
-#ifndef WINDOW
-#define WINDOW
-void createWindow(void); 
+#ifndef WINDOW_H
+#define WINDOW_H
+void createWindow(void);
 #endif

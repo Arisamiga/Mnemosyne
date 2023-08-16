@@ -648,7 +648,7 @@ void processEvents(Object *windowObject,
 
 										if (doneFirst && text)
 										{
-											char *newPath = (char *)AllocVec(MAX_BUFFER, MEMF_CLEAR);
+											char *newPath = AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
 
 											if (pastPath[strlen(pastPath) - 1] != '/' && pastPath[strlen(pastPath) - 1] != ':'){
 												strcat(pastPath, "/");

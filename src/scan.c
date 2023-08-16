@@ -280,6 +280,7 @@ void scanPath(char *path, BOOL subFoldering, Object *listGadget)
                         addToList(fib->fib_FileName, totalSize - oldTotalSize, returnFormat());
                     }
                 }
+				FreeVec(newPath);
                 continue;
             }
             if (listGadget)
