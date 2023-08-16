@@ -428,6 +428,7 @@ void processEvents(Object *windowObject,
 									UnLock(lock);
 									SetAttrs(scanButton, GA_Disabled, FALSE, TAG_DONE);
 									SetAttrs(listBrowser, GA_DISABLED, TRUE, TAG_DONE);
+									SetAttrs(backButton, GA_Disabled, TRUE, TAG_DONE);
 
 									SetAttrs(windowObject, WINDOW_NewMenu, MenuArrayD, TAG_DONE);
 
@@ -488,6 +489,7 @@ void processEvents(Object *windowObject,
 									UnLock(lock);
 									SetAttrs(scanButton, GA_Disabled, FALSE, TAG_DONE);
 									SetAttrs(listBrowser, GA_DISABLED, TRUE, TAG_DONE);
+									SetAttrs(backButton, GA_Disabled, TRUE, TAG_DONE);
 
 									SetAttrs(windowObject, WINDOW_NewMenu, MenuArrayD, TAG_DONE);
 

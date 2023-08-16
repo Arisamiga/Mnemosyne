@@ -300,8 +300,9 @@ exit:
     if (listGadget)
     {
         // Presentage of total size Calculations
-        struct List *list = (struct List *)&contents;
-        struct Node *node = list->lh_Head;
+        // struct List *list = (struct List *)&contents;
+        // struct Node *node = list->lh_Head;
+		struct Node *node = contents.lh_Head;
         while (node->ln_Succ)
         {
             struct Node *nextNode = node->ln_Succ;
