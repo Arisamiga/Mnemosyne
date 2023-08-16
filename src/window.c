@@ -701,8 +701,5 @@ void cleanexit(Object *windowObject)
 {
 	if (windowObject)
 		DisposeObject(windowObject);
-
-
-	// clearScanning();
-	// exit(0);
+	clearScanning();
 }

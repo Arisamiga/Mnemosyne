@@ -224,6 +224,10 @@ int longToInt(long num)
 
 BOOL clearList(struct List list){
 	struct Node *node = list.lh_Head;
+	if (node == NULL)
+	{
+		return FALSE;
+	}
 	while (node->ln_Succ)
 	{
 		struct Node *nextNode = node->ln_Succ;
