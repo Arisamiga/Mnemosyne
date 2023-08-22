@@ -236,12 +236,13 @@ void scanPath(char *path, BOOL subFoldering, Object *listGadget)
         addToTotalSize(fib->fib_Size);
         goto exit;
     }
+
     // If folder scan recursivly and return size for each child
     if (fib->fib_DirEntryType > 0)
     {
-
         while (ExNext(lockPath, fib))
         {
+			// Check if The next entity is a folder
             if (fib->fib_DirEntryType > 0)
             {
                 // Scan SubFolders
@@ -283,6 +284,8 @@ void scanPath(char *path, BOOL subFoldering, Object *listGadget)
 				FreeVec(newPath);
                 continue;
             }
+
+			// The Bellow will run only if its a File.
             if (listGadget)
             {
                 int format = correctFormat(fib->fib_Size);
