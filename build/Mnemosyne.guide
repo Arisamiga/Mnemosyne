@@ -25,6 +25,7 @@ Mnemosyne is an open source disk utility application for AmigaOS 3.2, which can 
  @{" Requirements " Link "Requirements"}
  @{" Installation " Link "Installation"}
  @{" Usage " Link "Usage"}
+ @{" Notes " Link "Notes"}
 
 
 @EndNode
@@ -122,5 +123,22 @@ There are 2 ways to use Mnemosyne:
 
 
 
+
+@EndNode
+
+
+@Node "Notes" "Notes"
+@Prev "Usage"
+@Toc "Main"
+
+@{jleft}@{lindent 3}
+@{b}Notes@{ub}
+***************
+
+- Any Presentage results under or at < 0.01% 
+will not be sorted based on size.
+
+- The more entities on directory the more memory is gonna be used 
+its not based on size of file/drawer.
 
 @EndNode
