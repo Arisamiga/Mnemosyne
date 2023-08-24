@@ -139,7 +139,7 @@ BOOL fileEntered = FALSE;
 // Main Window Functions
 // -------------
 
-void cleanexit(Object *windowObject);
+void cleanexit(Object *windowObject, struct MsgPort *appPort);
 void processEvents(Object *windowObject,
 				   struct Window *intuiwin,
 				   Object *listBrowser,
@@ -328,13 +328,13 @@ void createWindow(void)
 							 WINDOW_Layout, mainLayout,
 							 TAG_DONE);
 	if (!windowObject)
-		cleanexit(NULL);
+		cleanexit(NULL, NULL);
 	if (!(intuiwin = (struct Window *)DoMethod(windowObject, WM_OPEN, NULL)))
-		cleanexit(windowObject);
+		cleanexit(windowObject, appPort);
 	processEvents(windowObject, intuiwin, listBrowser, backButton, doneFirst, CompareHook, bottomText, fileRequester, scanButton);
 	DoMethod(windowObject, WM_CLOSE);
 	clearList(contents);
-	cleanexit(windowObject);
+	cleanexit(windowObject, appPort);
 }
 void processEvents(Object *windowObject,
 				   struct Window *intuiwin,
@@ -697,9 +697,12 @@ void processEvents(Object *windowObject,
 		}
 	}
 }
-void cleanexit(Object *windowObject)
+void cleanexit(Object *windowObject, struct MsgPort *appPort)
 {
 	if (windowObject)
 		DisposeObject(windowObject);
+
+	if (appPort)
+		DeleteMsgPort(appPort);
 	clearScanning();
 }
