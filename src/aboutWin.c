@@ -23,7 +23,8 @@ void aboutWin(void)
 
     STRPTR aboutText = "\n" \
     "Copyright (c) 2023 Aris (Arisamiga) Sokianos\n\n"
-    "Mnemosyne is an open source disk utility application for AmigaOS 3.2, which can be used to manage your files and your disk space.\n\n" \
+    "Mnemosyne is an open source disk utility application for AmigaOS 3.2,\n" \
+    "which can be used to see how much disk space your files and folders are taking up.\n\n" \
     "\"Mnemosyne\", in Greek mythology is the goddess of memory.\n\n" \
     "Thank you so much for using Mnemosyne :D\n\n" \
     "Report bugs or request features at:\n(Public Repo Link Here)\n\n" \
