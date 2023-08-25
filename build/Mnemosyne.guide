@@ -8,8 +8,6 @@
 @wordwrap
 
 @{jcenter}
-
-
   __  __                                                 
  |  \\/  |_ __   ___ _ __ ___   ___  ___ _   _ _ __   ___ 
  | |\\/| | __ \\ / _ \\ __ _ _ \\ / _ \\/ __| | | | __ \\ / _ \\
@@ -17,14 +15,17 @@
  |_|  |_|_| |_|\\___|_| |_| |_|\\___/|___/\\___ |_| |_|\\___|
                                         |___/            
 
-Mnemosyne is an open source disk utility application for AmigaOS 3.2, which can be used to manage your files and your disk space.
+Mnemosyne is an open source disk utility application for AmigaOS 3.2, 
+which can be used to to see how much disk space your files and folders are taking up.
+
 
 @{jleft}
 
  @{" About " Link "About"} 
  @{" Requirements " Link "Requirements"}
  @{" Installation " Link "Installation"}
- @{" Usage " Link "Usage"}
+ @{" Usage (With Images) " Link "Usage"}
+ @{" Usage (No Images) " Link "UsageNI"}
  @{" Notes " Link "Notes"}
 
 
@@ -41,16 +42,27 @@ Mnemosyne is an open source disk utility application for AmigaOS 3.2, which can 
 =====
 
 Mnemosyne is an open source disk utility application for AmigaOS 3.2,
-which can be used to manage your files and your disk space.
+which can be used to see how much disk space 
+your files and folders are taking up.
 
-It is coded in C and uses the NDK 3.2. and ReAction.
+It will help with trying to locate what files and folders
+are taking the most space out of your disk so you can
+better manage the space on your disk.
+
+Mnemosyne is coded in C and uses the NDK 3.2 and ReAction (For the GUI).
+
+This is actually my first application 
+for the Amiga and I hope you like it :D
      
 "Mnemosyne", in Greek mythology is the goddess of memory.
-     
-Mnemosyne is a free software, released under the GNU General Public
-License (GPL). You can find the source code of Mnemosyne on GitHub:
 
-Thank you so much for using Mnemosyne!
+You can find the source code of Mnemosyne on GitHub:
+
+You are welcome to contribute and make Mnemosyne even better!!
+
+Thank you so much for using Mnemosyne <3
+
+- Aris (Arisamiga) Sokianos
 
 @EndNode
 
@@ -68,6 +80,10 @@ Mnemosyne requires AmigaOS 3.2 with atleast 1MB of RAM.
 
 (Note not all processors have been tested, but it should work on all)
 
+Mnemosyne's GUI requires atleast AmigaOS 3.2.1 to Correctly work. 
+
+Mnemosyne's CLI will work normally on AmigaOS 3.2.
+
 
 @EndNode
 
@@ -81,9 +97,21 @@ Mnemosyne requires AmigaOS 3.2 with atleast 1MB of RAM.
 @{b}Installation@{ub}
 ===============
 
-To install Mnemosyne, just copy the Mnemosyne drawer to your hard disk.
+Download the .lha file from the releases page on Github
+and extract it to your drive.
 
-Make sure you have ReAction installed on your system.
+After Instalation you can extract the lha by the following command
+
+`lha x Mnemosyne.lha`
+
+Then you should have the following files:
+
++ Mnemosyne (The Actual Program)
++ Mnemosyne.info (The Logo and Programs's information)
++ Mnemosyne.guide (This guide :D)
++ Guide_Images/ (The Images used in this guide)
+
+Go to "Usage" Section for how to use the Program.
 
 @EndNode
 
@@ -92,7 +120,7 @@ Make sure you have ReAction installed on your system.
 @Toc "Main"
 
 @{jleft}@{lindent 3}
-@{b}Usage@{ub}
+@{b}Usage With Images@{ub}
 ***************
 
 There are 2 ways to use Mnemosyne:
@@ -112,23 +140,168 @@ There are 2 ways to use Mnemosyne:
   -----------------------------------------
 
   To use Mnemosyne from the GUI, just double click on the Mnemosyne icon
-  and using the GUI, click on the button to select the directory you want
-  after that click on the "Scan" button to start scanning the directory.
+  and a Window should open, click on the file button to select the directory 
+  you want to scan.
+
+    @{lindent 5}@{IMG "GUIDEDIR:Guide_Images/pressdrawer.png"}@{lindent 0}
+
+  After you have selected the directory you want to scan,
+  Mnemosyne will say that it is "Ready to Scan!"
+  To start the scanning process, click on the "Scan" button.
+  (Note: The Scan button will not be clickable if you have not selected a directory)
+
+  @{lindent 5}@{IMG "GUIDEDIR:Guide_Images/mnemosyne_ready.png"}@{lindent 0}
+
+  After you click the Scan button Mnemosyne will start and indicate 
+  that it is scanning the directory
+
+  @{lindent 5}@{IMG "GUIDEDIR:Guide_Images/mnemosyne_scanning.png"}@{lindent 0}
 
   When the scanning is finished, it will show you the results.
+  (Note: The Presentage and Name can be sorted by clicking on them)
 
-  @{b}For more information about the GUI, 
-  please check the Github Wiki page where it will 
-  include images and more information about the GUI. @{ub}
+  @{lindent 5}@{IMG "GUIDEDIR:Guide_Images/mnemosyne_result.png"}@{lindent 0}
+
+  You can use the scroll bar or your mouse wheel 
+  to scroll through the results.
+
+  You can also click on a folder on your results and 
+  it will start a new scan on that folder.
+
+  @{lindent 5}@{IMG "GUIDEDIR:Guide_Images/mnemosyne_folder_ready.png"}@{lindent 0}
+
+  It will also enable the "Back" button.
+
+  @{lindent 5}@{IMG "GUIDEDIR:Guide_Images/mnemosyne_back.png"}@{lindent 0}
+
+  By clicking on the "Back" button you will go back to the previous folder.
+
+  (Note: The "Back" button will stay disabled when you are on the root directory)
+
+  @{lindent 5}@{IMG "GUIDEDIR:Guide_Images/mnemosyne_result.png"}@{lindent 0}
 
 
+  Using The Menu Bar with the GUI
+  -------------------------------
+  As with most application in the Amiga, 
+  Mnemosyne has a Menu Bar with some options 
+  and functions which can be very useful.
+
+  You can use the Menu Bar by having Mnemosyne open and 
+  holding the Right Mouse Button
+  while hovering over the workbench tab.
+
+  @{lindent 2}@{IMG "GUIDEDIR:Guide_Images/mnemosyne_menu.png"}@{lindent 0}
+
+  The Menu Bar has the following options:
+
+  + Open: Opens window for you to select a directory to scan.
+
+  + Open Current Dir...: Opens the current directory you are in on a window. 
+  (Note: This will stay disabled when you have not scanned a directory)
+
+  + About: Opens a window with information about Mnemosyne.
+
+  + Quit: Quits Mnemosyne.
+
+
+@EndNode
+
+@Node "UsageNI" "Usage"
+@Prev "Usage"
+@Toc "Main"
+
+@{jleft}@{lindent 3}
+@{b}Usage With No Images@{ub}
+***************
+
+There are 2 ways to use Mnemosyne:
+
+  Using the CLI (Command Line Interface)
+  --------------------------------------
+
+   To use Mnemosyne from the CLI, just type on your shell:
+
+     @{b}Mnemosyne <path>@{ub}
+
+   Where <path> is the path to the directory you want to scan.
+
+
+
+  Using the GUI (Graphical User Interface)
+  -----------------------------------------
+
+  To use Mnemosyne from the GUI, just double click on the Mnemosyne icon
+  and a Window should open, click on the file button to select the directory 
+  you want to scan.
+
+    Please Refer to: pressdrawer.png In the Guide_Images/ Directory.
+
+  After you have selected the directory you want to scan,
+  Mnemosyne will say that it is "Ready to Scan!"
+  To start the scanning process, click on the "Scan" button.
+  (Note: The Scan button will not be clickable if you have not selected a directory)
+
+    Please Refer to: mnemosyne_ready.png In the Guide_Images/ Directory.
+
+  After you click the Scan button Mnemosyne will start and indicate 
+  that it is scanning the directory
+
+  Please Refer to: mnemosyne_scanning.png In the Guide_Images/ Directory.
+
+  When the scanning is finished, it will show you the results.
+  (Note: The Presentage and Name can be sorted by clicking on them)
+
+  Please Refer to: mnemosyne_result.png In the Guide_Images/ Directory.
+
+  You can use the scroll bar or your mouse wheel 
+  to scroll through the results.
+
+  You can also click on a folder on your results and 
+  it will start a new scan on that folder.
+
+  Please Refer to: mnemosyne_folder_ready.png In the Guide_Images/ Directory.
+
+  It will also enable the "Back" button.
+
+  Please Refer to: mnemosyne_back.png In the Guide_Images/ Directory.
+
+  By clicking on the "Back" button you will go back to the previous folder.
+
+  (Note: The "Back" button will stay disabled when you are on the root directory)
+
+  Please Refer to: mnemosyne_result.png In the Guide_Images/ Directory.
+
+
+  Using The Menu Bar with the GUI
+  -------------------------------
+  As with most application in the Amiga, 
+  Mnemosyne has a Menu Bar with some options 
+  and functions which can be very useful.
+
+  You can use the Menu Bar by having Mnemosyne open and 
+  holding the Right Mouse Button
+  while hovering over the workbench tab.
+
+    Please Refer to: mnemosyne_menu.png In the Guide_Images/ Directory.
+
+  The Menu Bar has the following options:
+
+  + Open: Opens window for you to select a directory to scan.
+
+  + Open Current Dir...: Opens the current directory you are in on a window. 
+  (Note: This will stay disabled when you have not scanned a directory)
+
+  + About: Opens a window with information about Mnemosyne.
+
+  + Quit: Quits Mnemosyne.
 
 
 @EndNode
 
 
 @Node "Notes" "Notes"
-@Prev "Usage"
+@Prev "UsageNI"
 @Toc "Main"
 
 @{jleft}@{lindent 3}
