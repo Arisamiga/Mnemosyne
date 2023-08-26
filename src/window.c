@@ -316,7 +316,7 @@ void createWindow(void)
 							 WINDOW_Icon, GetDiskObject("PROGDIR:Mnemosyne"),
 							 WINDOW_AppPort, appPort,
 							 WA_Activate, TRUE,
-							 WA_Title, "Mnemosyne 0.9",
+							 WA_Title, "Mnemosyne 1.0",
 							 WA_DragBar, TRUE,
 							 WA_CloseGadget, TRUE,
 							 WA_DepthGadget, TRUE,

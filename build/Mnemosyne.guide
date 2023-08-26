@@ -1,7 +1,7 @@
 @database Mnemosyne.guide
 
 @author "Aris (Arisamiga) Sokianos"
-@$VER: 0.9
+@$VER: 1.0.0
 
 @Node "Main" "Mnemosyne"
 
@@ -140,22 +140,26 @@ There are 2 ways to use Mnemosyne:
   -----------------------------------------
 
   To use Mnemosyne from the GUI, just double click on the Mnemosyne icon
-  and a Window should open, click on the file button to select the directory 
+  and a Window should open, 
+
+	@{lindent 5}@{IMG "GUIDEDIR:Guide_Images/mnemosyne.iff"}@{lindent 0}
+
+	click on the file button to select the directory 
   you want to scan.
 
-    @{lindent 5}@{IMG "GUIDEDIR:Guide_Images/pressdrawer.png"}@{lindent 0}
+    @{lindent 5}@{IMG "GUIDEDIR:Guide_Images/pressdrawer.iff"}@{lindent 0}
 
   After you have selected the directory you want to scan,
   Mnemosyne will say that it is "Ready to Scan!"
   To start the scanning process, click on the "Scan" button.
   (Note: The Scan button will not be clickable if you have not selected a directory)
 
-  @{lindent 5}@{IMG "GUIDEDIR:Guide_Images/mnemosyne_ready.png"}@{lindent 0}
+  @{lindent 5}@{IMG "GUIDEDIR:Guide_Images/mnemosyne_ready.iff"}@{lindent 0}
 
   After you click the Scan button Mnemosyne will start and indicate 
   that it is scanning the directory
 
-  @{lindent 5}@{IMG "GUIDEDIR:Guide_Images/mnemosyne_scanning.png"}@{lindent 0}
+  @{lindent 5}@{IMG "GUIDEDIR:Guide_Images/mnemosyne_scanning.iff"}@{lindent 0}
 
   When the scanning is finished, it will show you the results.
 
@@ -167,7 +171,7 @@ There are 2 ways to use Mnemosyne:
 
   (Note: The Percentage and Name can be sorted by clicking on them)
 
-  @{lindent 5}@{IMG "GUIDEDIR:Guide_Images/mnemosyne_result.png"}@{lindent 0}
+  @{lindent 5}@{IMG "GUIDEDIR:Guide_Images/mnemosyne_result.iff"}@{lindent 0}
 
   You can use the scroll bar or your mouse wheel 
   to scroll through the results.
@@ -175,17 +179,17 @@ There are 2 ways to use Mnemosyne:
   You can also click on a folder on your results and 
   it will start a new scan on that folder.
 
-  @{lindent 5}@{IMG "GUIDEDIR:Guide_Images/mnemosyne_folder_ready.png"}@{lindent 0}
+  @{lindent 5}@{IMG "GUIDEDIR:Guide_Images/mnemosyne_folder_ready.iff"}@{lindent 0}
 
   It will also enable the "Back" button.
 
-  @{lindent 5}@{IMG "GUIDEDIR:Guide_Images/mnemosyne_back.png"}@{lindent 0}
+  @{lindent 5}@{IMG "GUIDEDIR:Guide_Images/mnemosyne_back.iff"}@{lindent 0}
 
   By clicking on the "Back" button you will go back to the previous folder.
 
   (Note: The "Back" button will stay disabled when you are on the root directory)
 
-  @{lindent 5}@{IMG "GUIDEDIR:Guide_Images/mnemosyne_result.png"}@{lindent 0}
+  @{lindent 5}@{IMG "GUIDEDIR:Guide_Images/mnemosyne_result.iff"}@{lindent 0}
 
 
   Using The Menu Bar with the GUI
@@ -198,7 +202,7 @@ There are 2 ways to use Mnemosyne:
   holding the Right Mouse Button
   while hovering over the workbench tab.
 
-  @{lindent 2}@{IMG "GUIDEDIR:Guide_Images/mnemosyne_menu.png"}@{lindent 0}
+  @{lindent 2}@{IMG "GUIDEDIR:Guide_Images/mnemosyne_menu.iff"}@{lindent 0}
 
   The Menu Bar has the following options:
 
@@ -242,19 +246,19 @@ There are 2 ways to use Mnemosyne:
   and a Window should open, click on the file button to select the directory 
   you want to scan.
 
-    Please Refer to: pressdrawer.png In the Guide_Images/ Directory.
+    Please Refer to: pressdrawer.iff In the Guide_Images/ Directory.
 
   After you have selected the directory you want to scan,
   Mnemosyne will say that it is "Ready to Scan!"
   To start the scanning process, click on the "Scan" button.
   (Note: The Scan button will not be clickable if you have not selected a directory)
 
-    Please Refer to: mnemosyne_ready.png In the Guide_Images/ Directory.
+    Please Refer to: mnemosyne_ready.iff In the Guide_Images/ Directory.
 
   After you click the Scan button Mnemosyne will start and indicate 
   that it is scanning the directory
 
-  Please Refer to: mnemosyne_scanning.png In the Guide_Images/ Directory.
+  Please Refer to: mnemosyne_scanning.iff In the Guide_Images/ Directory.
 
   When the scanning is finished, it will show you the results.
 
@@ -266,7 +270,7 @@ There are 2 ways to use Mnemosyne:
 
   (Note: The Percentage and Name can be sorted by clicking on them)
 
-  Please Refer to: mnemosyne_result.png In the Guide_Images/ Directory.
+  Please Refer to: mnemosyne_result.iff In the Guide_Images/ Directory.
 
   You can use the scroll bar or your mouse wheel 
   to scroll through the results.
@@ -274,17 +278,17 @@ There are 2 ways to use Mnemosyne:
   You can also click on a folder on your results and 
   it will start a new scan on that folder.
 
-  Please Refer to: mnemosyne_folder_ready.png In the Guide_Images/ Directory.
+  Please Refer to: mnemosyne_folder_ready.iff In the Guide_Images/ Directory.
 
   It will also enable the "Back" button.
 
-  Please Refer to: mnemosyne_back.png In the Guide_Images/ Directory.
+  Please Refer to: mnemosyne_back.iff In the Guide_Images/ Directory.
 
   By clicking on the "Back" button you will go back to the previous folder.
 
   (Note: The "Back" button will stay disabled when you are on the root directory)
 
-  Please Refer to: mnemosyne_result.png In the Guide_Images/ Directory.
+  Please Refer to: mnemosyne_result.iff In the Guide_Images/ Directory.
 
 
   Using The Menu Bar with the GUI
@@ -297,7 +301,7 @@ There are 2 ways to use Mnemosyne:
   holding the Right Mouse Button
   while hovering over the workbench tab.
 
-    Please Refer to: mnemosyne_menu.png In the Guide_Images/ Directory.
+    Please Refer to: mnemosyne_menu.iff In the Guide_Images/ Directory.
 
   The Menu Bar has the following options:
 
