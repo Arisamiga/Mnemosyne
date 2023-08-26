@@ -231,7 +231,7 @@ void createWindow(void)
 						   LBCIA_AutoSort, TRUE,
 						   LBCIA_Sortable, TRUE,
 						   LBCIA_Column,1,
-						   LBCIA_Title, "%",
+						   LBCIA_Title, "Approx %",
 						   LBCIA_Weight, 45,
 						   LBCIA_AutoSort, TRUE,
 						   LBCIA_Sortable, TRUE,

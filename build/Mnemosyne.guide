@@ -158,7 +158,14 @@ There are 2 ways to use Mnemosyne:
   @{lindent 5}@{IMG "GUIDEDIR:Guide_Images/mnemosyne_scanning.png"}@{lindent 0}
 
   When the scanning is finished, it will show you the results.
-  (Note: The Presentage and Name can be sorted by clicking on them)
+
+	It will show you information such as:
+		+ The Name of the file or folder.
+		+ The Percentage of the directory size that the 
+		file or folder is taking up.
+		+ The Size of the file or folder.
+
+  (Note: The Percentage and Name can be sorted by clicking on them)
 
   @{lindent 5}@{IMG "GUIDEDIR:Guide_Images/mnemosyne_result.png"}@{lindent 0}
 
@@ -250,7 +257,14 @@ There are 2 ways to use Mnemosyne:
   Please Refer to: mnemosyne_scanning.png In the Guide_Images/ Directory.
 
   When the scanning is finished, it will show you the results.
-  (Note: The Presentage and Name can be sorted by clicking on them)
+
+	It will show you information such as:
+		+ The Name of the file or folder.
+		+ The Percentage of the directory size that 
+		the file or folder is taking up.
+		+ The Size of the file or folder.
+
+  (Note: The Percentage and Name can be sorted by clicking on them)
 
   Please Refer to: mnemosyne_result.png In the Guide_Images/ Directory.
 
@@ -308,10 +322,18 @@ There are 2 ways to use Mnemosyne:
 @{b}Notes@{ub}
 ***************
 
-- Any Presentage results under or at < 0.01% 
+- Any Percentage results under or at < 0.01% 
 will not be sorted based on size.
 
-- The more entities on directory the more memory is gonna be used 
-its not based on size of file/drawer.
+- The more folders and files you have in the directory
+you are scanning the more memory Mnemosyne will use
+Mnemosyne doesnt store any info for the files and
+folders that are inside the directory's of the 
+directory you have scanned.
+
+- The presentages will not be added up to 100%
+as some files and folders have a very small contribution
+to the total size of the directory and having them 
+rounded up will cause the total to be more than 100%.
 
 @EndNode
