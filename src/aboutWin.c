@@ -27,7 +27,7 @@ void aboutWin(void)
     "which can be used to see how much disk space your files and folders are taking up.\n\n" \
     "\"Mnemosyne\", in Greek mythology is the goddess of memory.\n\n" \
     "Thank you so much for using Mnemosyne :D\n\n" \
-    "Report bugs or request features at:\n(Public Repo Link Here)\n\n" \
+    "Report bugs or request features at:\nhttps://github.com/Arisamiga/Mnemosyne\n\n" \
     "Distributed without warranty under the terms of the GNU General Public License.";
 
     AmainLayout = NewObject(LAYOUT_GetClass(), NULL,
