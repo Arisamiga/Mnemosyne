@@ -1,8 +1,8 @@
 @database Mnemosyne.guide
 
 @author "Aris (Arisamiga) Sokianos"
-@$VER: 1.0.0
-
+@$VER: Mnemosyne.Guide 1.0.0
+@(c) 2023 Aris (Arisamiga) Sokianos
 @Node "Main" "Mnemosyne"
 
 @wordwrap
@@ -15,19 +15,21 @@
  |_|  |_|_| |_|\\___|_| |_| |_|\\___/|___/\\___ |_| |_|\\___|
                                         |___/            
 
+@{jright}Version 1.0.0
+
+@{jcenter}
+
 Mnemosyne is an open source disk utility application for AmigaOS 3.2, 
 which can be used to to see how much disk space your files and folders are taking up.
 
 
 @{jleft}
 
- @{" About " Link "About"} 
+ @{" About " Link "About"}
  @{" Requirements " Link "Requirements"}
  @{" Installation " Link "Installation"}
- @{" Usage (With Images) " Link "Usage"}
- @{" Usage (No Images) " Link "UsageNI"}
+ @{" Usage " Link "Usage"}
  @{" Notes " Link "Notes"}
-
 
 @EndNode
 
@@ -120,7 +122,7 @@ Go to "Usage" Section for how to use the Program.
 @Toc "Main"
 
 @{jleft}@{lindent 3}
-@{b}Usage With Images@{ub}
+@{b}Usage@{ub}
 ***************
 
 There are 2 ways to use Mnemosyne:
@@ -144,7 +146,7 @@ There are 2 ways to use Mnemosyne:
 
 	@{lindent 5}@{IMG "GUIDEDIR:Guide_Images/mnemosyne.iff"}@{lindent 0}
 
-	click on the file button to select the directory 
+  click on the file button to select the directory 
   you want to scan.
 
     @{lindent 5}@{IMG "GUIDEDIR:Guide_Images/pressdrawer.iff"}@{lindent 0}
@@ -163,11 +165,13 @@ There are 2 ways to use Mnemosyne:
 
   When the scanning is finished, it will show you the results.
 
-	It will show you information such as:
-		+ The Name of the file or folder.
-		+ The Percentage of the directory size that the 
-		file or folder is taking up.
-		+ The Size of the file or folder.
+  It will show you information such as:
+	+ The Name of the file or folder. @{b}(Shown under the "Name" Column)@{ub}
+
+	+ The Percentage of the directory size that the 
+	file or folder is taking up. @{b}(Shown under the "Approx %" Column)@{ub}
+
+	+ The Size of the file or folder. @{b}(Shown under the "Size" Column)@{ub}
 
   (Note: The Percentage and Name can be sorted by clicking on them)
 
@@ -218,108 +222,9 @@ There are 2 ways to use Mnemosyne:
 
 @EndNode
 
-@Node "UsageNI" "Usage"
-@Prev "Usage"
-@Toc "Main"
-
-@{jleft}@{lindent 3}
-@{b}Usage With No Images@{ub}
-***************
-
-There are 2 ways to use Mnemosyne:
-
-  Using the CLI (Command Line Interface)
-  --------------------------------------
-
-   To use Mnemosyne from the CLI, just type on your shell:
-
-     @{b}Mnemosyne <path>@{ub}
-
-   Where <path> is the path to the directory you want to scan.
-
-
-
-  Using the GUI (Graphical User Interface)
-  -----------------------------------------
-
-  To use Mnemosyne from the GUI, just double click on the Mnemosyne icon
-  and a Window should open, click on the file button to select the directory 
-  you want to scan.
-
-    Please Refer to: pressdrawer.iff In the Guide_Images/ Directory.
-
-  After you have selected the directory you want to scan,
-  Mnemosyne will say that it is "Ready to Scan!"
-  To start the scanning process, click on the "Scan" button.
-  (Note: The Scan button will not be clickable if you have not selected a directory)
-
-    Please Refer to: mnemosyne_ready.iff In the Guide_Images/ Directory.
-
-  After you click the Scan button Mnemosyne will start and indicate 
-  that it is scanning the directory
-
-  Please Refer to: mnemosyne_scanning.iff In the Guide_Images/ Directory.
-
-  When the scanning is finished, it will show you the results.
-
-	It will show you information such as:
-		+ The Name of the file or folder.
-		+ The Percentage of the directory size that 
-		the file or folder is taking up.
-		+ The Size of the file or folder.
-
-  (Note: The Percentage and Name can be sorted by clicking on them)
-
-  Please Refer to: mnemosyne_result.iff In the Guide_Images/ Directory.
-
-  You can use the scroll bar or your mouse wheel 
-  to scroll through the results.
-
-  You can also click on a folder on your results and 
-  it will start a new scan on that folder.
-
-  Please Refer to: mnemosyne_folder_ready.iff In the Guide_Images/ Directory.
-
-  It will also enable the "Back" button.
-
-  Please Refer to: mnemosyne_back.iff In the Guide_Images/ Directory.
-
-  By clicking on the "Back" button you will go back to the previous folder.
-
-  (Note: The "Back" button will stay disabled when you are on the root directory)
-
-  Please Refer to: mnemosyne_result.iff In the Guide_Images/ Directory.
-
-
-  Using The Menu Bar with the GUI
-  -------------------------------
-  As with most application in the Amiga, 
-  Mnemosyne has a Menu Bar with some options 
-  and functions which can be very useful.
-
-  You can use the Menu Bar by having Mnemosyne open and 
-  holding the Right Mouse Button
-  while hovering over the workbench tab.
-
-    Please Refer to: mnemosyne_menu.iff In the Guide_Images/ Directory.
-
-  The Menu Bar has the following options:
-
-  + Open: Opens window for you to select a directory to scan.
-
-  + Open Current Dir...: Opens the current directory you are in on a window. 
-  (Note: This will stay disabled when you have not scanned a directory)
-
-  + About: Opens a window with information about Mnemosyne.
-
-  + Quit: Quits Mnemosyne.
-
-
-@EndNode
-
 
 @Node "Notes" "Notes"
-@Prev "UsageNI"
+@Prev "Usage"
 @Toc "Main"
 
 @{jleft}@{lindent 3}
