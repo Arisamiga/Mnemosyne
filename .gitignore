@@ -3,3 +3,4 @@
 *.uaem
 Mnemosyne
 Mnemosyne.info
+/build/Guide_Images/*.info
