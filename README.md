@@ -2,7 +2,7 @@
 
 # ![Mnemosyne Logo](/images/Mnemosyne_logo.PNG) Mnemosyne
 
-Mnemosyne is an open source disk utility application for AmigaOS 3.x, which can be used to show you what files and folders are taking up space on your disk.
+Mnemosyne is an open source disk utility application for AmigaOS 3.2, which can be used to show you what files and folders are taking up space on your disk.
 
 It is written in C and utilizes NDK 3.2 and ReAction.
 
