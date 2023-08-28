@@ -1,0 +1,17 @@
+name: Make: Build Check
+
+on: [push]
+
+jobs:
+  main:
+    runs-on: ubuntu-18.04 # linux required if you want to use docker
+    container:
+      image: walkero/docker4amigavbcc:latest-m68k
+      volumes:
+        - './code:/opt/code'
+    steps:
+      - name: Running Composer Install
+        run: composer install
+      - name: Running Make
+        run: make
+    
