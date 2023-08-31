@@ -1,4 +1,4 @@
-name: Build Release
+name: 🧱 Build Release
 on:
   release:
     types: [published]
@@ -7,17 +7,27 @@ on:
 jobs:
   release:
     name: Upload Release Asset
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest # linux required if you want to use docker
+    container:
+      image: walkero/docker4amigavbcc:latest-m68k
+      volumes:
+        - '${{ github.workspace }}:/opt/code'
     steps:
-      - name: Check Out Repo
+      - name: 🚚 Get latest code
         uses: actions/checkout@v2
-      - name: Upload Release Asset
+      - name: 🏃 Running Make
+        run: make
+      - name: ➡️ Move to release folder
+        run: cp Mnemosyne /opt/code/build/
+      - name: 📦 Create LHA archive
+        run: lha a /opt/code/build/Mnemosyne.lha /opt/code/build/Mnemosyne
+      - name: 🚀Upload Release Asset
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./LICENSE
-          asset_name: LICENSE
-          asset_content_type: text/plain
+          asset_path: ./build/Mnemosyne.lha
+          asset_name: Mnemosyne.lha
+          asset_content_type: application/x-lzh-compressed
 
