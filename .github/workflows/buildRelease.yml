@@ -20,7 +20,7 @@ jobs:
       - name: ➡️ Move to release folder
         run: cp Mnemosyne /opt/code/build/
       - name: 📦 Create LHA archive
-        run: lha a /opt/code/build/Mnemosyne.lha /opt/code/build/Mnemosyne
+        run: lha a Mnemosyne/Mnemosyne.lha /opt/code/build/Mnemosyne
       - name: 🚀Upload Release Asset
         uses: actions/upload-release-asset@v1
         env:
