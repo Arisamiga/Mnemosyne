@@ -4,13 +4,17 @@ on:
 
 # Add the LICENSE file to the release files
 jobs:
-  run:
+  release:
+    name: Upload Release Asset
     runs-on: ubuntu-latest
     steps:
-    - name: Check Out Repo
-      uses: actions/checkout@v2
-    - name: Add LICENSE
-      uses: actions/upload-artifact@v2
-      with:
-        name: LICENSE
-        path: LICENSE
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./LICENSE
+          asset_name: LICENSE
+          asset_content_type: text/plain
+
