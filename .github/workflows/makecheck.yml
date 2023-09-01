@@ -12,7 +12,7 @@ jobs:
     name: 📝 Make Build Check
     runs-on: ubuntu-latest # linux required if you want to use docker
     # Check if latest commit changed a .c file
-    if: 'contains(github.event.head_commit.modified, ".c") || contains(github.event.head_commit.modified, ".h")'
+    if: contains(github.event.head_commit.modified, '.c') || contains(github.event.head_commit.modified, '.h')
     container:
       image: walkero/docker4amigavbcc:latest-m68k
       volumes:
