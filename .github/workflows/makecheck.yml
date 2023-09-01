@@ -18,7 +18,7 @@ jobs:
       - name: 📝 Check files
         id: check_files
         run: |
-          git diff --name-only HEAD~1 -- '*.c'
+          git diff HEAD^ -- **/c
           echo ::set-output name=files_changed::$(echo $?)
 
   run:
