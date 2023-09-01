@@ -27,7 +27,7 @@ jobs:
         $diff = git diff --name-only HEAD^ HEAD
   
         # Check if a .c file  has changed (added, modified, deleted)
-        $SourceDiff = $diff | Where-Object { $_ -match '.c$' or  $_ -match '.h$' }
+        $SourceDiff = $diff | Where-Object { $_ -match '.c$' -or  $_ -match '.h$' }
         $HasDiff = $SourceDiff.Length -gt 0
   
         # Set the output named "c_changed"
