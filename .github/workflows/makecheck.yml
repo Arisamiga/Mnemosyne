@@ -13,13 +13,12 @@ jobs:
     runs-on: ubuntu-latest # linux required if you want to use docker
     # Check if latest commit changed a .c file
     if: 'contains(github.event.head_commit.modified, ".c") || contains(github.event.head_commit.modified, ".h")'
-      container:
-        image: walkero/docker4amigavbcc:latest-m68k
-        volumes:
-          - '${{ github.workspace }}:/opt/code'
-      steps:
-        - name: 🚚 Get latest code
-          uses: actions/checkout@v2
-        # Run make only if a .c file changed
-        - name: 🏃 Running Make
-          run: make
+    container:
+      image: walkero/docker4amigavbcc:latest-m68k
+      volumes:
+        - '${{ github.workspace }}:/opt/code'
+    steps:
+      - name: 🚚 Get latest code
+        uses: actions/checkout@v2
+      - name: 🏃 Running Make
+        run: make
