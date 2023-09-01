@@ -17,7 +17,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2
       # Check if latest commit changed a .c file
-    - id: check_file_changed
+    - shell: pwsh
+      id: check_file_changed
       run: |
         # Diff HEAD with the previous commit
         $diff = git diff --name-only HEAD^ HEAD
