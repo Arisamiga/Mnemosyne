@@ -23,7 +23,7 @@ jobs:
     needs: check
     name: 📝 Make Build Check
     runs-on: ubuntu-latest # linux required if you want to use docker
-    if: steps.hasChanged.outputs.check == true
+    if: needs.check.outputs.outputs1 == true
     container:
       image: walkero/docker4amigavbcc:latest-m68k
       volumes:
