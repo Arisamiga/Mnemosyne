@@ -18,5 +18,16 @@ jobs:
     steps:
       - name: 🚚 Get latest code
         uses: actions/checkout@v2
+      # Check if latest commit changed a .c file
+      - name: 📝 Check if latest commit changed a .c file
+        id: check
+        run: |
+          if git diff-tree --no-commit-id --name-only -r ${{ github.sha }} | grep -qE '.c$'; then
+            echo "::set-output name=changed::true"
+          else
+            echo "::set-output name=changed::false"
+          fi
+      # Run make only if a .c file changed
       - name: 🏃 Running Make
+        if: steps.check.outputs.changed == 'true'
         run: make
