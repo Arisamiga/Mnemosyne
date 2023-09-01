@@ -16,6 +16,9 @@ jobs:
       c_changed: ${{ steps.check_file_changed.outputs.c_changed }}
     steps:
     - uses: actions/checkout@v2
+      with:
+        # Checkout as many commits as needed for the diff
+        fetch-depth: 2
       # Check if latest commit changed a .c file
     - shell: pwsh
       id: check_file_changed
