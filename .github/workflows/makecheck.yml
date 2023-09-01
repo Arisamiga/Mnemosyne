@@ -7,24 +7,34 @@ on:
     branches: [main]
   workflow_dispatch:
 
+  
 jobs:
-  run:
-    name: 📝 Make Build Check
-    runs-on: ubuntu-latest # linux required if you want to use docker
-    # Check if latest commit changed a .c file
-    id: check_file_changed
+  job_check_files:
+    runs-on: ubuntu-latest
+    # Declare outputs for next jobs
+    outputs:
+      c_changed: ${{ steps.check_file_changed.outputs.c_changed }}
+    steps:
+    - uses: actions/checkout@v2
+      # Check if latest commit changed a .c file
+    - id: check_file_changed
       run: |
         # Diff HEAD with the previous commit
         $diff = git diff --name-only HEAD^ HEAD
-
+  
         # Check if a .c file  has changed (added, modified, deleted)
         $SourceDiff = $diff | Where-Object { $_ -match '.c$' }
         $HasDiff = $SourceDiff.Length -gt 0
-
+  
         # Set the output named "c_changed"
         Write-Host "::set-output name=c_changed::$HasDiff"
+  
 
-    if: steps.check_file_changed.outputs.c_changed == 'True'
+  run:
+    name: 📝 Make Build Check
+    needs: job_check_files
+    runs-on: ubuntu-latest # linux required if you want to use docker
+    if: needs.job_check_files.outputs.c_changed == 'True'
     container:
       image: walkero/docker4amigavbcc:latest-m68k
       volumes:
