@@ -1,4 +1,4 @@
-`name: 📝 Make Build Check
+name: 📝 Make Build Check
 
 on:
   push:
