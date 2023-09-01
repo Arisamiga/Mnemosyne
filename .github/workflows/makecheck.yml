@@ -7,38 +7,24 @@ on:
     branches: [main]
   workflow_dispatch:
 
-  
 jobs:
-  job_check_files:
+
+  check_files:
+    name: 📝 Check files
     runs-on: ubuntu-latest
-    # Declare outputs for next jobs
-    outputs:
-      c_changed: ${{ steps.check_file_changed.outputs.c_changed }}
     steps:
-    - uses: actions/checkout@v2
-      with:
-        # Checkout as many commits as needed for the diff
-        fetch-depth: 2
-      # Check if latest commit changed a .c file
-    - shell: pwsh
-      id: check_file_changed
-      run: |
-        # Diff HEAD with the previous commit
-        $diff = git diff --name-only HEAD^ HEAD
-  
-        # Check if a .c file  has changed (added, modified, deleted)
-        $SourceDiff = $diff | Where-Object { $_ -match '.c$' }
-        $HasDiff = $SourceDiff.Length -gt 0
-  
-        # Set the output named "c_changed"
-        Write-Host "::set-output name=c_changed::$HasDiff"
-  
+      - name: 🚚 Get latest code
+        uses: actions/checkout@v2
+      - name: 📝 Check files
+        id: check_files
+        run: |
+          git diff --name-only HEAD~1 | grep -qE '.*\.c$'
+          echo ::set-output name=files_changed::$(echo $?)
 
   run:
     name: 📝 Make Build Check
-    needs: job_check_files
+    needs: check_files
     runs-on: ubuntu-latest # linux required if you want to use docker
-    if: needs.job_check_files.outputs.c_changed == 'True'
     container:
       image: walkero/docker4amigavbcc:latest-m68k
       volumes:
@@ -48,3 +34,4 @@ jobs:
         uses: actions/checkout@v2
       - name: 🏃 Running Make
         run: make
+
