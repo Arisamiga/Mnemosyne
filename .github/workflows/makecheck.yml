@@ -18,7 +18,7 @@ jobs:
       - name: 📝 Check files
         id: check_files
         run: |
-          git diff --name-only HEAD~1 | grep -qE '.*\.c$'
+          git diff --name-only HEAD~1 -- '*.c'
           echo ::set-output name=files_changed::$(echo $?)
 
   run:
@@ -34,4 +34,3 @@ jobs:
         uses: actions/checkout@v2
       - name: 🏃 Running Make
         run: make
-
