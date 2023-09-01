@@ -1,4 +1,4 @@
-name: 📝 Make Build Check
+`name: 📝 Make Build Check
 
 on:
   push:
@@ -14,7 +14,7 @@ jobs:
       output1: ${{ steps.hasChanged.outputs.check }}
     steps:
       - name: Check if latest commit changed a .c file
-      - id: hasChanged
+        id: hasChanged
         if: ${{contains(github.event.head_commit.modified, '.c') || contains(github.event.head_commit.modified, '.h')}}
         run: |
           echo 'C files has changed'
