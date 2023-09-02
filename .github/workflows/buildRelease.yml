@@ -27,7 +27,7 @@ jobs:
       - name: 📦 Create LHA archive
         run: |
           cd /opt/code/Release/
-          lha -aq2o6 Mnemosyne.lha Mnemosyne-${{ github.event.release.tag_name }}/ Mnemosyne-${{ github.event.release.tag_name }}.info
+          lha -aq2o6 Mnemosyne-${{ github.event.release.tag_name }}.lha Mnemosyne-${{ github.event.release.tag_name }}/ Mnemosyne-${{ github.event.release.tag_name }}.info
       - name: 🚀Upload Release Asset
         uses: actions/upload-release-asset@v1
         env:
