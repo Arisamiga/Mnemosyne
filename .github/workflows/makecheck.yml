@@ -3,16 +3,20 @@ name: 📝 Make Build Check
 on:
   push:
     branches: [main]
+    paths:
+      - 'Makefile'
+      - 'src/**'
   pull_request:
     branches: [main]
+    paths:
+      - 'Makefile'
+      - 'src/**'
   workflow_dispatch:
 
 jobs:
   run:
     name: 📝 Make Build Check
     runs-on: ubuntu-latest # linux required if you want to use docker
-    # Check if latest commit changed a .c file
-    if: ${{ github.event_name == 'push' && contains(github.event.commits[0].added, '.c') || contains(github.event.commits[0].modified, '.c') }}
     container:
       image: walkero/docker4amigavbcc:latest-m68k
       volumes:
