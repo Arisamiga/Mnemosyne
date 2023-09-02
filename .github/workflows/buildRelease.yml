@@ -18,7 +18,9 @@ jobs:
       - name: 🏃 Running Make
         run: make
       - name: ➡️ Move to build folder
-        run: cp Mnemosyne /opt/code/build/
+        run: |
+          cp Mnemosyne /opt/code/build/
+          cp LICENSE /opt/code/build/
       - name: 📁 Create Release folder
         run: |
           mkdir /opt/code/Release/
