@@ -33,7 +33,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./Release/Mnemosyne.lha
+          asset_path: /opt/code/Release/Mnemosyne.lha
           asset_name: Mnemosyne.lha
           asset_content_type: application/x-lzh-compressed
 
