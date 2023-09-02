@@ -21,9 +21,10 @@ jobs:
         run: cp Mnemosyne /opt/code/build/
       - name: 📁 Create Release folder
         run: |
-          cp -a /opt/code/build/. /opt/code/build/Mnemosyne-${{ github.event.release.tag_name }}
-          cp /opt/code/images/drawer_3.0.info /opt/code/build/Mnemosyne-${{ github.event.release.tag_name }}.info
-          cd /opt/code/build/
+          mkdir /opt/code/Release/
+          cp -a /opt/code/build/. /opt/code/Release/Mnemosyne-${{ github.event.release.tag_name }}
+          cp /opt/code/images/drawer_3.0.info /opt/code/Release/Mnemosyne-${{ github.event.release.tag_name }}.info
+          cd /opt/code/Release/
       - name: 📦 Create LHA archive
         run: lha -aq2o6 Mnemosyne.lha Mnemosyne-${{ github.event.release.tag_name }}/ Mnemosyne-${{ github.event.release.tag_name }}.info
       - name: 🚀Upload Release Asset
