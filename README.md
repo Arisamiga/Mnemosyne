@@ -21,6 +21,9 @@ It is written in C and utilizes NDK 3.2 and ReAction.
 ## Requirements
 
 * AmigaOS 3.2
+
+  > If you want to use the GUI you will need at least AmigaOS 3.2.1
+
 * ReAction
 
 ## Installation
@@ -36,3 +39,7 @@ Then you can run the program by double clicking on the icon.
 ## Usage
 
 To see how to use Mnemosyne, please read the [Wiki](https://github.com/Arisamiga/Mnemosyne/wiki).
+
+## Code and bug reporting
+
+You can open an issue at https://github.com/Arisamiga/Mnemosyne/issues
