@@ -1,5 +1,3 @@
-
-
 # ![Mnemosyne Logo](/images/Mnemosyne_logo.PNG) Mnemosyne
 
  <a href="https://github.com/Arisamiga/Mnemosyne//issues">
@@ -18,19 +16,19 @@ It is written in C and utilizes NDK 3.2 and ReAction.
 
 ## Features
 
-  * Disk usage statistics
-  * File/Folder search
-  * Easy to use
-  * Fast
-  * No limits on size of files/folders
+- Disk usage statistics
+- File/Folder search
+- Easy to use
+- Fast
+- No limits on size of files/folders
 
 ## Requirements
 
-  * AmigaOS 3.2
+- AmigaOS 3.2
 
-  > If you want to use the GUI you will need at least AmigaOS 3.2.1
+> If you want to use the GUI you will need at least AmigaOS 3.2.1
 
-  * ReAction
+- ReAction
 
 ## Installation
 
