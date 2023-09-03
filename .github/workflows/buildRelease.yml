@@ -39,4 +39,17 @@ jobs:
           asset_path: /opt/code/Release/Mnemosyne-${{ github.event.release.tag_name }}.lha
           asset_name: Mnemosyne-${{ github.event.release.tag_name }}.lha
           asset_content_type: application/x-lzh-compressed
-
+      - name: 🗃️ Prepare Aminet Package
+        run: |
+          mkdir /opt/code/Release/Aminet-Release/
+          cp /opt/code/Release/Mnemosyne-${{ github.event.release.tag_name }}.lha /opt/code/Release/Aminet-Release/Mnemosyne.lha
+          cp /opt/code/aminet.readme /opt/code/Release/Aminet-Release/Mnemosyne.readme
+      - name: 📨 Uploading to Aminet
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: main.aminet.net
+          port: 21
+          username: anonymous
+          password: ${{ secrets.ftp_password }}
+          server-dir: ./new/
+          local-dir: /opt/code/Release/Aminet-Release/
