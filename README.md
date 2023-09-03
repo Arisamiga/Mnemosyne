@@ -2,6 +2,12 @@
 
 # ![Mnemosyne Logo](/images/Mnemosyne_logo.PNG) Mnemosyne
 
+ <a href="https://github.com/Arisamiga/Mnemosyne//issues">
+   <img alt="Issues" src="https://img.shields.io/github/issues/Arisamiga/Mnemosyne?color=0088ff" />
+  </a>
+	
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/3b631c69049a4d60880cead7b419e0a0)](https://app.codacy.com/gh/Arisamiga/Mnemosyne/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
+
 Mnemosyne is an open source disk utility application for AmigaOS 3.2, which can be used to show you what files and folders are taking up space on your disk.
 
 It is written in C and utilizes NDK 3.2 and ReAction.
