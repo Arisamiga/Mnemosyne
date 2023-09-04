@@ -19,8 +19,8 @@
 
 @{jcenter}
 
-Mnemosyne is an open source disk utility application for AmigaOS 3.2, 
-which can be used to to see how much disk space your files and folders are taking up.
+Mnemosyne is an open-source disk utility application for AmigaOS 3.2, 
+which can be used to see how much disk space your files and folders are taking up.
 
 
 @{jleft}
@@ -43,9 +43,9 @@ which can be used to to see how much disk space your files and folders are takin
 @{b}About@{ub}
 =====
 
-Mnemosyne is an open source disk utility application for AmigaOS 3.2,
+Mnemosyne is an open-source disk utility application for AmigaOS 3.2,
 which can be used to see how much disk space 
-your files and folders are taking up.
+Your files and folders are taking up.
 
 It will help with trying to locate what files and folders
 are taking the most space out of your disk so you can
@@ -103,7 +103,8 @@ Mnemosyne's CLI will work normally on AmigaOS 3.2.
 Download the .lha file from the releases page on Github
 and extract it to your drive.
 
-After Installation you can extract the lha by the following command
+After Installation, you can extract the lha by using 
+the following command
 
 `lha x Mnemosyne.lha`
 
@@ -115,7 +116,7 @@ Then you should have the following files:
 + Guide_Images/ (The Images used in this guide)
 + LICENSE (Mnemosyne's License)
 
-Go to "Usage" Section for how to use the Program.
+Go to the "Usage" Section for how to use the Program.
 
 @EndNode
 
@@ -143,12 +144,12 @@ There are 2 ways to use Mnemosyne:
   Using the GUI (Graphical User Interface)
   -----------------------------------------
 
-  To use Mnemosyne from the GUI, just double click on the Mnemosyne icon
+  To use Mnemosyne from the GUI, just double-click on the Mnemosyne icon
   and a Window should open, 
 
 	@{lindent 5}@{IMG "GUIDEDIR:Guide_Images/mnemosyne.iff"}@{lindent 0}
 
-  click on the file button to select the directory 
+  Click on the file button to select the directory 
   you want to scan.
 
     @{lindent 5}@{IMG "GUIDEDIR:Guide_Images/pressdrawer.iff"}@{lindent 0}
@@ -183,7 +184,7 @@ There are 2 ways to use Mnemosyne:
   to scroll through the results.
 
   You can also click on a folder on your results and 
-  it will start a new scan on that folder.
+  It will start a new scan on that folder.
 
   @{lindent 5}@{IMG "GUIDEDIR:Guide_Images/mnemosyne_folder_ready.iff"}@{lindent 0}
 
@@ -193,16 +194,16 @@ There are 2 ways to use Mnemosyne:
 
   By clicking on the "Back" button you will go back to the previous folder.
 
-  (Note: The "Back" button will stay disabled when you are on the root directory)
+  (Note: The "Back" button will stay disabled when you are in the root directory)
 
   @{lindent 5}@{IMG "GUIDEDIR:Guide_Images/mnemosyne_result.iff"}@{lindent 0}
 
 
   Using The Menu Bar with the GUI
   -------------------------------
-  As with most application in the Amiga, 
+  As with most applications in the Amiga, 
   Mnemosyne has a Menu Bar with some options 
-  and functions which can be very useful.
+  and functions that can be very useful.
 
   You can use the Menu Bar by having Mnemosyne open and 
   holding the Right Mouse Button
@@ -237,12 +238,12 @@ There are 2 ways to use Mnemosyne:
 will not be sorted based on size.
 
 - The more folders and files you have in the directory
-you are scanning the more memory Mnemosyne will use
+you are scanning the more memory Mnemosyne will use.
 Mnemosyne doesn't store any info for the files and
-folders that are inside the directory's of the 
-directory you have scanned.
+folders that are inside the directory of 
+the directory you have scanned.
 
-- The presentages will not be added up to 100%
+- The percentages will not be added up to 100%
 as some files and folders have a very small contribution
 to the total size of the directory and having them 
 rounded up will cause the total to be more than 100%.
