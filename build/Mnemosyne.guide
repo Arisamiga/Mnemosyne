@@ -79,11 +79,11 @@ Thank you so much for using Mnemosyne <3
 @{b}Requirements@{ub}
 ==========
 
-Mnemosyne requires AmigaOS 3.2 with atleast 1MB of RAM.
+Mnemosyne requires AmigaOS 3.2 with at least 1MB of RAM.
 
 (Note not all processors have been tested, but it should work on all)
 
-Mnemosyne's GUI requires atleast AmigaOS 3.2.1 to Correctly work. 
+Mnemosyne's GUI requires at least AmigaOS 3.2.1 to Correctly work. 
 
 Mnemosyne's CLI will work normally on AmigaOS 3.2.
 
@@ -103,7 +103,7 @@ Mnemosyne's CLI will work normally on AmigaOS 3.2.
 Download the .lha file from the releases page on Github
 and extract it to your drive.
 
-After Instalation you can extract the lha by the following command
+After Installation you can extract the lha by the following command
 
 `lha x Mnemosyne.lha`
 
@@ -238,7 +238,7 @@ will not be sorted based on size.
 
 - The more folders and files you have in the directory
 you are scanning the more memory Mnemosyne will use
-Mnemosyne doesnt store any info for the files and
+Mnemosyne doesn't store any info for the files and
 folders that are inside the directory's of the 
 directory you have scanned.
 

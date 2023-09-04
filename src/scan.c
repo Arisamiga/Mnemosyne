@@ -237,7 +237,7 @@ void scanPath(char *path, BOOL subFoldering, Object *listGadget)
         goto exit;
     }
 
-    // If folder scan recursivly and return size for each child
+    // If folder scan recursively and return size for each child
     if (fib->fib_DirEntryType > 0)
     {
         while (ExNext(lockPath, fib))
@@ -270,7 +270,7 @@ void scanPath(char *path, BOOL subFoldering, Object *listGadget)
                     strcat(fib->fib_FileName, "/");
 
                     if (totalSize < oldTotalSize){
-                        // Devide oldTotalSize according to currentFormat
+                        // Divide oldTotalSize according to currentFormat
                         oldTotalSize = devideByFormat(oldTotalSize);
                     }
                     // printf("Total: %ld - %ld = %ld\n", totalSize, oldTotalSize, totalSize - oldTotalSize);
@@ -285,7 +285,7 @@ void scanPath(char *path, BOOL subFoldering, Object *listGadget)
                 continue;
             }
 
-			// The Bellow will run only if its a File.
+			// The Below will run only if it's a File.
             if (listGadget)
             {
                 int format = correctFormat(fib->fib_Size);
