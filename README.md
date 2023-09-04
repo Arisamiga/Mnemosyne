@@ -34,7 +34,7 @@ It is written in C and utilizes NDK 3.2 and ReAction.
 
 Download the .lha file from the [releases](https://github.com/Arisamiga/Mnemosyne/releases) page and extract it to your drive.
 
-After Instalation you can extract the lha by the following command
+After Installation you can extract the lha by the following command
 
 `lha x Mnemosyne.lha`
 
