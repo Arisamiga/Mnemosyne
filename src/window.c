@@ -70,7 +70,7 @@ static float __SAVE_DS__ __ASM__ myCompare(__REG__(a0, struct Hook *hook), __REG
 }
 
 void checkBackButton(char *pastPath, BOOL doneFirst, Object *backButton) {
-	if (pastPath[strlen(pastPath) - 1] != ':' && doneFirst)
+	if (pastPath[strlen(pastPath) - 1] != ':' && doneFirst && pastPath[0] != '\0')
 		SetAttrs(backButton, GA_Disabled, FALSE, TAG_DONE);
 	else
 		SetAttrs(backButton, GA_Disabled, TRUE, TAG_DONE);
@@ -178,7 +178,6 @@ void createWindow(void)
 
 	Object *listBrowser = NULL;
 	Object *backButton = NULL;
-	Object *spaceGadget = NULL;
 	Object *bottomText = NULL;
 	Object *fileRequester = NULL;
 	Object *scanButton = NULL;
@@ -215,9 +214,6 @@ void createWindow(void)
 						   GA_Text, "Back",
 						   GA_Disabled, TRUE, // Disabled so it doesn't go back to SYS:
 						   TAG_END);
-
-	spaceGadget = NewObject(SPACE_GetClass(), NULL,
-							GA_ReadOnly, TRUE);
 
 	/* initialize CompareHook for sorting the column */
 	CompareHook.h_Entry = (ULONG(*)())myCompare;
@@ -441,7 +437,7 @@ void processEvents(Object *windowObject,
 							}
 							case OID_MENU_OPEN_DIR:
 								// printf("Clicked Open");
-								if(pastPath && doneFirst)
+								if(pastPath != "" && doneFirst)
 									OpenWorkbenchObjectA(pastPath, TAG_DONE);
 								break;
 							case OID_MENU_ABOUT:
@@ -646,11 +642,11 @@ void processEvents(Object *windowObject,
 											break;
 										}
 
-										if (doneFirst && text)
+										if (doneFirst && text != NULL)
 										{
 											char *newPath = AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
 
-											if (pastPath[strlen(pastPath) - 1] != '/' && pastPath[strlen(pastPath) - 1] != ':'){
+											if (pastPath[strlen(pastPath) - 1] != '/' && pastPath[strlen(pastPath) - 1] != ':' && pastPath[strlen(pastPath) - 1] != '\0'){
 												strcat(pastPath, "/");
 											}
 
