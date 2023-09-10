@@ -1,156 +1,152 @@
 {
-    // See https://go.microsoft.com/fwlink/?LinkId=733558
-    // for the documentation about the tasks.json format
-    "version": "2.0.0",
-    "tasks": [
-        {
-            "label": "Build for 68000",
-            "type": "shell",
-            "linux":{
-                "command": "vc",
-                "args": [
-                        "+aos68k",
-                        "/opt/code/src/main.c",
-                        "/opt/code/src/scan.c",
-                        "/opt/code/src/funcs.c",
-                        "-o",
-                        "/opt/code/build/main",
-                ]
-            },
-            "problemMatcher": {
-                "owner": "cpp",
-                "fileLocation": ["relative", "${workspaceFolder}"],
-                "pattern": {
-                    "regexp": "^(warning|error) ([0-9]*) in line ([0-9]*) of \"(.*)\": (.*)$",
-                    "severity": 1,
-                    "line": 3,
-                    "file": 4,
-                    "message": 5
-                }
-            },
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            }
+  // See https://go.microsoft.com/fwlink/?LinkId=733558
+  // for the documentation about the tasks.json format
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build for 68000",
+      "type": "shell",
+      "linux": {
+        "command": "vc",
+        "args": [
+          "+aos68k",
+          "/opt/code/src/main.c",
+          "/opt/code/src/scan.c",
+          "/opt/code/src/funcs.c",
+          "-o",
+          "/opt/code/build/main"
+        ]
+      },
+      "problemMatcher": {
+        "owner": "cpp",
+        "fileLocation": ["relative", "${workspaceFolder}"],
+        "pattern": {
+          "regexp": "^(warning|error) ([0-9]*) in line ([0-9]*) of \"(.*)\": (.*)$",
+          "severity": 1,
+          "line": 3,
+          "file": 4,
+          "message": 5
+        }
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "Build for 68000 (NDK)",
+      "type": "shell",
+      "linux": {
+        "command": "vc",
+        "args": [
+          "+aos68k",
+          "-c99",
+          "-I$NDK_INC",
+          "-lamiga",
+          "-lauto",
+          "/opt/code/src/main.c",
+          "/opt/code/src/scan.c",
+          "/opt/code/src/funcs.c",
+          "/opt/code/src/window.c",
+          "-o",
+          "/opt/code/build/main"
+        ]
+      },
+      "problemMatcher": {
+        "owner": "cpp",
+        "fileLocation": ["relative", "${workspaceFolder}"],
+        "pattern": {
+          "regexp": "^(warning|error) ([0-9]*) in line ([0-9]*) of \"(.*)\": (.*)$",
+          "severity": 1,
+          "line": 3,
+          "file": 4,
+          "message": 5
+        }
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "Compile with Makefile",
+      "type": "shell",
+      "linux": {
+        "command": "make",
+        // Set the working directory
+        "options": {
+          "cwd": "/opt/code"
+        }
+      },
+      "problemMatcher": {
+        "owner": "cpp",
+        "fileLocation": ["relative", "${workspaceFolder}"],
+        "pattern": {
+          "regexp": "^(warning|error) ([0-9]*) in line ([0-9]*) of \"(.*)\": (.*)$",
+          "severity": 1,
+          "line": 3,
+          "file": 4,
+          "message": 5
+        }
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "Compile with Makefile DEBUG",
+      "type": "shell",
+      "linux": {
+        "command": "make",
+        // Set the working directory
+        "options": {
+          "cwd": "/opt/code"
         },
-        {
-            "label": "Build for 68000 (NDK)",
-            "type": "shell",
-            "linux":{
-                "command": "vc",
-                "args": [
-                        "+aos68k",
-                        "-c99",
-                        "-I$NDK_INC",
-                        "-lamiga",
-                        "-lauto",
-                        "/opt/code/src/main.c",
-                        "/opt/code/src/scan.c",
-                        "/opt/code/src/funcs.c",
-                        "/opt/code/src/window.c",
-                        "-o",
-                        "/opt/code/build/main",
-                ]
-            },
-            "problemMatcher": {
-                "owner": "cpp",
-                "fileLocation": ["relative", "${workspaceFolder}"],
-                "pattern": {
-                    "regexp": "^(warning|error) ([0-9]*) in line ([0-9]*) of \"(.*)\": (.*)$",
-                    "severity": 1,
-                    "line": 3,
-                    "file": 4,
-                    "message": 5
-                }
-            },
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            }
-        },
-        {
-            "label": "Compile with Makefile",
-            "type": "shell",
-            "linux":{
-                "command": "make",
-                // Set the working directory
-                "options": {
-                    "cwd": "/opt/code"
-                },
-            },
-            "problemMatcher": {
-                "owner": "cpp",
-                "fileLocation": ["relative", "${workspaceFolder}"],
-                "pattern": {
-                    "regexp": "^(warning|error) ([0-9]*) in line ([0-9]*) of \"(.*)\": (.*)$",
-                    "severity": 1,
-                    "line": 3,
-                    "file": 4,
-                    "message": 5
-                }
-            },
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            }
-        },
-        {
-            "label": "Compile with Makefile DEBUG",
-            "type": "shell",
-            "linux":{
-                "command": "make",
-                // Set the working directory
-                "options": {
-                    "cwd": "/opt/code",
-                },
-                "args": [
-                    "DEBUG=1"
-                ]
-            },
-            "problemMatcher": {
-                "owner": "cpp",
-                "fileLocation": ["relative", "${workspaceFolder}"],
-                "pattern": {
-                    "regexp": "^(warning|error) ([0-9]*) in line ([0-9]*) of \"(.*)\": (.*)$",
-                    "severity": 1,
-                    "line": 3,
-                    "file": 4,
-                    "message": 5
-                }
-            },
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            }
-        },
-        {
-            "label": "Clean (Makefile)",
-            "type": "shell",
-            "linux":{
-                "command": "make",
-                "args": [
-                        "clean"
-                ],
-                // Set the working directory
-                "options": {
-                    "cwd": "/opt/code"
-                },
-            },
-            "problemMatcher": {
-                "owner": "cpp",
-                "fileLocation": ["relative", "${workspaceFolder}"],
-                "pattern": {
-                    "regexp": "^(warning|error) ([0-9]*) in line ([0-9]*) of \"(.*)\": (.*)$",
-                    "severity": 1,
-                    "line": 3,
-                    "file": 4,
-                    "message": 5
-                }
-            },
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            }
-        },
-    ]
+        "args": ["DEBUG=1"]
+      },
+      "problemMatcher": {
+        "owner": "cpp",
+        "fileLocation": ["relative", "${workspaceFolder}"],
+        "pattern": {
+          "regexp": "^(warning|error) ([0-9]*) in line ([0-9]*) of \"(.*)\": (.*)$",
+          "severity": 1,
+          "line": 3,
+          "file": 4,
+          "message": 5
+        }
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "Clean (Makefile)",
+      "type": "shell",
+      "linux": {
+        "command": "make",
+        "args": ["clean"],
+        // Set the working directory
+        "options": {
+          "cwd": "/opt/code"
+        }
+      },
+      "problemMatcher": {
+        "owner": "cpp",
+        "fileLocation": ["relative", "${workspaceFolder}"],
+        "pattern": {
+          "regexp": "^(warning|error) ([0-9]*) in line ([0-9]*) of \"(.*)\": (.*)$",
+          "severity": 1,
+          "line": 3,
+          "file": 4,
+          "message": 5
+        }
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    }
+  ]
 }

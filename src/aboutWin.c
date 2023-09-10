@@ -17,7 +17,6 @@ void cleanAboutexit(Object *windowObject);
 void processAboutEvents(Object *windowObject);
 void aboutWin(void)
 {
-    struct Window *Aintuiwin = NULL;
     Object *AwindowObject = NULL;
     Object *AmainLayout = NULL;
 
@@ -57,7 +56,7 @@ void aboutWin(void)
                               WA_InnerHeight, 200,
                               WINDOW_Layout, AmainLayout,
                               TAG_DONE);
-    if (!(Aintuiwin = (struct Window *)DoMethod(AwindowObject, WM_OPEN, NULL)))
+    if (!(DoMethod(AwindowObject, WM_OPEN, NULL)))
         cleanAboutexit(AwindowObject);
     processAboutEvents(AwindowObject);
     DoMethod(AwindowObject, WM_CLOSE);

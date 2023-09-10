@@ -89,7 +89,11 @@ void getNameFromPath(char *path, char *result, unsigned int resultSize)
 
         if (Examine(pathLock, FIblock))
         {
+			if (FIblock->fib_FileName[0] == '\0' || resultSize == 0){
+				return;
+			}
             strncpy(result, FIblock->fib_FileName, resultSize);
+			result[resultSize - 1] = '\0';
             FreeVec(FIblock);
         }
         UnLock(pathLock);
