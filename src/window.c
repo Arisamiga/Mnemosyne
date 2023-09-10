@@ -437,7 +437,7 @@ void processEvents(Object *windowObject,
 							}
 							case OID_MENU_OPEN_DIR:
 								// printf("Clicked Open");
-								if(pastPath != "" && doneFirst)
+								if(pastPath[0] == '\0' && doneFirst)
 									OpenWorkbenchObjectA(pastPath, TAG_DONE);
 								break;
 							case OID_MENU_ABOUT:
