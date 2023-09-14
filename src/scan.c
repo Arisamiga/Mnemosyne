@@ -196,9 +196,11 @@ void scanPath(char *path, BOOL subFoldering, Object *listGadget)
     {
 		if (listGadget)
 		{
+			if (path != pastPath && path[0] != '\0')
+			{
+				strncpy(pastPath, path, MAX_BUFFER);
+			}
 
-			strncpy(pastPath, path, MAX_BUFFER - 1);
-			pastPath[255] = '\0';
         	NewList(&contents);
 		}
         totalSize = 0;
