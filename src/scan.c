@@ -248,7 +248,7 @@ void scanPath(char *path, BOOL subFoldering, Object *listGadget)
                 // Scan SubFolders
                 char *newPath = (char *)AllocVec(256, MEMF_CLEAR);
                 strcpy(newPath, path);
-                if (newPath[strlen(newPath) - 1] != ':' && newPath[strlen(newPath) - 1] != '/')
+                if (newPath[strlen(newPath) - 1] != ':' && newPath[strlen(newPath) - 1] != '/'  && pastPath[0] != '\0')
                 {
                     strcat(newPath, "/");
                 }
@@ -319,6 +319,13 @@ exit:
             tagList[2].ti_Tag = TAG_DONE;
 
             GetListBrowserNodeAttrsA(node, tagList);
+			if (initBuffer[0] == '\0'){
+				node = nextNode;
+				FreeVec(tagList);
+				FreeVec(initBuffer);
+				continue;
+			}
+
             // Get last 2 characters from word
             char *format = (char *)AllocVec(3, MEMF_CLEAR);
             strncpy(format, (char *)initBuffer[0] + strlen((char *)initBuffer[0]) - 2, 2);
