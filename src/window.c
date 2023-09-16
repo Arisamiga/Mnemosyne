@@ -165,7 +165,7 @@ void createWindow(void)
 	static struct NewMenu MenuArray[] = {
 		{NM_TITLE, "Project", 0, 0, 0, 0},
 		{NM_ITEM, "Open", 0, 0, 0, (APTR)OID_SCAN_OPEN},
-		{NM_ITEM, "Open Current Dir...", 0, ITEMENABLED, 0, (APTR)OID_MENU_OPEN_DIR},
+		{NM_ITEM, "Open in Workbench...", 0, ITEMENABLED, 0, (APTR)OID_MENU_OPEN_DIR},
 		{NM_ITEM, NM_BARLABEL,0,0,0,0 },
 		{NM_ITEM, "About...", 0, 0, 0, (APTR)OID_MENU_ABOUT},
 		{NM_ITEM, "Quit...", 0, 0, 0, (APTR)OID_MENU_QUIT},
@@ -353,7 +353,7 @@ void processEvents(Object *windowObject,
 	static struct NewMenu MenuArrayE[] = {
 		{NM_TITLE, "Project", 0, 0, 0, 0},
 		{NM_ITEM, "Open", 0, 0, 0, (APTR)OID_SCAN_OPEN},
-		{NM_ITEM, "Open Current Dir...", 0, 0, 0, (APTR)OID_MENU_OPEN_DIR},
+		{NM_ITEM, "Open in Workbench...", 0, 0, 0, (APTR)OID_MENU_OPEN_DIR},
 		{NM_ITEM, NM_BARLABEL,0,0,0,0 },
 		{NM_ITEM, "About...", 0, 0, 0, (APTR)OID_MENU_ABOUT},
 		{NM_ITEM, "Quit...", 0, 0, 0, (APTR)OID_MENU_QUIT},
@@ -363,7 +363,7 @@ void processEvents(Object *windowObject,
 	static struct NewMenu MenuArrayD[] = {
 		{NM_TITLE, "Project", 0, 0, 0, 0},
 		{NM_ITEM, "Open", 0, 0, 0, (APTR)OID_SCAN_OPEN},
-		{NM_ITEM, "Open Current Dir...", 0, ITEMENABLED, 0, (APTR)OID_MENU_OPEN_DIR},
+		{NM_ITEM, "Open in Workbench...", 0, ITEMENABLED, 0, (APTR)OID_MENU_OPEN_DIR},
 		{NM_ITEM, NM_BARLABEL,0,0,0,0 },
 		{NM_ITEM, "About...", 0, 0, 0, (APTR)OID_MENU_ABOUT},
 		{NM_ITEM, "Quit...", 0, 0, 0, (APTR)OID_MENU_QUIT},
@@ -438,7 +438,7 @@ void processEvents(Object *windowObject,
 							}
 							case OID_MENU_OPEN_DIR:
 								// printf("Clicked Open");
-								if(pastPath[0] == '\0' && doneFirst)
+								if(pastPath[0] != '\0' && doneFirst)
 									OpenWorkbenchObjectA(pastPath, TAG_DONE);
 								break;
 							case OID_MENU_ABOUT:
@@ -651,7 +651,6 @@ void processEvents(Object *windowObject,
 										{
 											char *newPath = AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
 											int pastPathLastChar = strlen(pastPath) - 1;
-
 											if (pastPath[pastPathLastChar] != '/' && pastPath[pastPathLastChar] != ':'){
 												strcat(pastPath, "/");
 											}

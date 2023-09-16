@@ -192,22 +192,6 @@ void addToList(char *name, ULONG size, STRPTR format)
 
 void scanPath(char *path, BOOL subFoldering, Object *listGadget)
 {
-    if (!subFoldering)
-    {
-		if (listGadget)
-		{
-			if (path != pastPath && path[0] != '\0')
-			{
-				strncpy(pastPath, path, MAX_BUFFER);
-				pastPath[MAX_BUFFER - 1] = '\0';
-			}
-
-        	NewList(&contents);
-		}
-        totalSize = 0;
-        currentFormat = 0;
-    }
-
     BPTR lockPath = Lock(path, ACCESS_READ);
     if (!lockPath)
     {
@@ -222,6 +206,22 @@ void scanPath(char *path, BOOL subFoldering, Object *listGadget)
     {
         printf("Examine Failed on path: %s\n", path);
         goto exit;
+    }
+
+	if (!subFoldering)
+    {
+		if (listGadget)
+		{
+			if (path != pastPath && path[0] != '\0')
+			{
+				strncpy(pastPath, path, MAX_BUFFER);
+				pastPath[MAX_BUFFER - 1] = '\0';
+			}
+
+        	NewList(&contents);
+		}
+        totalSize = 0;
+        currentFormat = 0;
     }
 
     // If file return size
