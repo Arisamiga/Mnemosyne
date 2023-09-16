@@ -510,7 +510,7 @@ void processEvents(Object *windowObject,
 
 								if (parentPath[strlen(parentPath) - 1] != ':')
 								{
-									strncat(parentPath,"/",2);
+									__asm_strncat(parentPath, "/",2);
 								}
 
 								updateBottomTextW2Text(bottomText, windowObject, "Scanning: ", parentName, FALSE);
