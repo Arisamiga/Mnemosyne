@@ -38,6 +38,10 @@
 #include "aboutWin.h"
 
 
+// -------------
+// Global Variables / Enums
+// -------------
+
 enum
 {
 	OID_BACK_BUTTON,
@@ -50,6 +54,18 @@ enum
 	OID_SCAN_OPEN,
 	OID_LAST
 };
+
+static struct NewMenu MenuArray[] = {
+	{NM_TITLE, "Project", 0, 0, 0, 0},
+	{NM_ITEM, "Open", 0, 0, 0, (APTR)OID_SCAN_OPEN},
+	{NM_ITEM, "Open in Workbench...", 0, ITEMENABLED, 0, (APTR)OID_MENU_OPEN_DIR},
+	{NM_ITEM, NM_BARLABEL,0,0,0,0 },
+	{NM_ITEM, "About...", 0, 0, 0, (APTR)OID_MENU_ABOUT},
+	{NM_ITEM, "Quit...", 0, 0, 0, (APTR)OID_MENU_QUIT},
+	{NM_END, NULL, 0, 0, 0, NULL}
+};
+
+BOOL fileEntered = FALSE;
 
 // -------------
 // Functions and such
@@ -133,7 +149,57 @@ void updatePathText(Object *fileRequester, STRPTR path) {
 	SetAttrs(fileRequester, GETFILE_FullFile, path, TAG_DONE);
 }
 
-BOOL fileEntered = FALSE;
+void updateMenuItems(Object *windowObject, BOOL enabled){
+	if (enabled == TRUE){
+		MenuArray[2] = (struct NewMenu){NM_ITEM, "Open in Workbench...", 0, 0, 0, (APTR)OID_MENU_OPEN_DIR};
+	}
+	else {
+		MenuArray[2] = (struct NewMenu){NM_ITEM, "Open in Workbench...", 0, ITEMENABLED, 0, (APTR)OID_MENU_OPEN_DIR};
+	}
+	SetAttrs(windowObject, WINDOW_NewMenu, MenuArray, TAG_DONE);
+}
+
+void fileRequesterSequence(Object *fileRequester,
+	struct Window *intuiwin,
+	Object *bottomText,
+	Object *windowObject,
+	Object *scanButton,
+	Object *listBrowser,
+	Object *backButton,
+	BOOL doneFirst)
+{
+	int fileSelect = gfRequestDir(fileRequester, intuiwin);
+	if (fileSelect){
+
+		struct List contents;
+		NewList(&contents);
+
+		TEXT *path = AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
+		ULONG pathPtr;
+		GetAttr(GETFILE_FullFile, fileRequester, &pathPtr);
+		SNPrintf(path, MAX_BUFFER, "%s", pathPtr);
+		BPTR lock = Lock(path, ACCESS_READ);
+		if (!lock)
+		{
+			updateBottomText(bottomText, windowObject, "Invalid Path, Select a valid path");
+			FreeVec(path);
+			return;
+		}
+		UnLock(lock);
+		SetAttrs(scanButton, GA_Disabled, FALSE, TAG_DONE);
+		SetAttrs(listBrowser, GA_DISABLED, TRUE, TAG_DONE);
+		SetAttrs(backButton, GA_Disabled, TRUE, TAG_DONE);
+
+		updateMenuItems(windowObject, FALSE);
+
+		updateBottomText(bottomText, windowObject, "Ready to Scan!");
+		fileEntered = TRUE;
+		doneFirst = FALSE;
+		SetAttrs(listBrowser, LISTBROWSER_TitleClickable, FALSE, TAG_DONE);
+	}
+}
+
+
 
 // -------------
 // Main Window Functions
@@ -159,18 +225,6 @@ void createWindow(void)
 	struct Hook CompareHook;
 
 	struct MsgPort *appPort;
-
-
-	static struct NewMenu MenuArray[] = {
-		{NM_TITLE, "Project", 0, 0, 0, 0},
-		{NM_ITEM, "Open", 0, 0, 0, (APTR)OID_SCAN_OPEN},
-		{NM_ITEM, "Open in Workbench...", 0, ITEMENABLED, 0, (APTR)OID_MENU_OPEN_DIR},
-		{NM_ITEM, NM_BARLABEL,0,0,0,0 },
-		{NM_ITEM, "About...", 0, 0, 0, (APTR)OID_MENU_ABOUT},
-		{NM_ITEM, "Quit...", 0, 0, 0, (APTR)OID_MENU_QUIT},
-
-		{NM_END, NULL, 0, 0, 0, NULL}
-	};
 
 	Object *mainLayout = NULL;
 	Object *upperLayout = NULL;
@@ -349,27 +403,6 @@ void processEvents(Object *windowObject,
 	BOOL end = FALSE;
 	BOOL scanning = FALSE;
 
-	static struct NewMenu MenuArrayE[] = {
-		{NM_TITLE, "Project", 0, 0, 0, 0},
-		{NM_ITEM, "Open", 0, 0, 0, (APTR)OID_SCAN_OPEN},
-		{NM_ITEM, "Open in Workbench...", 0, 0, 0, (APTR)OID_MENU_OPEN_DIR},
-		{NM_ITEM, NM_BARLABEL,0,0,0,0 },
-		{NM_ITEM, "About...", 0, 0, 0, (APTR)OID_MENU_ABOUT},
-		{NM_ITEM, "Quit...", 0, 0, 0, (APTR)OID_MENU_QUIT},
-
-		{NM_END, NULL, 0, 0, 0, NULL}
-	};
-	static struct NewMenu MenuArrayD[] = {
-		{NM_TITLE, "Project", 0, 0, 0, 0},
-		{NM_ITEM, "Open", 0, 0, 0, (APTR)OID_SCAN_OPEN},
-		{NM_ITEM, "Open in Workbench...", 0, ITEMENABLED, 0, (APTR)OID_MENU_OPEN_DIR},
-		{NM_ITEM, NM_BARLABEL,0,0,0,0 },
-		{NM_ITEM, "About...", 0, 0, 0, (APTR)OID_MENU_ABOUT},
-		{NM_ITEM, "Quit...", 0, 0, 0, (APTR)OID_MENU_QUIT},
-
-		{NM_END, NULL, 0, 0, 0, NULL}
-	};
-
 	GetAttr(WINDOW_SigMask, windowObject, &windowsignal);
 	while (!end)
 	{
@@ -404,35 +437,14 @@ void processEvents(Object *windowObject,
 						{
 							case OID_SCAN_OPEN:
 							{
-								int fileSelect = gfRequestDir(fileRequester, intuiwin);
-								if (fileSelect){
-
-									struct List contents;
-									NewList(&contents);
-
-									TEXT *path = AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
-									ULONG pathPtr;
-									GetAttr(GETFILE_FullFile, fileRequester, &pathPtr);
-									SNPrintf(path, MAX_BUFFER, "%s", pathPtr);
-									BPTR lock = Lock(path, ACCESS_READ);
-									if (!lock)
-									{
-										updateBottomText(bottomText, windowObject, "Invalid Path, Select a valid path");
-										FreeVec(path);
-										break;
-									}
-									UnLock(lock);
-									SetAttrs(scanButton, GA_Disabled, FALSE, TAG_DONE);
-									SetAttrs(listBrowser, GA_DISABLED, TRUE, TAG_DONE);
-									SetAttrs(backButton, GA_Disabled, TRUE, TAG_DONE);
-
-									SetAttrs(windowObject, WINDOW_NewMenu, MenuArrayD, TAG_DONE);
-
-									updateBottomText(bottomText, windowObject, "Ready to Scan!");
-									fileEntered = TRUE;
-									doneFirst = FALSE;
-									SetAttrs(listBrowser, LISTBROWSER_TitleClickable, FALSE, TAG_DONE);
-								}
+								fileRequesterSequence(fileRequester,
+													  intuiwin,
+													  bottomText,
+													  windowObject,
+													  scanButton,
+													  listBrowser,
+													  backButton,
+													  doneFirst);
 								break;
 							}
 							case OID_MENU_OPEN_DIR:
@@ -465,35 +477,14 @@ void processEvents(Object *windowObject,
 						{
 							case OID_FILE_REQUESTER:
 							{
-								int fileSelect = gfRequestDir(fileRequester, intuiwin);
-								if (fileSelect){
-
-									struct List contents;
-									NewList(&contents);
-
-									TEXT *path = AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
-									ULONG pathPtr;
-									GetAttr(GETFILE_FullFile, fileRequester, &pathPtr);
-									SNPrintf(path, MAX_BUFFER, "%s", pathPtr);
-									BPTR lock = Lock(path, ACCESS_READ);
-									if (!lock)
-									{
-										updateBottomText(bottomText, windowObject, "Invalid Path, Select a valid path");
-										FreeVec(path);
-										break;
-									}
-									UnLock(lock);
-									SetAttrs(scanButton, GA_Disabled, FALSE, TAG_DONE);
-									SetAttrs(listBrowser, GA_DISABLED, TRUE, TAG_DONE);
-									SetAttrs(backButton, GA_Disabled, TRUE, TAG_DONE);
-
-									SetAttrs(windowObject, WINDOW_NewMenu, MenuArrayD, TAG_DONE);
-
-									updateBottomText(bottomText, windowObject, "Ready to Scan!");
-									fileEntered = TRUE;
-									doneFirst = FALSE;
-									SetAttrs(listBrowser, LISTBROWSER_TitleClickable, FALSE, TAG_DONE);
-								}
+								fileRequesterSequence(fileRequester,
+													  intuiwin,
+													  bottomText,
+													  windowObject,
+													  scanButton,
+													  listBrowser,
+													  backButton,
+													  doneFirst);
 								break;
 							}
 							case OID_BACK_BUTTON:
@@ -527,7 +518,7 @@ void processEvents(Object *windowObject,
 								updatePathText(fileRequester, parentPath);
 
 
-								SetAttrs(windowObject, WINDOW_NewMenu, MenuArrayE, TAG_DONE);
+								updateMenuItems(windowObject, TRUE);
 
 								STRPTR TotalText = returnFormatWithTotal();
 								updateBottomTextW2AndTotal(bottomText, windowObject, "Current: ", parentName, TotalText, FALSE);
@@ -585,7 +576,7 @@ void processEvents(Object *windowObject,
 
 								DoGadgetMethod((struct Gadget*)listBrowser, intuiwin, NULL, LBM_SORT, NULL, 1, LBMSORT_REVERSE, &CompareHook);
 
-								SetAttrs(windowObject, WINDOW_NewMenu, MenuArrayE, TAG_DONE);
+								updateMenuItems(windowObject, TRUE);
 
 								// printf("Donefirst: %d\n", doneFirst);
 								STRPTR TotalText = returnFormatWithTotal();
@@ -664,7 +655,7 @@ void processEvents(Object *windowObject,
 											scanning = FALSE;
 										}
 
-										SetAttrs(windowObject, WINDOW_NewMenu, MenuArrayE, TAG_DONE);
+										updateMenuItems(windowObject, TRUE);
 										// printf("Donefirst: %d\n", doneFirst);
 										char *parentName = AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
 										getNameFromPath(pastPath, parentName, MAX_BUFFER);
