@@ -181,6 +181,7 @@ void fileRequesterSequence(Object *fileRequester,
 		BPTR lock = Lock(path, ACCESS_READ);
 		if (!lock)
 		{
+			SetAttrs(scanButton, GA_Disabled, TRUE, TAG_DONE);
 			updateBottomText(bottomText, windowObject, "Invalid Path, Select a valid path");
 			FreeVec(path);
 			return;
