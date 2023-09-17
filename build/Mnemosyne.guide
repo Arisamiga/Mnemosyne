@@ -215,7 +215,7 @@ There are 2 ways to use Mnemosyne:
 
   + Open: Opens window for you to select a directory to scan.
 
-  + Open Current Dir...: Opens the current directory you are in on a window. 
+  + Open in Workbench...: Opens the current directory you are in on a window. 
   (Note: This will stay disabled when you have not scanned a directory)
 
   + About: Opens a window with information about Mnemosyne.
