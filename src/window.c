@@ -138,8 +138,8 @@ void updateBottomText(Object *bottomText, Object *windowObject, STRPTR secondTex
 	// Check that the text is not the same as the current text
 	STRPTR bottomTextString = NULL;
 	GetAttr(GA_Text, bottomText, (ULONG *)&bottomTextString);
-	if (strcmp(bottomTextString, secondText) == 0)
-		return;
+	// if (strcmp(bottomTextString, secondText) == 0)
+	// 	return;
 
 	SetAttrs(bottomText, GA_Text, secondText, TAG_DONE);
 	DoMethod(windowObject, WM_NEWPREFS);
@@ -179,17 +179,20 @@ void fileRequesterSequence(Object *fileRequester,
 		GetAttr(GETFILE_FullFile, fileRequester, &pathPtr);
 		SNPrintf(path, MAX_BUFFER, "%s", pathPtr);
 		BPTR lock = Lock(path, ACCESS_READ);
+		SetAttrs(listBrowser, GA_DISABLED, TRUE, TAG_DONE);
+		SetAttrs(backButton, GA_Disabled, TRUE, TAG_DONE);
 		if (!lock)
 		{
 			SetAttrs(scanButton, GA_Disabled, TRUE, TAG_DONE);
+
+			updateMenuItems(windowObject, FALSE);
+
 			updateBottomText(bottomText, windowObject, "Invalid Path, Select a valid path");
 			FreeVec(path);
 			return;
 		}
 		UnLock(lock);
 		SetAttrs(scanButton, GA_Disabled, FALSE, TAG_DONE);
-		SetAttrs(listBrowser, GA_DISABLED, TRUE, TAG_DONE);
-		SetAttrs(backButton, GA_Disabled, TRUE, TAG_DONE);
 
 		updateMenuItems(windowObject, FALSE);
 
