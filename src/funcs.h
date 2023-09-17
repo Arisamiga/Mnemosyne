@@ -8,4 +8,5 @@ BOOL clearList(struct List);
 ULONG stringToULONG(char *);
 float presentageFromULongs(ULONG, ULONG, STRPTR, STRPTR);
 float stringToFloat(STRPTR);
+char getLastCharSafely(const char* str);
 #endif

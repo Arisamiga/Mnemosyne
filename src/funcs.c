@@ -172,3 +172,17 @@ float stringToFloat(STRPTR value)
 	}
 	return result;
 }
+
+char getLastCharSafely(const char* str) {
+    if (str == NULL || *str == '\0') {
+        // Handle invalid input or empty string
+        return '\0';
+    }
+
+    const char* lastCharPtr = str;
+    while (*(lastCharPtr + 1) != '\0') {
+        lastCharPtr++;
+    }
+
+    return *lastCharPtr;
+}

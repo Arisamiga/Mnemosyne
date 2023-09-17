@@ -70,8 +70,7 @@ static float __SAVE_DS__ __ASM__ myCompare(__REG__(a0, struct Hook *hook), __REG
 }
 
 void checkBackButton(char *pastPath, BOOL doneFirst, Object *backButton) {
-	int pastPathLastChar = strlen(pastPath) - 1;
-	if (pastPath[pastPathLastChar] != ':' && doneFirst && pastPath[0] != '\0')
+	if (getLastCharSafely(pastPath) != ':' && doneFirst && pastPath[0] != '\0')
 		SetAttrs(backButton, GA_Disabled, FALSE, TAG_DONE);
 	else
 		SetAttrs(backButton, GA_Disabled, TRUE, TAG_DONE);
@@ -499,9 +498,8 @@ void processEvents(Object *windowObject,
 							}
 							case OID_BACK_BUTTON:
 							{
-								int pastPathLastChar = strlen(pastPath) - 1;
 
-								if (scanning || !doneFirst || pastPath[pastPathLastChar] == ':')
+								if (scanning || !doneFirst || getLastCharSafely(pastPath) == ':')
 									break;
 
 								char *parentPath = AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
@@ -511,9 +509,7 @@ void processEvents(Object *windowObject,
 								char *parentName = AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
 								getNameFromPath(parentPath, parentName, MAX_BUFFER);
 
-								int parentPathLastChar = strlen(parentPath) - 1;
-
-								if (parentPath[parentPathLastChar] != ':')
+								if (getLastCharSafely(parentPath) != ':')
 								{
 									__asm_strncat(parentPath, "/",2);
 								}
@@ -650,8 +646,7 @@ void processEvents(Object *windowObject,
 										if (doneFirst && text != NULL)
 										{
 											char *newPath = AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
-											int pastPathLastChar = strlen(pastPath) - 1;
-											if (pastPath[pastPathLastChar] != '/' && pastPath[pastPathLastChar] != ':'){
+											if (getLastCharSafely(pastPath) != '/' && getLastCharSafely(pastPath) != ':'){
 												strcat(pastPath, "/");
 											}
 
