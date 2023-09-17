@@ -25,12 +25,6 @@ struct List contents;
 
 char pastPath[256];
 
-STRPTR returnFormatWithTotal(void){
-    STRPTR buffer = AllocVec(64, MEMF_CLEAR);
-    SNPrintf(buffer, 64, " (%ld %s)", totalSize, returnGivenFormat(currentFormat));
-    return buffer;
-}
-
 STRPTR returnGivenFormat(int format) {
     switch (format)
     {
@@ -53,6 +47,12 @@ STRPTR returnGivenFormat(int format) {
         return "B";
         break;
     }
+}
+
+STRPTR returnFormatWithTotal(void){
+    STRPTR buffer = AllocVec(64, MEMF_CLEAR);
+    SNPrintf(buffer, 64, " (%ld %s)", totalSize, returnGivenFormat(currentFormat));
+    return buffer;
 }
 
 int correctFormat(ULONG size){
