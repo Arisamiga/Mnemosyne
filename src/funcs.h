@@ -8,5 +8,7 @@ BOOL clearList(struct List);
 ULONG stringToULONG(char *);
 float presentageFromULongs(ULONG, ULONG, STRPTR, STRPTR);
 float stringToFloat(STRPTR);
-char getLastCharSafely(const char* str);
+char getLastCharSafely(const char*);
+char* getLastTwoChars(const char*);
+size_t strlcpy(char *dest, const char *source, size_t size);
 #endif

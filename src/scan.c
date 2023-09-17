@@ -214,8 +214,7 @@ void scanPath(char *path, BOOL subFoldering, Object *listGadget)
 		{
 			if (path != pastPath && path[0] != '\0')
 			{
-				strncpy(pastPath, path, MAX_BUFFER);
-				pastPath[MAX_BUFFER - 1] = '\0';
+				strlcpy(pastPath, path, MAX_BUFFER);
 			}
 
         	NewList(&contents);
@@ -253,7 +252,7 @@ void scanPath(char *path, BOOL subFoldering, Object *listGadget)
                 // Scan SubFolders
                 char *newPath = (char *)AllocVec(256, MEMF_CLEAR);
                 strcpy(newPath, path);
-                if (newPath[strlen(newPath) - 1] != ':' && newPath[strlen(newPath) - 1] != '/'  && pastPath[0] != '\0')
+                if (getLastCharSafely(newPath) != ':' && getLastCharSafely(newPath) != '/'  && pastPath[0] != '\0')
                 {
                     strcat(newPath, "/");
                 }
@@ -332,8 +331,7 @@ exit:
 			}
 
             // Get last 2 characters from word
-            char *format = (char *)AllocVec(3, MEMF_CLEAR);
-            strncpy(format, (char *)initBuffer[0] + strlen((char *)initBuffer[0]) - 2, 2);
+            char *format = getLastTwoChars((char *)initBuffer[0]);
             ULONG firstNumber = stringToULONG((char *)initBuffer[0]);
             STRPTR buffer = floatToString(presentageFromULongs(firstNumber, totalSize, format, returnFormat()));
 			if(stringToFloat(buffer) < 0.01 && firstNumber != 0){
@@ -348,7 +346,6 @@ exit:
 
             SetListBrowserNodeAttrsA(node, tagList);
             node = nextNode;
-            FreeVec(format);
             // FreeVec(tagList);
             FreeVec(initBuffer);
             FreeVec(buffer);

@@ -40,6 +40,24 @@ int returnFormatValue(STRPTR format){
     }
 }
 
+size_t strlcpy(char *dest, const char *source, size_t size)
+{
+   size_t src_size = 0;
+   size_t n = size;
+
+   if (n)
+      while (--n && (*dest++ = *source++)) src_size++;
+
+   if (!n)
+   {
+      if (size) *dest = '\0';
+      while (*source++) src_size++;
+   }
+
+   return src_size;
+}
+
+
 void getParentPath(char *filename, char *result, int resultSize)
 {
     BPTR fileLock = Lock(filename, SHARED_LOCK);
@@ -61,13 +79,7 @@ void getNameFromPath(char *path, char *result, unsigned int resultSize)
 
         if (Examine(pathLock, FIblock))
         {
-			if (FIblock->fib_FileName[0] == '\0' || resultSize == 0){
-				return;
-			}
-
-            strncpy(result, FIblock->fib_FileName, resultSize - 1);
-			result[resultSize - 1] = '\0';
-
+            strlcpy(result, FIblock->fib_FileName, resultSize);
             FreeVec(FIblock);
         }
         UnLock(pathLock);
@@ -186,3 +198,23 @@ char getLastCharSafely(const char* str) {
 
     return *lastCharPtr;
 }
+
+char* getLastTwoChars(const char* str) {
+    if (str == NULL || *str == '\0') {
+        // Handle invalid input or empty string
+        return NULL;
+    }
+
+    size_t length = 0;
+    while (str[length] != '\0') {
+        length++;
+    }
+
+    if (length <= 1) {
+        // Handle string with less than two characters
+        return NULL;
+    }
+
+    return (char*)(str + length - 2);
+}
+
