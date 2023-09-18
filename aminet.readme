@@ -38,3 +38,22 @@ https://github.com/Arisamiga/Mnemosyne
 If you have any requests or you would like to report any problems you found,
 you can do that at:
 https://github.com/Arisamiga/Mnemosyne/issues
+
+------------------------------------------------------------------------------
+**ChangeLog**
+
+-> Update 1.0.1 (2023-09-18)
+
+* Fixed a lot of typos and grammar mistakes in the documentation and code. (Thanks to: @polluks)
+* Improved quality of code
+* Fixed all codacy Issues and duplications
+* Current version moving to 1.0.0 -> 1.0.1
+* New Guide images updated to fit the version
+* Made Mnemosyne program from: 34.388B to 31.772B
+* Removal of unused code/functions
+* Made program and code much safer.
+* Made buttons be disabled when invalid path is given
+
+-> Update 1.0.0 (2023-09-03)
+
+* Initial release
