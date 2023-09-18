@@ -5,7 +5,7 @@
 #include "window.h"
 
 // Mnemosyne Version
-char *vers = "\0$VER: Mnemosyne 1.0.0";
+char *vers = "\0$VER: Mnemosyne 1.0.1";
 
 struct IntuitionBase *IntuitionBase;
 struct Library *UtilityBase;
@@ -13,7 +13,6 @@ struct Library *WindowBase;
 struct Library *LayoutBase;
 struct Library *ListBrowserBase;
 struct Library *ButtonBase;
-struct Library *SpaceBase;
 struct Library *GetFileBase;
 struct Library *TextFieldBase;
 
@@ -52,11 +51,6 @@ BOOL openLibraries(void)
 		printf("Failed to open gadgets/button.gadget! Make sure the version is above v47.\n");
 		return FALSE;
 	}
-	if (!(SpaceBase = OpenLibrary("gadgets/space.gadget", 47)))
-	{
-		printf("Failed to open gadgets/space.gadget! Make sure the version is above v47.\n");
-		return FALSE;
-	}
 	if (!(GetFileBase = OpenLibrary("gadgets/getfile.gadget", 47)))
 	{
 		printf("Failed to open gadgets/getfile.gadget! Make sure the version is above v47.\n");
@@ -85,8 +79,6 @@ void closeLibraries(void)
 		CloseLibrary(ListBrowserBase);
 	if (ButtonBase)
 		CloseLibrary(ButtonBase);
-	if (SpaceBase)
-		CloseLibrary(SpaceBase);
 	if (GetFileBase)
 		CloseLibrary(GetFileBase);
 	if (TextFieldBase)

@@ -13,25 +13,6 @@
 
 #include "funcs.h"
 
-long get_file_size(char *filename)
-{
-    FILE *fp = fopen(filename, "r");
-
-    if (fp == NULL)
-        return -1;
-
-    if (fseek(fp, 0, SEEK_END) < 0)
-    {
-        fclose(fp);
-        return -1;
-    }
-
-    long size = ftell(fp);
-    // release the resources when not required
-    fclose(fp);
-    return size;
-}
-
 int returnFormatValue(STRPTR format){
     if(strcmp(format, "B") == 0)
     {
@@ -59,14 +40,23 @@ int returnFormatValue(STRPTR format){
     }
 }
 
-int GetListLength(struct List *list)
+size_t strlcpy(char *dest, const char *source, size_t size)
 {
-    struct Node *node;
-    int count = 0;
-    for (node = list->lh_Head; node->ln_Succ; node = node->ln_Succ)
-        count++;
-    return count;
+   size_t src_size = 0;
+   size_t n = size;
+
+   if (n)
+      while (--n && (*dest++ = *source++)) src_size++;
+
+   if (!n)
+   {
+      if (size) *dest = '\0';
+      while (*source++) src_size++;
+   }
+
+   return src_size;
 }
+
 
 void getParentPath(char *filename, char *result, int resultSize)
 {
@@ -89,18 +79,11 @@ void getNameFromPath(char *path, char *result, unsigned int resultSize)
 
         if (Examine(pathLock, FIblock))
         {
-            strncpy(result, FIblock->fib_FileName, resultSize);
+            strlcpy(result, FIblock->fib_FileName, resultSize);
             FreeVec(FIblock);
         }
         UnLock(pathLock);
     }
-}
-
-STRPTR longToString(long num)
-{
-    STRPTR buffer = AllocVec(64, MEMF_ANY);
-    SNPrintf(buffer, 64, "%ld", num);
-    return buffer;
 }
 
 STRPTR floatToString(float num)
@@ -115,22 +98,6 @@ STRPTR ULongToString(ULONG num)
     STRPTR buffer = AllocVec(64, MEMF_ANY);
     SNPrintf(buffer, 64, "%lu", num);
     return buffer;
-}
-
-STRPTR intToString(int num)
-{
-    STRPTR buffer = AllocVec(64, MEMF_ANY);
-    SNPrintf(buffer, 64, "%d", num);
-    return buffer;
-}
-
-int presentageFromInts(int num1, int num2)
-{
-    // int presentage = (num1 * 100) / num2;
-
-    int presentage = (  num1 * 200 + num2 ) / ( num2 * 2 );
-
-    return presentage;
 }
 
 float presentageFromULongs(ULONG num1, ULONG num2, STRPTR num1Format, STRPTR num2Format)
@@ -170,23 +137,6 @@ float presentageFromULongs(ULONG num1, ULONG num2, STRPTR num1Format, STRPTR num
     return percentage;
 }
 
-
-int stringToInt(char *string)
-{
-    int result = 0;
-    int i = 0;
-    while (string[i] != '\0')
-    {
-        if (isdigit(string[i]))
-        {
-            result *= 10;
-            result += string[i] - '0';
-        }
-        i++;
-    }
-    return result;
-}
-
 ULONG stringToULONG(char *string)
 {
     ULONG result = 0;
@@ -200,25 +150,6 @@ ULONG stringToULONG(char *string)
         }
         i++;
     }
-    return result;
-}
-
-int longToInt(long num)
-{
-    int result = 0;
-    int i = 0;
-    char *buffer = AllocVec(64, MEMF_ANY);
-    SNPrintf(buffer, 64, "%ld", num);
-    while (buffer[i] != '\0')
-    {
-        if (isdigit(buffer[i]))
-        {
-            result *= 10;
-            result += buffer[i] - '0';
-        }
-        i++;
-    }
-    FreeVec(buffer);
     return result;
 }
 
@@ -238,18 +169,6 @@ BOOL clearList(struct List list){
 	return TRUE;
 }
 
-BOOL clearPointerList(struct List *list){
-    struct Node *node = list->lh_Head;
-    while (node->ln_Succ)
-    {
-        struct Node *nextNode = node->ln_Succ;
-        Remove(node);
-        FreeVec(node);
-        node = nextNode;
-    }
-    return TRUE;
-}
-
 float stringToFloat(STRPTR value)
 {
 	float result = 0;
@@ -265,3 +184,37 @@ float stringToFloat(STRPTR value)
 	}
 	return result;
 }
+
+char getLastCharSafely(const char* str) {
+    if (str == NULL || *str == '\0') {
+        // Handle invalid input or empty string
+        return '\0';
+    }
+
+    const char* lastCharPtr = str;
+    while (*(lastCharPtr + 1) != '\0') {
+        lastCharPtr++;
+    }
+
+    return *lastCharPtr;
+}
+
+char* getLastTwoChars(const char* str) {
+    if (str == NULL || *str == '\0') {
+        // Handle invalid input or empty string
+        return NULL;
+    }
+
+    size_t length = 0;
+    while (str[length] != '\0') {
+        length++;
+    }
+
+    if (length <= 1) {
+        // Handle string with less than two characters
+        return NULL;
+    }
+
+    return (char*)(str + length - 2);
+}
+
