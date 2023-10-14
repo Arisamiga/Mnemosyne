@@ -15,50 +15,60 @@ struct Library *ListBrowserBase;
 struct Library *ButtonBase;
 struct Library *GetFileBase;
 struct Library *TextFieldBase;
+struct Library *GadToolsBase;
+struct Library *SpaceBase;
 
 // Declare functions after main
 void info(void);
 
 BOOL openLibraries(void)
 {
-	if (!(IntuitionBase = (struct IntuitionBase *)OpenLibrary("intuition.library", 47)))
+	if (!(IntuitionBase = (struct IntuitionBase *)OpenLibrary("intuition.library", 1)))
 	{
 		printf("Failed to open intuition.library! Make sure the version is above v47.\n");
 		return FALSE;
 	}
-	if (!(UtilityBase = OpenLibrary("utility.library", 47)))
+	if (!(UtilityBase = OpenLibrary("utility.library", 1)))
 	{
 		printf("Failed to open utility.library! Make sure the version is above v47.\n");
 		return FALSE;
 	}
-	if (!(WindowBase = OpenLibrary("window.class", 47)))
+	if (!(WindowBase = OpenLibrary("window.class", 1)))
 	{
 		printf("Failed to open window.class! Make sure the version is above v47.\n");
 		return FALSE;
 	}
-	if (!(LayoutBase = OpenLibrary("gadgets/layout.gadget", 47)))
+	if (!(LayoutBase = OpenLibrary("gadgets/layout.gadget", 1)))
 	{
 		printf("Failed to open gadgets/layout.gadget! Make sure the version is above v47.\n");
 		return FALSE;
 	}
-	if (!(ListBrowserBase = OpenLibrary("gadgets/listbrowser.gadget", 47)))
+	if (!(ListBrowserBase = OpenLibrary("gadgets/listbrowser.gadget", 1)))
 	{
 		printf("Failed to open gadgets/listbrowser.gadget! Make sure the version is above v47.\n");
 		return FALSE;
 	}
-	if (!(ButtonBase = OpenLibrary("gadgets/button.gadget", 47)))
+	if (!(ButtonBase = OpenLibrary("gadgets/button.gadget", 1)))
 	{
 		printf("Failed to open gadgets/button.gadget! Make sure the version is above v47.\n");
 		return FALSE;
 	}
-	if (!(GetFileBase = OpenLibrary("gadgets/getfile.gadget", 47)))
+	if (!(GetFileBase = OpenLibrary("gadgets/getfile.gadget", 1)))
 	{
 		printf("Failed to open gadgets/getfile.gadget! Make sure the version is above v47.\n");
 		return FALSE;
 	}
-	if (!(TextFieldBase = OpenLibrary("gadgets/texteditor.gadget", 47)))
+	if (!(TextFieldBase = OpenLibrary("gadgets/texteditor.gadget", 1)))
 	{
 		printf("Failed to open gadgets/texteditor.gadget! Make sure the version is above v47.\n");
+		return FALSE;
+	}
+	if ((GadToolsBase = OpenLibrary("gadtools.library", 40)) == NULL) {
+		printf( "Could not open gadtools.library\n");
+		return FALSE;
+	}
+	if (( SpaceBase = OpenLibrary("gadgets/space.gadget", 40)) == NULL) {
+		printf( "Could not open gadgets/space.gadget\n");
 		return FALSE;
 	}
 
@@ -83,6 +93,10 @@ void closeLibraries(void)
 		CloseLibrary(GetFileBase);
 	if (TextFieldBase)
 		CloseLibrary(TextFieldBase);
+	if (GadToolsBase)
+		CloseLibrary(GadToolsBase);
+	if (SpaceBase)
+		CloseLibrary(SpaceBase);
 }
 
 

@@ -96,7 +96,7 @@ STRPTR floatToString(float num)
 STRPTR ULongToString(ULONG num)
 {
     STRPTR buffer = AllocVec(64, MEMF_ANY);
-    SNPrintf(buffer, 64, "%lu", num);
+    snprintf(buffer, 64, "%lu", num);
     return buffer;
 }
 

@@ -51,7 +51,7 @@ STRPTR returnGivenFormat(int format) {
 
 STRPTR returnFormatWithTotal(void){
     STRPTR buffer = AllocVec(64, MEMF_CLEAR);
-    SNPrintf(buffer, 64, " (%ld %s)", totalSize, returnGivenFormat(currentFormat));
+    snprintf(buffer, 64, " (%ld %s)", totalSize, returnGivenFormat(currentFormat));
     return buffer;
 }
 
@@ -113,12 +113,12 @@ void addToList(char *name, ULONG size, STRPTR format)
     // printf("Size: %ld\n", size);
 
     UBYTE *buffer = AllocVec(64, MEMF_CLEAR);
-    SNPrintf(buffer, 64, "%s", name);
+    snprintf(buffer, 64, "%s", name);
 
     STRPTR prebuffer2 = ULongToString(size);
 
     UBYTE *buffer2 = AllocVec(64, MEMF_CLEAR);
-    SNPrintf(buffer2, 64, "%s %s", prebuffer2, format);
+    snprintf(buffer2, 64, "%s %s", prebuffer2, format);
 
     struct Node *node = AllocListBrowserNode(3,
                                              LBNA_Column, 0,

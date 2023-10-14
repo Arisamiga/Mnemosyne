@@ -29,8 +29,53 @@
 #include <proto/wb.h>
 #include <proto/icon.h>
 #include <proto/dos.h>
+#include <proto/gadtools.h>
 
 #include <libraries/gadtools.h>
+
+#include <clib/reaction_lib_protos.h>
+
+//
+#include <exec/types.h>
+#include <exec/memory.h>
+#include <dos/dos.h>
+#include <graphics/gfxmacros.h>
+#include <intuition/intuition.h>
+#include <intuition/gadgetclass.h>
+#include <intuition/imageclass.h>
+#include <intuition/icclass.h>
+#include <libraries/asl.h>
+#include <libraries/gadtools.h>
+#include <utility/tagitem.h>
+#include <reaction/reaction.h>
+#include <reaction/reaction_macros.h>
+
+#include <images/glyph.h>
+#include <images/label.h>
+#include <gadgets/layout.h>
+#include <gadgets/listbrowser.h>
+#include <classes/window.h>
+
+#include <proto/asl.h>
+#include <proto/dos.h>
+#include <proto/diskfont.h>
+#include <proto/exec.h>
+#include <proto/gadtools.h>
+#include <proto/graphics.h>
+#include <proto/icon.h>
+#include <proto/intuition.h>
+#include <proto/utility.h>
+#include <proto/wb.h>
+#include <clib/alib_protos.h>
+
+#include <proto/button.h>
+#include <proto/glyph.h>
+#include <proto/label.h>
+#include <proto/layout.h>
+#include <proto/listbrowser.h>
+#include <proto/window.h>
+#include <clib/reaction_lib_protos.h>
+//
 
 #include "window.h"
 #include "scan.h"
@@ -92,7 +137,7 @@ void checkBackButton(char *pastPath, BOOL doneFirst, Object *backButton) {
 		SetAttrs(backButton, GA_Disabled, TRUE, TAG_DONE);
 }
 
-void toggleButtons(Object *windowObject, Object *backButton, Object *listBrowser, Object *fileRequester, char *pastPath, BOOL doneFirst, BOOL option, BOOL Refresh)
+void toggleButtons(Object *windowObject, Object *backButton, struct Gadget *listBrowser, Object *fileRequester, char *pastPath, BOOL doneFirst, BOOL option, BOOL Refresh)
 {
 	SetAttrs(windowObject, WA_BusyPointer, option, TAG_DONE);
 	SetAttrs(backButton, GA_Disabled, option, TAG_DONE);
@@ -116,7 +161,7 @@ void toggleBusyPointer(Object *windowObject, BOOL option)
 void updateBottomTextW2Text(Object *bottomText, Object *windowObject, char *firstText, STRPTR secondText, BOOL Refresh)
 {
 	char *title = AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
-	SNPrintf(title, MAX_BUFFER, "%s%s", firstText, secondText);
+	snprintf(title, MAX_BUFFER, "%s%s", firstText, secondText);
 	SetAttrs(bottomText, GA_Text, title, TAG_DONE);
 	if (Refresh)
 		DoMethod(windowObject, WM_NEWPREFS);
@@ -126,7 +171,7 @@ void updateBottomTextW2Text(Object *bottomText, Object *windowObject, char *firs
 void updateBottomTextW2AndTotal(Object *bottomText, Object *windowObject, char *firstText, STRPTR secondText, STRPTR totalText, BOOL Refresh)
 {
 	char *title = AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
-	SNPrintf(title, MAX_BUFFER, "%s%s%s", firstText, secondText, totalText);
+	snprintf(title, MAX_BUFFER, "%s%s%s", firstText, secondText, totalText);
 	SetAttrs(bottomText, GA_Text, title, TAG_DONE);
 	if (Refresh)
 		DoMethod(windowObject, WM_NEWPREFS);
@@ -164,7 +209,7 @@ void fileRequesterSequence(Object *fileRequester,
 	Object *bottomText,
 	Object *windowObject,
 	Object *scanButton,
-	Object *listBrowser,
+	struct Gadget *listBrowser,
 	Object *backButton,
 	BOOL doneFirst)
 {
@@ -177,7 +222,8 @@ void fileRequesterSequence(Object *fileRequester,
 		TEXT *path = AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
 		ULONG pathPtr;
 		GetAttr(GETFILE_FullFile, fileRequester, &pathPtr);
-		SNPrintf(path, MAX_BUFFER, "%s", pathPtr);
+		// snprintf(path, 50, "%s", pathPtr);
+		snprintf(path, MAX_BUFFER, "%s", pathPtr);
 		BPTR lock = Lock(path, ACCESS_READ);
 		SetAttrs(listBrowser, GA_DISABLED, TRUE, TAG_DONE);
 		SetAttrs(backButton, GA_Disabled, TRUE, TAG_DONE);
@@ -185,7 +231,7 @@ void fileRequesterSequence(Object *fileRequester,
 		{
 			SetAttrs(scanButton, GA_Disabled, TRUE, TAG_DONE);
 
-			updateMenuItems(windowObject, FALSE);
+			// updateMenuItems(windowObject, FALSE);
 
 			updateBottomText(bottomText, windowObject, "Invalid Path, Select a valid path");
 			FreeVec(path);
@@ -194,7 +240,7 @@ void fileRequesterSequence(Object *fileRequester,
 		UnLock(lock);
 		SetAttrs(scanButton, GA_Disabled, FALSE, TAG_DONE);
 
-		updateMenuItems(windowObject, FALSE);
+		// updateMenuItems(windowObject, FALSE);
 
 		updateBottomText(bottomText, windowObject, "Ready to Scan!");
 		fileEntered = TRUE;
@@ -212,7 +258,7 @@ void fileRequesterSequence(Object *fileRequester,
 void cleanexit(Object *windowObject, struct MsgPort *appPort);
 void processEvents(Object *windowObject,
 				   struct Window *intuiwin,
-				   Object *listBrowser,
+				   struct Gadget *listBrowser,
 				   Object *backButton,
 				   BOOL doneFirst,
 				   struct Hook CompareHook,
@@ -225,7 +271,6 @@ void createWindow(void)
 	struct Window *intuiwin = NULL;
 	Object *windowObject = NULL;
 
-	struct ColumnInfo *ci;
 	struct Hook CompareHook;
 
 	struct MsgPort *appPort;
@@ -234,11 +279,12 @@ void createWindow(void)
 	Object *upperLayout = NULL;
 	Object *upperRightLayout = NULL;
 
-	Object *listBrowser = NULL;
+	struct Gadget *listBrowser = NULL;
 	Object *backButton = NULL;
 	Object *bottomText = NULL;
 	Object *fileRequester = NULL;
 	Object *scanButton = NULL;
+	Object *spaceSeperator = NULL;
 
 	struct List contents;
 
@@ -267,8 +313,8 @@ void createWindow(void)
 	backButton = NewObject(BUTTON_GetClass(), NULL,
 						   GA_ID, OID_BACK_BUTTON,
 						   GA_RelVerify, TRUE,
-						   GA_Width, 10,
-						   GA_Height, 10,
+						//    GA_Width, 10,
+						//    GA_Height, 10,
 						   GA_Text, "Back",
 						   GA_Disabled, TRUE, // Disabled so it doesn't go back to SYS:
 						   TAG_END);
@@ -278,36 +324,42 @@ void createWindow(void)
 	CompareHook.h_SubEntry = NULL;
 	CompareHook.h_Data = NULL;
 
-	ci = AllocLBColumnInfo(3,
-						   LBCIA_Column, 0,
-						   LBCIA_Title, "Name",
-						   LBCIA_Weight, 80,
-						   LBCIA_AutoSort, TRUE,
-						   LBCIA_Sortable, TRUE,
-						   LBCIA_Column,1,
-						   LBCIA_Title, "Approx %",
-						   LBCIA_Weight, 45,
-						   LBCIA_AutoSort, TRUE,
-						   LBCIA_Sortable, TRUE,
-							LBCIA_CompareHook, &CompareHook,
-						   LBCIA_Column, 2,
-						   LBCIA_Title, "Size",
-						   LBCIA_Weight, 60,
-						   TAG_DONE);
-	listBrowser = NewObject(LISTBROWSER_GetClass(), NULL,
-							GA_ID, OID_MAIN_LIST,
-							GA_RelVerify, TRUE,
-							GA_Disabled, TRUE,
-							LISTBROWSER_Labels, (ULONG)&contents,
-							LISTBROWSER_ColumnInfo, ci,
-							LISTBROWSER_ColumnTitles, TRUE,
-							LISTBROWSER_MultiSelect, FALSE,
-							LISTBROWSER_Separators, TRUE,
-							LISTBROWSER_ShowSelected, FALSE,
-							LISTBROWSER_TitleClickable, FALSE,
-							LISTBROWSER_Spacing, 1,
-							TAG_END);
-
+	// struct ColumnInfo ci = (struct ColumnInfo)AllocLBColumnInfo(3,
+	// 					   LBCIA_Column, 0,
+	// 					   LBCIA_Title, "Name",
+	// 					   LBCIA_Weight, 80,
+	// 					   LBCIA_AutoSort, TRUE,
+	// 					   LBCIA_Sortable, TRUE,
+	// 					   LBCIA_Column,1,
+	// 					   LBCIA_Title, "Approx %",
+	// 					   LBCIA_Weight, 45,
+	// 					   LBCIA_AutoSort, TRUE,
+	// 					   LBCIA_Sortable, TRUE,
+	// 						LBCIA_CompareHook, &CompareHook,
+	// 					   LBCIA_Column, 2,
+	// 					   LBCIA_Title, "Size",
+	// 					   LBCIA_Weight, 60,
+	// 					   TAG_DONE);
+	struct ColumnInfo ci[] =
+	{
+		{80, "Name", CIF_SORTABLE},
+		{45, "Approx %", CIF_SORTABLE},
+		{60, "Size", 0},
+		{ -1, (STRPTR)~0, -1 }
+	};
+	listBrowser = (struct Gadget *)ListBrowserObject,
+					GA_ID, OID_MAIN_LIST,
+					GA_RelVerify, TRUE,
+					// GA_Disabled, TRUE,
+					LISTBROWSER_Labels, &contents,
+					LISTBROWSER_ColumnInfo, &ci,
+					LISTBROWSER_ColumnTitles, TRUE,
+					LISTBROWSER_MultiSelect, FALSE,
+					LISTBROWSER_Separators, TRUE,
+					LISTBROWSER_ShowSelected, FALSE,
+					LISTBROWSER_TitleClickable, TRUE,
+					LISTBROWSER_Spacing, 1,
+					ListBrowserEnd;
 	bottomText = NewObject(BUTTON_GetClass(), NULL,
 						   GA_Text, "Welcome to Mnemosyne!",
 						   GA_ReadOnly, TRUE,
@@ -329,6 +381,9 @@ void createWindow(void)
 						   GA_Disabled, TRUE,
 						   TAG_DONE);
 
+	spaceSeperator = NewObject(SPACE_GetClass(), NULL,
+							TAG_DONE);
+
 	upperRightLayout = NewObject(LAYOUT_GetClass(), NULL,
 							LAYOUT_Orientation, LAYOUT_ORIENT_VERT,
 							LAYOUT_DeferLayout, TRUE,
@@ -345,7 +400,7 @@ void createWindow(void)
 							LAYOUT_SpaceOuter, TRUE,
 							LAYOUT_VertAlignment, LALIGN_CENTER,
 							LAYOUT_AddChild, backButton,
-								CHILD_MaxWidth, 32,
+								CHILD_MaxWidth, 42,
 							LAYOUT_AddChild, upperRightLayout,
 							TAG_DONE);
 
@@ -355,10 +410,13 @@ void createWindow(void)
 						   LAYOUT_SpaceInner, TRUE,
 						   LAYOUT_SpaceOuter, TRUE,
 						   LAYOUT_AddChild, upperLayout,
-						   		CHILD_MaxHeight, 32,
+						   		CHILD_MaxHeight, 50,
+							LAYOUT_AddChild, spaceSeperator,
+								CHILD_MaxHeight, 5,
 						   LAYOUT_AddChild, listBrowser,
 						   LAYOUT_AddChild, bottomText,
-						   		CHILD_MaxHeight, 10,
+						//    TODO: Add tooltip to be able to change that value for higher fonts
+						   		CHILD_MaxHeight, 21,
 						   TAG_DONE);
 
 	appPort = CreateMsgPort();
@@ -392,7 +450,7 @@ void createWindow(void)
 }
 void processEvents(Object *windowObject,
 				   struct Window *intuiwin,
-				   Object *listBrowser,
+				   struct Gadget *listBrowser,
 				   Object *backButton,
 				   BOOL doneFirst,
 				   struct Hook CompareHook,
@@ -555,7 +613,7 @@ void processEvents(Object *windowObject,
 
 								GetAttr(GETFILE_FullFile, fileRequester, &pathPtr);
 
-								SNPrintf(buffer, MAX_BUFFER, "%s", pathPtr);
+								snprintf(buffer, MAX_BUFFER, "%s", pathPtr);
 
 								char *parentName = AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
 
@@ -645,7 +703,7 @@ void processEvents(Object *windowObject,
 												strcat(pastPath, "/");
 											}
 
-											SNPrintf(newPath, MAX_BUFFER, "%s%s", &pastPath, text);
+											snprintf(newPath, MAX_BUFFER, "%s%s", &pastPath, text);
 											updatePathText(fileRequester, newPath);
 											updateBottomTextW2Text(bottomText, windowObject, "Scanning: ", text, FALSE);
 											toggleButtons(windowObject, backButton, listBrowser, fileRequester, pastPath, doneFirst, TRUE, TRUE);
