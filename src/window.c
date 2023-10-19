@@ -254,10 +254,10 @@ void fileRequesterSequence(Object *fileRequester,
 
 void UpdateMenu(struct Window *intuiwin){
 	APTR *visualInfo;
-	ULONG error;
+	ULONG error = (ULONG)NULL;
 	struct Screen *screen = intuiwin->WScreen;
-	FreeMenus(menu);
 
+	FreeMenus(menu);
 	if (visualInfo = GetVisualInfo(screen, NULL)) {
 		if (menu = CreateMenus(MenuArray, GTMN_SecondaryError, &error, TAG_DONE)) {
 			if (LayoutMenus(menu, visualInfo, GTMN_NewLookMenus, TRUE, TAG_DONE)) {
@@ -272,8 +272,7 @@ void UpdateMenu(struct Window *intuiwin){
 		} else {
 			printf("Error creating menu: %ld\n", error);
 		}
-	} else {
-		printf("Error getting visual info\n");
+		FreeVisualInfo(visualInfo);
 	}
 }
 
@@ -463,13 +462,14 @@ void createWindow(void)
 							 WA_NewLookMenus, TRUE,
 							 WA_InnerWidth, 355,
 							 WA_InnerHeight, 150,
-							 WA_IDCMP, IDCMP_CLOSEWINDOW,
+							 WA_IDCMP, IDCMP_CLOSEWINDOW | IDCMP_GADGETUP | IDCMP_GADGETDOWN | IDCMP_MENUPICK,
 							 WINDOW_Layout, mainLayout,
 							 TAG_DONE);
 	if (!windowObject)
 		cleanexit(NULL, NULL);
 	if (!(intuiwin = (struct Window *)DoMethod(windowObject, WM_OPEN, NULL)))
 		cleanexit(windowObject, appPort);
+	// UpdateMenu(intuiwin);
 	processEvents(windowObject, intuiwin, listBrowser, backButton, doneFirst, CompareHook, bottomText, fileRequester, scanButton);
 	DoMethod(windowObject, WM_CLOSE);
 	clearList(contents);
@@ -493,7 +493,6 @@ void processEvents(Object *windowObject,
 	BOOL scanning = FALSE;
 
 	GetAttr(WINDOW_SigMask, windowObject, &windowsignal);
-	UpdateMenu(intuiwin);
 	while (!end)
 	{
 		receivedsignal = Wait(windowsignal);
@@ -518,7 +517,7 @@ void processEvents(Object *windowObject,
 					case WMHI_MENUPICK: {
 						struct Menu *menuStrip;
 						GetAttr(WINDOW_MenuStrip, windowObject, (ULONG *)&menuStrip);
-						struct MenuItem *menuItem = ItemAddress(menuStrip, code);
+						struct MenuItem *menuItem = ItemAddress(menu, code);
 						if (!menuItem)
 							break;
 						APTR item = GTMENUITEM_USERDATA(menuItem);
@@ -561,6 +560,7 @@ void processEvents(Object *windowObject,
 							// 	break;
 						}
 						break;
+
 					}
 					case WMHI_GADGETUP:
 						switch (result & WMHI_GADGETMASK)
