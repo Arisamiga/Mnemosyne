@@ -469,7 +469,7 @@ void createWindow(void)
 		cleanexit(NULL, NULL);
 	if (!(intuiwin = (struct Window *)DoMethod(windowObject, WM_OPEN, NULL)))
 		cleanexit(windowObject, appPort);
-	// UpdateMenu(intuiwin);
+	UpdateMenu(intuiwin);
 	processEvents(windowObject, intuiwin, listBrowser, backButton, doneFirst, CompareHook, bottomText, fileRequester, scanButton);
 	DoMethod(windowObject, WM_CLOSE);
 	clearList(contents);
