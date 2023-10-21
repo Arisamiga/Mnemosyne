@@ -112,6 +112,15 @@ static struct NewMenu MenuArray[] = {
 	{NM_END, NULL, 0, 0, 0, NULL}
 };
 
+// Make array to store values
+struct  {
+    int Column;
+    BOOL Sorting;
+} ColumnSorting[] = {
+    { 0, LBMSORT_FORWARD },
+    { 1, LBMSORT_FORWARD }
+};
+
 BOOL fileEntered = FALSE;
 
 // -------------
@@ -204,7 +213,7 @@ void updateMenuItems(struct Window *intuiwin, BOOL enabled){
 		MenuArray[2] = (struct NewMenu){NM_ITEM, "Open in Workbench...", 0, ITEMENABLED, 0, (APTR)OID_MENU_OPEN_DIR};
 	}
 	// SetAttrs(windowObject, WINDOW_NewMenu, MenuArray, TAG_DONE);
-	UpdateMenu(intuiwin);
+	UpdateMenu(intuiwin, FALSE);
 }
 
 void fileRequesterSequence(Object *fileRequester,
@@ -252,7 +261,7 @@ void fileRequesterSequence(Object *fileRequester,
 	}
 }
 
-void UpdateMenu(struct Window *intuiwin){
+void UpdateMenu(struct Window *intuiwin, BOOL enabled){
 	APTR *visualInfo;
 	ULONG error = (ULONG)NULL;
 	struct Screen *screen = intuiwin->WScreen;
@@ -262,7 +271,8 @@ void UpdateMenu(struct Window *intuiwin){
 		if (menu = CreateMenus(MenuArray, GTMN_SecondaryError, &error, TAG_DONE)) {
 			if (LayoutMenus(menu, visualInfo, GTMN_NewLookMenus, TRUE, TAG_DONE)) {
 				if (SetMenuStrip(intuiwin, menu)) {
-					RefreshWindowFrame(intuiwin);
+					if (enabled)
+						RefreshWindowFrame(intuiwin);
 				} else {
 					printf("Error setting menu strip\n");
 				}
@@ -376,7 +386,7 @@ void createWindow(void)
 	listBrowser = (struct Gadget *)ListBrowserObject,
 					GA_ID, OID_MAIN_LIST,
 					GA_RelVerify, TRUE,
-					// GA_Disabled, TRUE,
+					GA_Disabled, TRUE,
 					LISTBROWSER_Labels, &contents,
 					LISTBROWSER_ColumnInfo, &ci,
 					LISTBROWSER_ColumnTitles, TRUE,
@@ -416,6 +426,7 @@ void createWindow(void)
 							LAYOUT_SpaceInner, TRUE,
 							LAYOUT_SpaceOuter, TRUE,
 							LAYOUT_AddChild, fileRequester,
+								CHILD_WeightedHeight, 10,
 							LAYOUT_AddChild, scanButton,
 							TAG_DONE);
 
@@ -423,10 +434,10 @@ void createWindow(void)
 							LAYOUT_Orientation, LAYOUT_ORIENT_HORIZ,
 							LAYOUT_DeferLayout, TRUE,
 							LAYOUT_SpaceInner, TRUE,
-							LAYOUT_SpaceOuter, TRUE,
+							LAYOUT_SpaceOuter, FALSE,
 							LAYOUT_VertAlignment, LALIGN_CENTER,
 							LAYOUT_AddChild, backButton,
-								CHILD_MaxWidth, 42,
+								CHILD_WeightedWidth, 10,
 							LAYOUT_AddChild, upperRightLayout,
 							TAG_DONE);
 
@@ -435,14 +446,12 @@ void createWindow(void)
 						   LAYOUT_DeferLayout, TRUE,
 						   LAYOUT_SpaceInner, TRUE,
 						   LAYOUT_SpaceOuter, TRUE,
+						   LAYOUT_EvenSize, TRUE,
 						   LAYOUT_AddChild, upperLayout,
-						   		CHILD_MaxHeight, 50,
-							LAYOUT_AddChild, spaceSeperator,
-								CHILD_MaxHeight, 5,
+						   		CHILD_WeightedHeight, 10,
 						   LAYOUT_AddChild, listBrowser,
 						   LAYOUT_AddChild, bottomText,
-						//    TODO: Add tooltip to be able to change that value for higher fonts
-						   		CHILD_MaxHeight, 21,
+						   		CHILD_WeightedHeight, 2,
 						   TAG_DONE);
 
 	appPort = CreateMsgPort();
@@ -469,7 +478,7 @@ void createWindow(void)
 		cleanexit(NULL, NULL);
 	if (!(intuiwin = (struct Window *)DoMethod(windowObject, WM_OPEN, NULL)))
 		cleanexit(windowObject, appPort);
-	UpdateMenu(intuiwin);
+	UpdateMenu(intuiwin, TRUE);
 	processEvents(windowObject, intuiwin, listBrowser, backButton, doneFirst, CompareHook, bottomText, fileRequester, scanButton);
 	DoMethod(windowObject, WM_CLOSE);
 	clearList(contents);
@@ -705,58 +714,68 @@ void processEvents(Object *windowObject,
 									break;
 								}
 
-								if (node)
-								{
-									STRPTR text = NULL;
-									GetListBrowserNodeAttrs(node, LBNA_Column, 0, LBNCA_Text, &text, TAG_DONE);
-									if (text)
-									{
-										const int len = strlen(text);
-
-										char *parentPath = AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
-
-										// printf("Selected %s\n", text);
-										getParentPath(text, parentPath, MAX_BUFFER);
-
-										// Check if the selected item is a directory
-										if (len > 0 && text[len - 1] != '/' && doneFirst)
-										{
-											break;
-										}
-
-										if (doneFirst && text != NULL)
-										{
-											char *newPath = AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
-											if (getLastCharSafely(pastPath) != '/' && getLastCharSafely(pastPath) != ':'){
-												strcat(pastPath, "/");
-											}
-
-											snprintf(newPath, MAX_BUFFER, "%s%s", &pastPath, text);
-											updatePathText(fileRequester, newPath);
-											updateBottomTextW2Text(bottomText, windowObject, "Scanning: ", text, FALSE);
-											toggleButtons(windowObject, backButton, listBrowser, fileRequester, pastPath, doneFirst, TRUE, TRUE);
-
-											scanning = TRUE;
-
-											scanPath(newPath, FALSE, listBrowser);
-
-											toggleButtons(windowObject, backButton, listBrowser, fileRequester, pastPath, doneFirst, FALSE, FALSE);
-
-											scanning = FALSE;
-										}
-
-										updateMenuItems(intuiwin, TRUE);
-										// printf("Donefirst: %d\n", doneFirst);
-										char *parentName = AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
-										getNameFromPath(pastPath, parentName, MAX_BUFFER);
-										STRPTR TotalText = returnFormatWithTotal();
-										updateBottomTextW2AndTotal(bottomText, windowObject, "Current: ", parentName, TotalText, TRUE);
-
-										FreeVec(TotalText);
-										FreeVec(parentName);
-										FreeVec(parentPath);
-									}
+								if (!node){
+									// If no node exists then the user clicked on the title
+									// Check which listbrowser title is beeing clicked
+									ULONG column = 0;
+									GetAttr(LISTBROWSER_RelColumn, listBrowser, &column);
+									// printf("Colums: %ld\n", column);
+									// printf("Current sorting: %d\n", ColumnSorting[column].Sorting);
+									ColumnSorting[column].Sorting = !ColumnSorting[column].Sorting;
+									DoGadgetMethod((struct Gadget*)listBrowser, intuiwin, NULL, LBM_SORT, NULL, column, ColumnSorting[column].Sorting, &CompareHook);
 								}
+								STRPTR text = NULL;
+								GetListBrowserNodeAttrs(node, LBNA_Column, 0, LBNCA_Text, &text, TAG_DONE);
+								if (text)
+								{
+									const int len = strlen(text);
+
+									char *parentPath = AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
+
+									// printf("Selected %s\n", text);
+									getParentPath(text, parentPath, MAX_BUFFER);
+
+									// Check if the selected item is a directory
+									if (len > 0 && text[len - 1] != '/' && doneFirst)
+									{
+										break;
+									}
+
+									if (doneFirst && text != NULL)
+									{
+										char *newPath = AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
+										if (getLastCharSafely(pastPath) != '/' && getLastCharSafely(pastPath) != ':'){
+											strcat(pastPath, "/");
+										}
+
+										snprintf(newPath, MAX_BUFFER, "%s%s", &pastPath, text);
+										updatePathText(fileRequester, newPath);
+										updateBottomTextW2Text(bottomText, windowObject, "Scanning: ", text, FALSE);
+										toggleButtons(windowObject, backButton, listBrowser, fileRequester, pastPath, doneFirst, TRUE, TRUE);
+
+										scanning = TRUE;
+
+										scanPath(newPath, FALSE, listBrowser);
+
+										toggleButtons(windowObject, backButton, listBrowser, fileRequester, pastPath, doneFirst, FALSE, FALSE);
+
+										scanning = FALSE;
+									}
+
+									updateMenuItems(intuiwin, TRUE);
+									// printf("Donefirst: %d\n", doneFirst);
+									char *parentName = AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
+									getNameFromPath(pastPath, parentName, MAX_BUFFER);
+									STRPTR TotalText = returnFormatWithTotal();
+									updateBottomTextW2AndTotal(bottomText, windowObject, "Current: ", parentName, TotalText, TRUE);
+
+									// Remove focus from the listbrowser
+									SetAttrs(listBrowser, LISTBROWSER_Selected, -1, TAG_DONE);
+
+									FreeVec(TotalText);
+									FreeVec(parentName);
+									FreeVec(parentPath);
+									}
 								break;
 							}
 							// default:
@@ -768,7 +787,7 @@ void processEvents(Object *windowObject,
 						// 	// This is for testing only
 						// 	printf("Unhandled event of class %ld\n", result & WMHI_CLASSMASK);
 						// 	break;
-						break;
+						// break;
 				}
 			}
 		}
