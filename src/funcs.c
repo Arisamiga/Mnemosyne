@@ -220,8 +220,10 @@ char* getLastTwoChars(const char* str) {
 
 char *string_to_lower(char *text)
 {
-	char *result = AllocVec(strlen(text) + 1, MEMF_ANY);
-	for (int i = 0; i <= strlen(text) - 1; i++)
-		result[i] = tolower(text[i]);
-	return result;
+    size_t len = strlen(text);
+    char *result = AllocVec(len + 1, MEMF_ANY);
+    for (size_t i = 0; i < len; i++)
+        result[i] = tolower(text[i]);
+    result[len] = '\0';
+    return result;
 }

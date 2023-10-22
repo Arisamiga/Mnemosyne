@@ -248,7 +248,7 @@ void fileRequesterSequence(Object *fileRequester,
 		TEXT *path = AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
 		ULONG pathPtr;
 		GetAttr(GETFILE_FullFile, fileRequester, &pathPtr);
-		strncpy(path, (const char*)pathPtr, MAX_BUFFER - 1);
+		strlcpy(path, (const char*)pathPtr, MAX_BUFFER - 1);
 		path[MAX_BUFFER - 1] = '\0';
 		BPTR lock = Lock(path, ACCESS_READ);
 		SetAttrs(listBrowser, GA_DISABLED, TRUE, TAG_DONE);
@@ -311,7 +311,6 @@ void createWindow(void)
 	Object *bottomText = NULL;
 	Object *fileRequester = NULL;
 	Object *scanButton = NULL;
-	Object *spaceSeperator = NULL;
 
 	struct List contents;
 
