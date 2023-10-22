@@ -23,7 +23,6 @@
 #include <proto/intuition.h>
 #include <proto/utility.h>
 #include <proto/button.h>
-#include <proto/space.h>
 #include <proto/getfile.h>
 #include <proto/asl.h>
 #include <proto/wb.h>
@@ -40,41 +39,23 @@
 #include <exec/memory.h>
 #include <dos/dos.h>
 #include <graphics/gfxmacros.h>
-#include <intuition/intuition.h>
 #include <intuition/gadgetclass.h>
 #include <intuition/imageclass.h>
 #include <intuition/icclass.h>
 #include <libraries/asl.h>
-#include <libraries/gadtools.h>
 #include <utility/tagitem.h>
 #include <reaction/reaction.h>
 #include <reaction/reaction_macros.h>
 
 #include <images/glyph.h>
 #include <images/label.h>
-#include <gadgets/layout.h>
-#include <gadgets/listbrowser.h>
-#include <classes/window.h>
 
-#include <proto/asl.h>
-#include <proto/dos.h>
 #include <proto/diskfont.h>
-#include <proto/exec.h>
-#include <proto/gadtools.h>
 #include <proto/graphics.h>
-#include <proto/icon.h>
-#include <proto/intuition.h>
-#include <proto/utility.h>
-#include <proto/wb.h>
 #include <clib/alib_protos.h>
 
-#include <proto/button.h>
 #include <proto/glyph.h>
 #include <proto/label.h>
-#include <proto/layout.h>
-#include <proto/listbrowser.h>
-#include <proto/window.h>
-#include <clib/reaction_lib_protos.h>
 //
 
 #include "window.h"
@@ -360,22 +341,6 @@ void createWindow(void)
 	CompareHook.h_SubEntry = NULL;
 	CompareHook.h_Data = NULL;
 
-	// struct ColumnInfo ci = (struct ColumnInfo)AllocLBColumnInfo(3,
-	// 					   LBCIA_Column, 0,
-	// 					   LBCIA_Title, "Name",
-	// 					   LBCIA_Weight, 80,
-	// 					   LBCIA_AutoSort, TRUE,
-	// 					   LBCIA_Sortable, TRUE,
-	// 					   LBCIA_Column,1,
-	// 					   LBCIA_Title, "Approx %",
-	// 					   LBCIA_Weight, 45,
-	// 					   LBCIA_AutoSort, TRUE,
-	// 					   LBCIA_Sortable, TRUE,
-	// 						LBCIA_CompareHook, &CompareHook,
-	// 					   LBCIA_Column, 2,
-	// 					   LBCIA_Title, "Size",
-	// 					   LBCIA_Weight, 60,
-	// 					   TAG_DONE);
 	struct ColumnInfo ci[] =
 	{
 		{80, "Name", CIF_SORTABLE},
@@ -394,7 +359,6 @@ void createWindow(void)
 					LISTBROWSER_Separators, TRUE,
 					LISTBROWSER_ShowSelected, FALSE,
 					LISTBROWSER_TitleClickable, TRUE,
-					LISTBROWSER_Spacing, 1,
 					ListBrowserEnd;
 	bottomText = NewObject(BUTTON_GetClass(), NULL,
 						   GA_Text, "Welcome to Mnemosyne!",
@@ -416,9 +380,6 @@ void createWindow(void)
 						   GA_ID, OID_SCAN_BUTTON,
 						   GA_Disabled, TRUE,
 						   TAG_DONE);
-
-	spaceSeperator = NewObject(SPACE_GetClass(), NULL,
-							TAG_DONE);
 
 	upperRightLayout = NewObject(LAYOUT_GetClass(), NULL,
 							LAYOUT_Orientation, LAYOUT_ORIENT_VERT,
@@ -451,7 +412,7 @@ void createWindow(void)
 						   		CHILD_WeightedHeight, 10,
 						   LAYOUT_AddChild, listBrowser,
 						   LAYOUT_AddChild, bottomText,
-						   		CHILD_WeightedHeight, 2,
+						   		CHILD_WeightedHeight, 10,
 						   TAG_DONE);
 
 	appPort = CreateMsgPort();
@@ -715,8 +676,6 @@ void processEvents(Object *windowObject,
 								}
 
 								if (!node){
-									// If no node exists then the user clicked on the title
-									// Check which listbrowser title is beeing clicked
 									ULONG column = 0;
 									GetAttr(LISTBROWSER_RelColumn, listBrowser, &column);
 									// printf("Colums: %ld\n", column);
@@ -735,9 +694,11 @@ void processEvents(Object *windowObject,
 									// printf("Selected %s\n", text);
 									getParentPath(text, parentPath, MAX_BUFFER);
 
-									// Check if the selected item is a directory
+									// Check if the selected item is not a directory
 									if (len > 0 && text[len - 1] != '/' && doneFirst)
 									{
+										// Remove focus from the listbrowser
+										SetAttrs(listBrowser, LISTBROWSER_Selected, -1, TAG_DONE);
 										break;
 									}
 

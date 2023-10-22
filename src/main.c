@@ -16,7 +16,6 @@ struct Library *ButtonBase;
 struct Library *GetFileBase;
 struct Library *TextFieldBase;
 struct Library *GadToolsBase;
-struct Library *SpaceBase;
 
 // Declare functions after main
 void info(void);
@@ -67,10 +66,6 @@ BOOL openLibraries(void)
 		printf( "Could not open gadtools.library\n");
 		return FALSE;
 	}
-	if (( SpaceBase = OpenLibrary("gadgets/space.gadget", 40)) == NULL) {
-		printf( "Could not open gadgets/space.gadget\n");
-		return FALSE;
-	}
 
 	return TRUE;
 }
@@ -95,8 +90,6 @@ void closeLibraries(void)
 		CloseLibrary(TextFieldBase);
 	if (GadToolsBase)
 		CloseLibrary(GadToolsBase);
-	if (SpaceBase)
-		CloseLibrary(SpaceBase);
 }
 
 
