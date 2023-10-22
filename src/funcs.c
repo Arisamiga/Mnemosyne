@@ -227,10 +227,10 @@ char *string_to_lower(const char *text, size_t len)
     return result;
 }
 
-size_t safeStrlen(const char *str, size_t max_len)
+size_t safeStrlen(const char *str)
 {
     size_t len = 0;
-    while (len < max_len && str[len] != '\0') {
+    while (str[len] != '\0') {
         len++;
     }
     return len;
