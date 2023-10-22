@@ -1,7 +1,7 @@
 @database Mnemosyne.guide
 
 @author "Aris (Arisamiga) Sokianos"
-@$VER: Mnemosyne.Guide 1.0.1
+@$VER: Mnemosyne.Guide 1.0.2
 @(c) 2023 Aris (Arisamiga) Sokianos
 @Node "Main" "Mnemosyne"
 
@@ -15,7 +15,7 @@
  |_|  |_|_| |_|\\___|_| |_| |_|\\___/|___/\\___ |_| |_|\\___|
                                         |___/            
 
-@{jright}Version 1.0.1
+@{jright}Version 1.0.2
 
 @{jcenter}
 
@@ -79,13 +79,11 @@ Thank you so much for using Mnemosyne <3
 @{b}Requirements@{ub}
 ==========
 
-Mnemosyne requires AmigaOS 3.2 with at least 1MB of RAM.
+Mnemosyne requires AmigaOS 3.1 or higher with at least 1MB of RAM.
 
 (Note not all processors have been tested, but it should work on all)
 
-Mnemosyne's GUI requires at least AmigaOS 3.2.1 to Correctly work. 
-
-Mnemosyne's CLI will work normally on AmigaOS 3.2.
+( AmigaOS 3.1 and 3.1.4 require ClassAct33 to work )
 
 
 @EndNode

@@ -2,7 +2,7 @@ Short:        Disk usage statistics+file/folder utility
 Uploader:     arisamiga@gmail.com (Aris Sokianos)
 Author:       Aris (arisamiga) Sokianos
 Type:         util/misc
-Version:      1.0.1
+Version:      1.0.2
 Architecture: m68k-amigaos >= 3.2.1
 Distribution: Aminet
 Replaces:     util/misc/Mnemosyne.lha
