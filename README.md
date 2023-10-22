@@ -26,9 +26,7 @@ It is written in C and utilizes NDK 3.2 and ReAction.
 
 -   AmigaOS 3.1 or higher
 
-( **AmigaOS 3.1 and 3.1.4 require [ClassAct33](https://aminet.net/package/dev/gui/classact33) to work** )
-
--   ReAction
+-   ReAction ( **AmigaOS 3.1 and 3.1.4 require [ClassAct33](https://aminet.net/package/dev/gui/classact33) to work** )
 
 ## Installation
 
