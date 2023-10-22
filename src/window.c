@@ -61,7 +61,6 @@
 #include "window.h"
 #include "scan.h"
 #include "funcs.h"
-#include "aboutWin.h"
 
 
 // -------------
@@ -220,7 +219,7 @@ void updatePathText(Object *fileRequester, STRPTR path) {
 }
 
 void updateMenuItems(struct Window *intuiwin, BOOL enabled){
-	if (enabled == TRUE){
+	if (enabled == TRUE && WorkbenchBase->lib_Version >= 44){
 		MenuArray[2] = (struct NewMenu){NM_ITEM, "Open in Workbench...", 0, 0, 0, (APTR)OID_MENU_OPEN_DIR};
 	}
 	else {
@@ -528,8 +527,20 @@ void processEvents(Object *windowObject,
 							case OID_MENU_ABOUT:
 								// printf("Clicked About\n");
 								toggleBusyPointer(windowObject, TRUE);
-
-								aboutWin();
+								struct EasyStruct requesterAbout = {
+									sizeof(struct EasyStruct),
+									0,
+									"About",
+									"Copyright (c) 2023 Aris (Arisamiga) \nSokianos\n\n"
+									"Mnemosyne is an open source disk \nutility application for AmigaOS 3.2,\n" \
+									"which can be used to see how much \ndisk space your files and folders \nare taking up.\n\n" \
+									"\"Mnemosyne\", in Greek mythology is \nthe goddess of memory.\n\n" \
+									"Thank you so much for using \nMnemosyne :D\n\n" \
+									"Report bugs or request features at:\nhttps://github.com/Arisamiga/Mnemosyne\n\n" \
+									"Distributed without warranty under \nthe terms of the \nGNU General Public License.",
+									"OK"
+								};
+								EasyRequest(intuiwin, &requesterAbout, NULL, NULL);
 
 								// printf("About window closed\n");
 								toggleBusyPointer(windowObject, FALSE);

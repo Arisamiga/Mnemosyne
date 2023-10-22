@@ -14,8 +14,8 @@ struct Library *LayoutBase;
 struct Library *ListBrowserBase;
 struct Library *ButtonBase;
 struct Library *GetFileBase;
-struct Library *TextFieldBase;
 struct Library *GadToolsBase;
+struct Library *WorkbenchBase;
 
 // Declare functions after main
 void info(void);
@@ -57,13 +57,12 @@ BOOL openLibraries(void)
 		printf("Failed to open gadgets/getfile.gadget! Make sure the version is above v47.\n");
 		return FALSE;
 	}
-	if (!(TextFieldBase = OpenLibrary("gadgets/texteditor.gadget", 1)))
-	{
-		printf("Failed to open gadgets/texteditor.gadget! Make sure the version is above v47.\n");
+	if ((GadToolsBase = OpenLibrary("gadtools.library", 1)) == NULL) {
+		printf( "Could not open gadtools.library\n");
 		return FALSE;
 	}
-	if ((GadToolsBase = OpenLibrary("gadtools.library", 40)) == NULL) {
-		printf( "Could not open gadtools.library\n");
+	if ((WorkbenchBase = OpenLibrary("workbench.library", 1)) == NULL) {
+		printf( "Could not open workbench.library\n");
 		return FALSE;
 	}
 
@@ -86,10 +85,10 @@ void closeLibraries(void)
 		CloseLibrary(ButtonBase);
 	if (GetFileBase)
 		CloseLibrary(GetFileBase);
-	if (TextFieldBase)
-		CloseLibrary(TextFieldBase);
 	if (GadToolsBase)
 		CloseLibrary(GadToolsBase);
+	if (WorkbenchBase)
+		CloseLibrary(WorkbenchBase);
 }
 
 
