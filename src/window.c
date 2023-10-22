@@ -124,7 +124,7 @@ static float __SAVE_DS__ __ASM__ myCompare(__REG__(a0, struct Hook *hook), __REG
 static int __SAVE_DS__ __ASM__ myCompare2(__REG__(a0, struct Hook *hook), __REG__(a2, Object *obj),
 										   __REG__(a1, struct LBSortMsg *msg))
 {
-	return strcmp(string_to_lower(msg->lbsm_DataA.Text, strlen(msg->lbsm_DataA.Text)), string_to_lower(msg->lbsm_DataB.Text, strlen(msg->lbsm_DataB.Text)));
+	return strcmp(string_to_lower(msg->lbsm_DataA.Text, safeStrlen(msg->lbsm_DataA.Text)), string_to_lower(msg->lbsm_DataB.Text, safeStrlen(msg->lbsm_DataB.Text)));
 }
 
 
