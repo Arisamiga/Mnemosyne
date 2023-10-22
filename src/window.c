@@ -592,6 +592,8 @@ void processEvents(Object *windowObject,
 
 								updatePathText(fileRequester, parentPath);
 
+								DoGadgetMethod((struct Gadget*)listBrowser, intuiwin, NULL, LBM_SORT, NULL, 1, LBMSORT_REVERSE, &CompareHook);
+								ColumnSorting[1].Sorting = LBMSORT_REVERSE;
 
 								updateMenuItems(intuiwin, TRUE);
 
