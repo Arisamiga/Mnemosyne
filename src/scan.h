@@ -5,7 +5,7 @@
 extern char pastPath[256]; // This is the path that was last Scanned
 
 STRPTR returnFormatWithTotal(void);
-void scanPath(char *, BOOL, Object *);
+void scanPath(char *, BOOL, struct Gadget *);
 void clearScanning(void);
 
 #endif

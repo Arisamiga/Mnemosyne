@@ -122,6 +122,39 @@ static float __SAVE_DS__ __ASM__ myCompare(__REG__(a0, struct Hook *hook), __REG
 	return asValue(msg->lbsm_DataA.Text) - asValue(msg->lbsm_DataB.Text);
 }
 
+static int __SAVE_DS__ __ASM__ myCompare2(__REG__(a0, struct Hook *hook), __REG__(a2, Object *obj),
+										   __REG__(a1, struct LBSortMsg *msg))
+{
+	return strcmp(string_to_lower(msg->lbsm_DataA.Text), string_to_lower(msg->lbsm_DataB.Text));
+}
+
+
+
+void UpdateMenu(struct Window *intuiwin, BOOL enabled){
+	APTR *visualInfo;
+	ULONG error = (ULONG)NULL;
+	struct Screen *screen = intuiwin->WScreen;
+
+	FreeMenus(menu);
+	if (visualInfo = GetVisualInfo(screen, NULL)) {
+		if (menu = CreateMenus(MenuArray, GTMN_SecondaryError, &error, TAG_DONE)) {
+			if (LayoutMenus(menu, visualInfo, GTMN_NewLookMenus, TRUE, TAG_DONE)) {
+				if (SetMenuStrip(intuiwin, menu)) {
+					if (enabled)
+						RefreshWindowFrame(intuiwin);
+				} else {
+					// printf("Error setting menu strip\n");
+				}
+			} else {
+				// printf("Error laying out menu\n");
+			}
+		} else {
+			printf("Error creating menu\n");
+		}
+		FreeVisualInfo(visualInfo);
+	}
+}
+
 void checkBackButton(char *pastPath, BOOL doneFirst, Object *backButton) {
 	if (getLastCharSafely(pastPath) != ':' && doneFirst && pastPath[0] != '\0')
 		SetAttrs(backButton, GA_Disabled, FALSE, TAG_DONE);
@@ -215,8 +248,8 @@ void fileRequesterSequence(Object *fileRequester,
 		TEXT *path = AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
 		ULONG pathPtr;
 		GetAttr(GETFILE_FullFile, fileRequester, &pathPtr);
-		// snprintf(path, 50, "%s", pathPtr);
-		snprintf(path, MAX_BUFFER, "%s", pathPtr);
+		strncpy(path, (const char*)pathPtr, MAX_BUFFER - 1);
+		path[MAX_BUFFER - 1] = '\0';
 		BPTR lock = Lock(path, ACCESS_READ);
 		SetAttrs(listBrowser, GA_DISABLED, TRUE, TAG_DONE);
 		SetAttrs(backButton, GA_Disabled, TRUE, TAG_DONE);
@@ -242,31 +275,6 @@ void fileRequesterSequence(Object *fileRequester,
 	}
 }
 
-void UpdateMenu(struct Window *intuiwin, BOOL enabled){
-	APTR *visualInfo;
-	ULONG error = (ULONG)NULL;
-	struct Screen *screen = intuiwin->WScreen;
-
-	FreeMenus(menu);
-	if (visualInfo = GetVisualInfo(screen, NULL)) {
-		if (menu = CreateMenus(MenuArray, GTMN_SecondaryError, &error, TAG_DONE)) {
-			if (LayoutMenus(menu, visualInfo, GTMN_NewLookMenus, TRUE, TAG_DONE)) {
-				if (SetMenuStrip(intuiwin, menu)) {
-					if (enabled)
-						RefreshWindowFrame(intuiwin);
-				} else {
-					printf("Error setting menu strip\n");
-				}
-			} else {
-				printf("Error laying out menu\n");
-			}
-		} else {
-			printf("Error creating menu: %ld\n", error);
-		}
-		FreeVisualInfo(visualInfo);
-	}
-}
-
 
 // -------------
 // Main Window Functions
@@ -279,6 +287,7 @@ void processEvents(Object *windowObject,
 				   Object *backButton,
 				   BOOL doneFirst,
 				   struct Hook CompareHook,
+				   struct Hook NameHook,
 				   Object *bottomText,
 				   Object *fileRequester,
 				   Object *scanButton);
@@ -289,6 +298,7 @@ void createWindow(void)
 	Object *windowObject = NULL;
 
 	struct Hook CompareHook;
+	struct Hook NameHook;
 
 	struct MsgPort *appPort;
 
@@ -340,6 +350,10 @@ void createWindow(void)
 	CompareHook.h_Entry = (ULONG(*)())myCompare;
 	CompareHook.h_SubEntry = NULL;
 	CompareHook.h_Data = NULL;
+
+	NameHook.h_Entry = (ULONG(*)())myCompare2;
+	NameHook.h_SubEntry = NULL;
+	NameHook.h_Data = NULL;
 
 	struct ColumnInfo ci[] =
 	{
@@ -440,7 +454,7 @@ void createWindow(void)
 	if (!(intuiwin = (struct Window *)DoMethod(windowObject, WM_OPEN, NULL)))
 		cleanexit(windowObject, appPort);
 	UpdateMenu(intuiwin, TRUE);
-	processEvents(windowObject, intuiwin, listBrowser, backButton, doneFirst, CompareHook, bottomText, fileRequester, scanButton);
+	processEvents(windowObject, intuiwin, listBrowser, backButton, doneFirst, CompareHook, NameHook, bottomText, fileRequester, scanButton);
 	DoMethod(windowObject, WM_CLOSE);
 	clearList(contents);
 	cleanexit(windowObject, appPort);
@@ -451,6 +465,7 @@ void processEvents(Object *windowObject,
 				   Object *backButton,
 				   BOOL doneFirst,
 				   struct Hook CompareHook,
+				   struct Hook NameHook,
 				   Object *bottomText,
 				   Object *fileRequester,
 				   Object *scanButton)
@@ -611,7 +626,7 @@ void processEvents(Object *windowObject,
 
 								GetAttr(GETFILE_FullFile, fileRequester, &pathPtr);
 
-								snprintf(buffer, MAX_BUFFER, "%s", pathPtr);
+								snprintf(buffer, MAX_BUFFER, "%s", (char *)pathPtr);
 
 								char *parentName = AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
 
@@ -635,6 +650,7 @@ void processEvents(Object *windowObject,
 								doneFirst = TRUE;
 
 								DoGadgetMethod((struct Gadget*)listBrowser, intuiwin, NULL, LBM_SORT, NULL, 1, LBMSORT_REVERSE, &CompareHook);
+								ColumnSorting[1].Sorting = LBMSORT_REVERSE;
 
 								updateMenuItems(intuiwin, TRUE);
 
@@ -681,7 +697,11 @@ void processEvents(Object *windowObject,
 									// printf("Colums: %ld\n", column);
 									// printf("Current sorting: %d\n", ColumnSorting[column].Sorting);
 									ColumnSorting[column].Sorting = !ColumnSorting[column].Sorting;
-									DoGadgetMethod((struct Gadget*)listBrowser, intuiwin, NULL, LBM_SORT, NULL, column, ColumnSorting[column].Sorting, &CompareHook);
+									if (column == 1)
+										DoGadgetMethod((struct Gadget*)listBrowser, intuiwin, NULL, LBM_SORT, NULL, column, ColumnSorting[column].Sorting, &CompareHook);
+									else if (column == 0)
+										DoGadgetMethod((struct Gadget*)listBrowser, intuiwin, NULL, LBM_SORT, NULL, column, ColumnSorting[column].Sorting, &NameHook);
+									break;
 								}
 								STRPTR text = NULL;
 								GetListBrowserNodeAttrs(node, LBNA_Column, 0, LBNCA_Text, &text, TAG_DONE);
@@ -709,7 +729,7 @@ void processEvents(Object *windowObject,
 											strcat(pastPath, "/");
 										}
 
-										snprintf(newPath, MAX_BUFFER, "%s%s", &pastPath, text);
+										snprintf(newPath, MAX_BUFFER, "%s%s", pastPath, text);
 										updatePathText(fileRequester, newPath);
 										updateBottomTextW2Text(bottomText, windowObject, "Scanning: ", text, FALSE);
 										toggleButtons(windowObject, backButton, listBrowser, fileRequester, pastPath, doneFirst, TRUE, TRUE);
@@ -722,6 +742,9 @@ void processEvents(Object *windowObject,
 
 										scanning = FALSE;
 									}
+
+									DoGadgetMethod((struct Gadget*)listBrowser, intuiwin, NULL, LBM_SORT, NULL, 1, LBMSORT_REVERSE, &CompareHook);
+									ColumnSorting[1].Sorting = LBMSORT_REVERSE;
 
 									updateMenuItems(intuiwin, TRUE);
 									// printf("Donefirst: %d\n", doneFirst);
