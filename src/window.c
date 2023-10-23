@@ -38,24 +38,14 @@
 #include <exec/types.h>
 #include <exec/memory.h>
 #include <dos/dos.h>
-#include <graphics/gfxmacros.h>
 #include <intuition/gadgetclass.h>
-#include <intuition/imageclass.h>
 #include <intuition/icclass.h>
 #include <libraries/asl.h>
 #include <utility/tagitem.h>
 #include <reaction/reaction.h>
 #include <reaction/reaction_macros.h>
 
-#include <images/glyph.h>
-#include <images/label.h>
-
-#include <proto/diskfont.h>
-#include <proto/graphics.h>
 #include <clib/alib_protos.h>
-
-#include <proto/glyph.h>
-#include <proto/label.h>
 //
 
 #include "window.h"
