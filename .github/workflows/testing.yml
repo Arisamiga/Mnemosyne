@@ -1,0 +1,54 @@
+name: 🧱 Build Release
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'Makefile'
+      - 'src/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'Makefile'
+      - 'src/**'
+  workflow_dispatch:
+
+# Add the LICENSE file to the release files
+jobs:
+  release:
+    name: Upload Release Asset
+    runs-on: ubuntu-latest # linux required if you want to use docker
+    container:
+      image: walkero/docker4amigavbcc:latest-m68k
+      volumes:
+        - '${{ github.workspace }}:/opt/code'
+    steps:
+      - name: 🚚 Get latest code
+        uses: actions/checkout@v2
+      - name: 🏃 Running Make
+        run: make
+      - name: ➡️ Move to build folder
+        run: |
+          cp Mnemosyne /opt/code/build/
+          cp LICENSE /opt/code/build/
+      - name: 📁 Create Release folder
+        run: |
+          mkdir /opt/code/Release/
+          cp -a /opt/code/build/. /opt/code/Release/Mnemosyne-1.0.0
+          cp /opt/code/images/drawer_3.0.info /opt/code/Release/Mnemosyne-1.0.0.info
+      - name: 📦 Create LHA archive
+        run: |
+          cd /opt/code/Release/
+          lha -aq2o6 Mnemosyne-1.0.0.lha Mnemosyne-1.0.0/ Mnemosyne-1.0.0.info
+      - name: 🗃️ Prepare Aminet Package
+        run: |
+          mkdir /opt/code/Release/Aminet-Release/
+          cp /opt/code/Release/Mnemosyne-1.0.0.lha /opt/code/Release/Aminet-Release/Mnemosyne.lha
+          cp /opt/code/aminet.readme /opt/code/Release/Aminet-Release/Mnemosyne.readme
+      - name: 🎲 Uploading to Itch.io
+        - uses: manleydev/butler-publish-itchio-action@v1.0.3
+          env:
+            BUTLER_CREDENTIALS: ${{ secrets.BUTLER_API_KEY }}
+            CHANNEL: LHA
+            ITCH_GAME: Mnemosyne
+            ITCH_USER: arisamiga
+            PACKAGE: Mnemosyne-1.0.0.lha
