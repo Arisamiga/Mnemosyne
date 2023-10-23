@@ -39,6 +39,15 @@ jobs:
           asset_path: /opt/code/Release/Mnemosyne-${{ github.event.release.tag_name }}.lha
           asset_name: Mnemosyne-${{ github.event.release.tag_name }}.lha
           asset_content_type: application/x-lzh-compressed
+      - name: 🎲 Uploading to Itch.io
+        uses: KikimoraGames/itch-publish@v0.0.3
+        with:
+          butlerApiKey: ${{ secrets.BUTLER_API_KEY }}
+          buildChannel: LHA
+          itchGameId: Mnemosyne
+          itchUsername: arisamiga
+          buildNumber: ${{ github.event.release.tag_name }}
+          gameData: ${{ github.workspace }}/Release/Mnemosyne-${{ github.event.release.tag_name }}.lha
       - name: 🗃️ Prepare Aminet Package
         run: |
           mkdir /opt/code/Release/Aminet-Release/
@@ -53,11 +62,3 @@ jobs:
           password: ${{ secrets.ftp_password }}
           server-dir: ./new/
           local-dir: /opt/code/Release/Aminet-Release/
-      - name: 🎲 Uploading to Itch.io
-        - uses: manleydev/butler-publish-itchio-action@v1.0.3
-          env:
-            BUTLER_CREDENTIALS: ${{ secrets.BUTLER_API_KEY }}
-            CHANNEL: LHA
-            ITCH_GAME: Mnemosyne
-            ITCH_USER: arisamiga
-            PACKAGE: Mnemosyne-${{ github.event.release.tag_name }}.lha
