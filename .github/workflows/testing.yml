@@ -32,13 +32,14 @@ jobs:
           cd /opt/code/Release/
           lha -aq2o6 Mnemosyne-1.0.0.lha Mnemosyne-1.0.0/ Mnemosyne-1.0.0.info
       - name: 🎲 Uploading to Itch.io
-        uses: manleydev/butler-publish-itchio-action@v1.0.3
-        env:
-          BUTLER_CREDENTIALS: ${{ secrets.BUTLER_API_KEY }}
-          CHANNEL: LHA
-          ITCH_GAME: Mnemosyne
-          ITCH_USER: arisamiga
-          PACKAGE: /opt/code/Release/Mnemosyne-1.0.0.lha
+        uses: KikimoraGames/itch-publish@v0.0.3
+        with:
+          butlerApiKey: ${{ secrets.BUTLER_API_KEY }}
+          buildChannel: LHA
+          itchGameId: Mnemosyne
+          itchUsername: arisamiga
+          buildNumber: 1.0.0
+          gameData: /opt/code/Release/Mnemosyne-1.0.0.lha
       - name: 🗃️ Prepare Aminet Package
         run: |
           mkdir /opt/code/Release/Aminet-Release/
