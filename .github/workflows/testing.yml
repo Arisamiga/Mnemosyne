@@ -1,12 +1,12 @@
 name: 🧱 Build Release
 on:
   push:
-    branches: [main]
+    branches: [itchio-workflow]
     paths:
       - 'Makefile'
       - 'src/**'
   pull_request:
-    branches: [main]
+    branches: [itchio-workflow]
     paths:
       - 'Makefile'
       - 'src/**'
