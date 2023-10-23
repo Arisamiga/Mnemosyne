@@ -36,8 +36,17 @@ jobs:
           mkdir /opt/code/Release/Aminet-Release/
           cp /opt/code/Release/Mnemosyne-1.0.0.lha /opt/code/Release/Aminet-Release/Mnemosyne.lha
           cp /opt/code/aminet.readme /opt/code/Release/Aminet-Release/Mnemosyne.readme
-      - name: 📤 Copy LHA archive to host machine
-        run: docker cp container_name:/opt/code/Release/Mnemosyne-1.0.0.lha .
+      - name: 📤 Upload LHA archive as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: Mnemosyne-1.0.0.lha
+          path: /opt/code/Release/Aminet-Release/Mnemosyne-1.0.0.lha
+
+      - name: 🎲 Download LHA archive artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: Mnemosyne-1.0.0.lha
+          path: /tmp/Mnemosyne-1.0.0.lha
       - name: 🎲 Uploading to Itch.io
         uses: manleydev/butler-publish-itchio-action@v1.0.3
         env:
@@ -45,4 +54,4 @@ jobs:
           CHANNEL: LHA
           ITCH_GAME: Mnemosyne
           ITCH_USER: arisamiga
-          PACKAGE: Mnemosyne-1.0.0.lha
+          PACKAGE: /tmp/Mnemosyne-1.0.0.lha
