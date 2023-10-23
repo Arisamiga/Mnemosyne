@@ -53,3 +53,11 @@ jobs:
           password: ${{ secrets.ftp_password }}
           server-dir: ./new/
           local-dir: /opt/code/Release/Aminet-Release/
+      - name: 🎲 Uploading to Itch.io
+        - uses: manleydev/butler-publish-itchio-action@v1.0.3
+          env:
+            BUTLER_CREDENTIALS: ${{ secrets.BUTLER_API_KEY }}
+            CHANNEL: LHA
+            ITCH_GAME: Mnemosyne
+            ITCH_USER: arisamiga
+            PACKAGE: Mnemosyne-${{ github.event.release.tag_name }}.lha
