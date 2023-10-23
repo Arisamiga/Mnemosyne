@@ -45,10 +45,10 @@ jobs:
           cp /opt/code/Release/Mnemosyne-1.0.0.lha /opt/code/Release/Aminet-Release/Mnemosyne.lha
           cp /opt/code/aminet.readme /opt/code/Release/Aminet-Release/Mnemosyne.readme
       - name: 🎲 Uploading to Itch.io
-        - uses: manleydev/butler-publish-itchio-action@v1.0.3
-          env:
-            BUTLER_CREDENTIALS: ${{ secrets.BUTLER_API_KEY }}
-            CHANNEL: LHA
-            ITCH_GAME: Mnemosyne
-            ITCH_USER: arisamiga
-            PACKAGE: Mnemosyne-1.0.0.lha
+        uses: manleydev/butler-publish-itchio-action@v1.0.3
+        env:
+          BUTLER_CREDENTIALS: ${{ secrets.BUTLER_API_KEY }}
+          CHANNEL: LHA
+          ITCH_GAME: Mnemosyne
+          ITCH_USER: arisamiga
+          PACKAGE: Mnemosyne-1.0.0.lha
