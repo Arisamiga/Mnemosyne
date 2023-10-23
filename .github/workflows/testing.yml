@@ -39,7 +39,7 @@ jobs:
           itchGameId: Mnemosyne
           itchUsername: arisamiga
           buildNumber: 1.0.0
-          gameData: /opt/code/Release/Mnemosyne-1.0.0.lha
+          gameData: ${{ github.workspace }}/Release/Mnemosyne-1.0.0.lha
       - name: 🗃️ Prepare Aminet Package
         run: |
           mkdir /opt/code/Release/Aminet-Release/
