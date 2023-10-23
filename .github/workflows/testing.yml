@@ -43,4 +43,4 @@ jobs:
           CHANNEL: LHA
           ITCH_GAME: Mnemosyne
           ITCH_USER: arisamiga
-          PACKAGE: Mnemosyne-1.0.0.lha
+          PACKAGE: /opt/code/Release/Aminet-Release/Mnemosyne-1.0.0.lha
