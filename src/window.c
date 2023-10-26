@@ -522,7 +522,7 @@ void processEvents(Object *windowObject,
 									0,
 									"About",
 									"Copyright (c) 2023 Aris (Arisamiga) \nSokianos\n\n"
-									"Mnemosyne is an open source disk \nutility application for AmigaOS 3.2,\n" \
+									"Mnemosyne is an open source disk \nutility application for AmigaOS 3.*,\n" \
 									"which can be used to see how much \ndisk space your files and folders \nare taking up.\n\n" \
 									"\"Mnemosyne\", in Greek mythology is \nthe goddess of memory.\n\n" \
 									"Thank you so much for using \nMnemosyne :D\n\n" \
