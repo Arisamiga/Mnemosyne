@@ -7,7 +7,7 @@ Architecture: m68k-amigaos >= 3.0.0
 Distribution: Aminet
 Replaces:     util/misc/Mnemosyne.lha
 
-Mnemosyne is an open source disk utility application for AmigaOS 3.*
+Mnemosyne is an open source disk utility application for AmigaOS 3.x
 which can be used to to see how much disk space your files and folders are taking up.
 
 Features

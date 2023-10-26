@@ -19,7 +19,7 @@
 
 @{jcenter}
 
-Mnemosyne is an open-source disk utility application for AmigaOS 3.*, 
+Mnemosyne is an open-source disk utility application for AmigaOS 3.x, 
 which can be used to see how much disk space your files and folders are taking up.
 
 
@@ -43,7 +43,7 @@ which can be used to see how much disk space your files and folders are taking u
 @{b}About@{ub}
 =====
 
-Mnemosyne is an open-source disk utility application for AmigaOS 3.*,
+Mnemosyne is an open-source disk utility application for AmigaOS 3.x,
 which can be used to see how much disk space 
 Your files and folders are taking up.
 
