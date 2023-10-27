@@ -22,47 +22,47 @@ void info(void);
 
 BOOL openLibraries(void)
 {
-	if (!(IntuitionBase = (struct IntuitionBase *)OpenLibrary("intuition.library", 1)))
+	if (!(IntuitionBase = (struct IntuitionBase *)OpenLibrary("intuition.library", 39)))
 	{
-		printf("Failed to open intuition.library! Make sure the version is above v47.\n");
+		printf("Failed to open intuition.library! Make sure the version is above v39.\n");
 		return FALSE;
 	}
-	if (!(UtilityBase = OpenLibrary("utility.library", 1)))
+	if (!(UtilityBase = OpenLibrary("utility.library", 39)))
 	{
-		printf("Failed to open utility.library! Make sure the version is above v47.\n");
+		printf("Failed to open utility.library! Make sure the version is above v39.\n");
 		return FALSE;
 	}
-	if (!(WindowBase = OpenLibrary("window.class", 1)))
+	if (!(WindowBase = OpenLibrary("window.class", 39)))
 	{
-		printf("Failed to open window.class! Make sure the version is above v47.\n");
+		printf("Failed to open window.class! Make sure the version is above v39.\n");
 		return FALSE;
 	}
-	if (!(LayoutBase = OpenLibrary("gadgets/layout.gadget", 1)))
+	if (!(LayoutBase = OpenLibrary("gadgets/layout.gadget", 39)))
 	{
-		printf("Failed to open gadgets/layout.gadget! Make sure the version is above v47.\n");
+		printf("Failed to open gadgets/layout.gadget! Make sure the version is above v39.\n");
 		return FALSE;
 	}
-	if (!(ListBrowserBase = OpenLibrary("gadgets/listbrowser.gadget", 1)))
+	if (!(ListBrowserBase = OpenLibrary("gadgets/listbrowser.gadget", 39)))
 	{
-		printf("Failed to open gadgets/listbrowser.gadget! Make sure the version is above v47.\n");
+		printf("Failed to open gadgets/listbrowser.gadget! Make sure the version is above v39.\n");
 		return FALSE;
 	}
-	if (!(ButtonBase = OpenLibrary("gadgets/button.gadget", 1)))
+	if (!(ButtonBase = OpenLibrary("gadgets/button.gadget", 39)))
 	{
-		printf("Failed to open gadgets/button.gadget! Make sure the version is above v47.\n");
+		printf("Failed to open gadgets/button.gadget! Make sure the version is above v39.\n");
 		return FALSE;
 	}
-	if (!(GetFileBase = OpenLibrary("gadgets/getfile.gadget", 1)))
+	if (!(GetFileBase = OpenLibrary("gadgets/getfile.gadget", 39)))
 	{
-		printf("Failed to open gadgets/getfile.gadget! Make sure the version is above v47.\n");
+		printf("Failed to open gadgets/getfile.gadget! Make sure the version is above v39.\n");
 		return FALSE;
 	}
-	if ((GadToolsBase = OpenLibrary("gadtools.library", 1)) == NULL) {
-		printf( "Could not open gadtools.library\n");
+	if ((GadToolsBase = OpenLibrary("gadtools.library", 39)) == NULL) {
+		printf( "Failed to open gadtools.library! Make sure the version is above v39.\n");
 		return FALSE;
 	}
-	if ((WorkbenchBase = OpenLibrary("workbench.library", 1)) == NULL) {
-		printf( "Could not open workbench.library\n");
+	if ((WorkbenchBase = OpenLibrary("workbench.library", 39)) == NULL) {
+		printf( "Failed to open workbench.library! Make sure the version is above v39.\n");
 		return FALSE;
 	}
 
