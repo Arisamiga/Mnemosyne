@@ -41,6 +41,15 @@ https://github.com/Arisamiga/Mnemosyne/issues
 ------------------------------------------------------------------------------
 **ChangeLog**
 
+-> Update 1.0.2 (2023-10-27)
+* Made Mnemosyne program able to be used on AmigaOS 3.1 and 3.1.4 and 3.9
+(For AmigaOS 3.1 and 3.1.4 you need to install ClassAct33)
+* Made Mnemosyne program from: 31.772B to 32.440B
+* Changed layout to be more uniform across differnet AmigaOS versions
+* Current version moving to 1.0.1 -> 1.0.2
+* New Guide images updated to fit the version
+* Replaced About window with a Requester.
+
 -> Update 1.0.1 (2023-09-18)
 
 * Fixed a lot of typos and grammar mistakes in the documentation and code. (Thanks to: @polluks)
