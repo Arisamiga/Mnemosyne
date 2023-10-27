@@ -51,7 +51,7 @@ STRPTR returnGivenFormat(int format) {
 
 STRPTR returnFormatWithTotal(void){
     STRPTR buffer = AllocVec(64, MEMF_CLEAR);
-    SNPrintf(buffer, 64, " (%ld %s)", totalSize, returnGivenFormat(currentFormat));
+    snprintf(buffer, 64, " (%lu %s)", totalSize, returnGivenFormat(currentFormat));
     return buffer;
 }
 
@@ -113,12 +113,12 @@ void addToList(char *name, ULONG size, STRPTR format)
     // printf("Size: %ld\n", size);
 
     UBYTE *buffer = AllocVec(64, MEMF_CLEAR);
-    SNPrintf(buffer, 64, "%s", name);
+    snprintf(buffer, 64, "%s", name);
 
     STRPTR prebuffer2 = ULongToString(size);
 
     UBYTE *buffer2 = AllocVec(64, MEMF_CLEAR);
-    SNPrintf(buffer2, 64, "%s %s", prebuffer2, format);
+    snprintf(buffer2, 64, "%s %s", prebuffer2, format);
 
     struct Node *node = AllocListBrowserNode(3,
                                              LBNA_Column, 0,
@@ -142,7 +142,7 @@ void addToList(char *name, ULONG size, STRPTR format)
     FreeVec(buffer2);
 }
 
-void addFileSequence(Object *listGadget, struct FileInfoBlock *fib, BOOL subFoldering){
+void addFileSequence(struct Gadget *listGadget, struct FileInfoBlock *fib, BOOL subFoldering){
 	if (listGadget)
 	{
 		int format = correctFormat(fib->fib_Size);
@@ -157,7 +157,7 @@ void addFileSequence(Object *listGadget, struct FileInfoBlock *fib, BOOL subFold
 	addToTotalSize(fib->fib_Size);
 }
 
-void scanPath(char *path, BOOL subFoldering, Object *listGadget)
+void scanPath(char *path, BOOL subFoldering, struct Gadget *listGadget)
 {
     BPTR lockPath = Lock(path, ACCESS_READ);
     if (!lockPath)

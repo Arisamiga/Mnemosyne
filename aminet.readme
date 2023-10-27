@@ -2,12 +2,12 @@ Short:        Disk usage statistics+file/folder utility
 Uploader:     arisamiga@gmail.com (Aris Sokianos)
 Author:       Aris (arisamiga) Sokianos
 Type:         util/misc
-Version:      1.0.1
-Architecture: m68k-amigaos >= 3.2.1
+Version:      1.0.2
+Architecture: m68k-amigaos >= 3.0.0
 Distribution: Aminet
 Replaces:     util/misc/Mnemosyne.lha
 
-Mnemosyne is an open source disk utility application for AmigaOS 3.2,
+Mnemosyne is an open source disk utility application for AmigaOS 3.x
 which can be used to to see how much disk space your files and folders are taking up.
 
 Features
@@ -28,9 +28,8 @@ Mnemosyne is coded in C and uses the NDK 3.2 and ReAction (For the GUI).
 
 Requirements:
 
-* AmigaOS 3.2
-* If you want to use the GUI you will need at least AmigaOS 3.2.1
-* ReAction
+* AmigaOS 3.1 or higher
+* ReAction ( AmigaOS 3.1 and 3.1.4 require [ClassAct33](https://aminet.net/package/dev/gui/classact33) to work)
 
 You can find the source code of Mnemosyne on GitHub:
 https://github.com/Arisamiga/Mnemosyne
@@ -41,6 +40,15 @@ https://github.com/Arisamiga/Mnemosyne/issues
 
 ------------------------------------------------------------------------------
 **ChangeLog**
+
+-> Update 1.0.2 (2023-10-27)
+* Made Mnemosyne program able to be used on AmigaOS 3.1 and 3.1.4 and 3.9
+(For AmigaOS 3.1 and 3.1.4 you need to install ClassAct33)
+* Made Mnemosyne program from: 31.772B to 32.440B
+* Changed layout to be more uniform across differnet AmigaOS versions
+* Current version moving to 1.0.1 -> 1.0.2
+* New Guide images updated to fit the version
+* Replaced About window with a Requester.
 
 -> Update 1.0.1 (2023-09-18)
 

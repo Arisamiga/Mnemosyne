@@ -96,7 +96,7 @@ STRPTR floatToString(float num)
 STRPTR ULongToString(ULONG num)
 {
     STRPTR buffer = AllocVec(64, MEMF_ANY);
-    SNPrintf(buffer, 64, "%lu", num);
+    snprintf(buffer, 64, "%lu", num);
     return buffer;
 }
 
@@ -218,3 +218,20 @@ char* getLastTwoChars(const char* str) {
     return (char*)(str + length - 2);
 }
 
+char *string_to_lower(const char *text, size_t len)
+{
+    char *result = AllocVec(len + 1, MEMF_ANY);
+    for (size_t i = 0; i < len; i++)
+        result[i] = tolower(text[i]);
+    result[len] = '\0';
+    return result;
+}
+
+size_t safeStrlen(const char *str)
+{
+    size_t len = 0;
+    while (str[len] != '\0') {
+        len++;
+    }
+    return len;
+}
