@@ -98,7 +98,15 @@ int main(int argc, char **argv)
 	{
 		if (openLibraries())
 		{
-			createWindow();
+			createWindow(NULL);
+		}
+		closeLibraries();
+		return 0;
+	}
+	if (argv[1][0] == '-' && argv[1][1] == 'g' && argc >= 3){
+		if (openLibraries())
+		{
+			createWindow(argv[2]);
 		}
 		closeLibraries();
 		return 0;
