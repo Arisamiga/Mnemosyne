@@ -126,5 +126,5 @@ int main(int argc, char **argv)
 
 void info(void)
 {
-	printf("Mnemosyne: Starts Application\nMnemosyne (PATH): Scans Selected Path\n");
+	printf("Mnemosyne: Starts GUI Application\nMnemosyne (PATH): Scans Selected Path\nMnemosyne -g (PATH): Scans Selected Path in GUI\n");
 }
