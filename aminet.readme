@@ -2,7 +2,7 @@ Short:        Disk usage statistics+file/folder utility
 Uploader:     arisamiga@gmail.com (Aris Sokianos)
 Author:       Aris (arisamiga) Sokianos
 Type:         util/misc
-Version:      1.0.2
+Version:      1.1.0
 Architecture: m68k-amigaos >= 3.0.0
 Distribution: Aminet
 Replaces:     util/misc/Mnemosyne.lha
@@ -40,6 +40,17 @@ https://github.com/Arisamiga/Mnemosyne/issues
 
 ------------------------------------------------------------------------------
 **ChangeLog**
+
+-> Update 1.1.0 (2023-10-30)
+* Added -g flag to open a window for scans from the shell.
+* Using proper Semantic Versioning now.
+* Current version moving to 1.0.2 -> 1.1.0
+* Made Mnemosyne program from: 32.440B to 32.504B
+* New Guide images updated to fit the version
+* .guide finally has a proper icon now.
+* Fixed Duplications in scanning procedure code.
+* Prevent wrongful appending of file path.
+
 
 -> Update 1.0.2 (2023-10-27)
 * Made Mnemosyne program able to be used on AmigaOS 3.1 and 3.1.4 and 3.9

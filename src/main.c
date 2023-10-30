@@ -5,7 +5,7 @@
 #include "window.h"
 
 // Mnemosyne Version
-char *vers = "\0$VER: Mnemosyne 1.0.2";
+char *vers = "\0$VER: Mnemosyne 1.1.0";
 
 struct IntuitionBase *IntuitionBase;
 struct Library *UtilityBase;
@@ -98,7 +98,15 @@ int main(int argc, char **argv)
 	{
 		if (openLibraries())
 		{
-			createWindow();
+			createWindow(NULL);
+		}
+		closeLibraries();
+		return 0;
+	}
+	if (argv[1][0] == '-' && (argv[1][1] == 'g' || argv[1][1] == 'G') && !argv[1][2] && argc >= 3){
+		if (openLibraries())
+		{
+			createWindow(argv[2]);
 		}
 		closeLibraries();
 		return 0;
@@ -118,5 +126,5 @@ int main(int argc, char **argv)
 
 void info(void)
 {
-	printf("Mnemosyne: Starts Application\nMnemosyne (PATH): Scans Selected Path\n");
+	printf("Mnemosyne: Starts GUI Application\nMnemosyne (PATH): Scans Selected Path\nMnemosyne -g (PATH): Scans Selected Path in GUI\n");
 }

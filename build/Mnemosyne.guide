@@ -1,7 +1,7 @@
 @database Mnemosyne.guide
 
 @author "Aris (Arisamiga) Sokianos"
-@$VER: Mnemosyne.Guide 1.0.2
+@$VER: Mnemosyne.Guide 1.1.0
 @(c) 2023 Aris (Arisamiga) Sokianos
 @Node "Main" "Mnemosyne"
 
@@ -15,7 +15,7 @@
  |_|  |_|_| |_|\\___|_| |_| |_|\\___/|___/\\___ |_| |_|\\___|
                                         |___/            
 
-@{jright}Version 1.0.2
+@{jright}Version 1.1.0
 
 @{jcenter}
 
@@ -136,6 +136,16 @@ There are 2 ways to use Mnemosyne:
      @{b}Mnemosyne <path>@{ub}
 
    Where <path> is the path to the directory you want to scan.
+   
+
+   Using the -g CLI Flag:
+   -------------------------
+
+      @{b}Mnemosyne -g <path>@{ub}
+
+    Where <path> is the path to the directory you want to scan. 
+
+    Adding the -g flag will open the GUI and start the scanning process.
 
 
 
