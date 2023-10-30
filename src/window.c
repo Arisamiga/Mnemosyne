@@ -67,6 +67,7 @@ enum
 	OID_MENU_QUIT,
 	OID_SCAN_BUTTON,
 	OID_SCAN_OPEN,
+	OID_GIVEN_PATH,
 	OID_LAST
 };
 
@@ -263,7 +264,77 @@ void fileRequesterSequence(Object *fileRequester,
 		SetAttrs(listBrowser, LISTBROWSER_TitleClickable, FALSE, TAG_DONE);
 	}
 }
+void scanningSequence(int type,
+		struct Window *intuiwin,
+		Object *windowObject,
+		Object *bottomText,
+		Object *scanButton,
+		Object *backButton,
+		struct Gadget *listBrowser,
+		Object *fileRequester,
+		BOOL doneFirst,
+		BOOL scanning,
+		struct Hook CompareHook,
+		char *givenPath)
+{
+	if (scanning)
+	{
+		// printf("Scanning already in progress\n");
+		return;
+	}
 
+	if (!fileEntered)
+	{
+		// printf("No file entered\n");
+		updateBottomText(bottomText, windowObject, "Please Select a folder");
+		return;
+	}
+
+	BPTR lockPath = Lock(givenPath, ACCESS_READ);
+	if (!lockPath)
+	{
+		updateBottomText(bottomText, windowObject, "Invalid Path, Select a valid path");
+		return;
+	}
+	UnLock(lockPath);
+
+	scanning = TRUE;
+
+	char *parentName = AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
+
+	getNameFromPath(givenPath, parentName, MAX_BUFFER);
+
+	if (type == OID_MAIN_LIST || type == OID_GIVEN_PATH)
+		updatePathText(fileRequester, givenPath);
+
+	updateBottomTextW2Text(bottomText, windowObject, "Scanning: ", parentName, FALSE);
+
+	SetAttrs(scanButton, GA_Disabled, TRUE, TAG_DONE);
+
+	toggleButtons(windowObject, backButton, listBrowser, fileRequester, pastPath, doneFirst, TRUE, TRUE);
+
+	scanPath(givenPath, FALSE, listBrowser);
+
+	scanning = FALSE;
+
+	toggleButtons(windowObject, backButton, listBrowser, fileRequester, pastPath, doneFirst, FALSE, FALSE);
+
+	DoGadgetMethod(listBrowser, intuiwin, NULL, LBM_SORT, NULL, 1, LBMSORT_REVERSE, &CompareHook);
+	ColumnSorting[1].Sorting = LBMSORT_REVERSE;
+	if(type == OID_BACK_BUTTON)
+		updatePathText(fileRequester, givenPath);
+
+	updateMenuItems(intuiwin, TRUE);
+
+	STRPTR TotalText = returnFormatWithTotal();
+	updateBottomTextW2AndTotal(bottomText, windowObject, "Current: ", parentName, TotalText, TRUE);
+
+	// Remove focus from the listbrowser
+	SetAttrs(listBrowser, LISTBROWSER_Selected, -1, TAG_DONE);
+
+	FreeVec(TotalText);
+	FreeVec(parentName);
+}
 
 // -------------
 // Main Window Functions
@@ -468,51 +539,14 @@ void processEvents(Object *windowObject,
 	BOOL scanning = FALSE;
 
 	if (givenPath != NULL){
-
-		BPTR lockPath = Lock(givenPath, ACCESS_READ);
-		if (!lockPath)
-		{
-			updateBottomText(bottomText, windowObject, "Invalid Path, Select a valid path");
-			return;
-		}
-		UnLock(lockPath);
-
-		scanning = TRUE;
-
-		char *parentName = AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
-
-		getNameFromPath(givenPath, parentName, MAX_BUFFER);
-
-		updatePathText(fileRequester, givenPath);
-
 		fileEntered = TRUE;
-
-		updateBottomTextW2Text(bottomText, windowObject, "Scanning: ", (STRPTR)parentName, FALSE);
-
-		SetAttrs(scanButton, GA_Disabled, TRUE, TAG_DONE);
-
-		toggleButtons(windowObject, backButton, listBrowser, fileRequester, pastPath, doneFirst, TRUE, TRUE);
-
-
-		scanPath(givenPath, FALSE, listBrowser);
-
-		scanning = FALSE;
-
-		toggleButtons(windowObject, backButton, listBrowser, fileRequester, pastPath, doneFirst, FALSE, FALSE);
-
+		if (getLastCharSafely(givenPath) != ':')
+		{
+			__asm_strncat(givenPath, "/",2);
+		}
+		updatePathText(fileRequester, givenPath);
+		scanningSequence(OID_GIVEN_PATH, intuiwin, windowObject, bottomText, scanButton, backButton, listBrowser, fileRequester, doneFirst, scanning, CompareHook, givenPath);
 		doneFirst = TRUE;
-
-		DoGadgetMethod((struct Gadget*)listBrowser, intuiwin, NULL, LBM_SORT, NULL, 1, LBMSORT_REVERSE, &CompareHook);
-		ColumnSorting[1].Sorting = LBMSORT_REVERSE;
-
-		updateMenuItems(intuiwin, TRUE);
-
-		// printf("Donefirst: %d\n", doneFirst);
-		STRPTR TotalText = returnFormatWithTotal();
-		updateBottomTextW2AndTotal(bottomText, windowObject, "Current: ", parentName, TotalText, TRUE);
-
-		FreeVec(parentName);
-		FreeVec(TotalText);
 	}
 
 	GetAttr(WINDOW_SigMask, windowObject, &windowsignal);
@@ -622,39 +656,15 @@ void processEvents(Object *windowObject,
 								getParentPath(pastPath, parentPath, MAX_BUFFER);
 								// printf("Parent Path: %s\n", parentPath);
 
-								char *parentName = AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
-								getNameFromPath(parentPath, parentName, MAX_BUFFER);
-
 								if (getLastCharSafely(parentPath) != ':')
 								{
 									__asm_strncat(parentPath, "/",2);
 								}
 
-								updateBottomTextW2Text(bottomText, windowObject, "Scanning: ", parentName, FALSE);
+								scanningSequence(OID_BACK_BUTTON, intuiwin, windowObject, bottomText, scanButton, backButton, listBrowser, fileRequester, doneFirst, scanning, CompareHook, parentPath);
+								doneFirst = TRUE;
 
-								toggleButtons(windowObject, backButton, listBrowser, fileRequester, pastPath, doneFirst, TRUE, TRUE);
-
-								scanning = TRUE;
-
-								scanPath(parentPath, FALSE, listBrowser);
-
-								scanning = FALSE;
-
-								DoGadgetMethod((struct Gadget*)listBrowser, intuiwin, NULL, LBM_SORT, NULL, 1, LBMSORT_REVERSE, &CompareHook);
-								ColumnSorting[1].Sorting = LBMSORT_REVERSE;
-
-								updatePathText(fileRequester, parentPath);
-
-								updateMenuItems(intuiwin, TRUE);
-
-								STRPTR TotalText = returnFormatWithTotal();
-								updateBottomTextW2AndTotal(bottomText, windowObject, "Current: ", parentName, TotalText, FALSE);
-
-								toggleButtons(windowObject, backButton, listBrowser, fileRequester, pastPath, doneFirst, FALSE, TRUE);
-
-								FreeVec(TotalText);
 								FreeVec(parentPath);
-								FreeVec(parentName);
 								break;
 							}
 							case OID_SCAN_BUTTON:
@@ -672,7 +682,6 @@ void processEvents(Object *windowObject,
 									break;
 								}
 
-								scanning = TRUE;
 								TEXT *buffer = AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
 								ULONG pathPtr;
 
@@ -680,38 +689,9 @@ void processEvents(Object *windowObject,
 
 								snprintf(buffer, MAX_BUFFER, "%s", (char *)pathPtr);
 
-								char *parentName = AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
-
-								getNameFromPath(buffer, parentName, MAX_BUFFER);
-
-								updateBottomTextW2Text(bottomText, windowObject, "Scanning: ", (STRPTR)parentName, FALSE);
-
-								SetAttrs(scanButton, GA_Disabled, TRUE, TAG_DONE);
-
-								toggleButtons(windowObject, backButton, listBrowser, fileRequester, pastPath, doneFirst, TRUE, TRUE);
-
-
-								scanPath((char *)pathPtr, FALSE, listBrowser);
-
-								FreeVec(buffer);
-
-								scanning = FALSE;
-
-								toggleButtons(windowObject, backButton, listBrowser, fileRequester, pastPath, doneFirst, FALSE, FALSE);
-
+								scanningSequence(OID_SCAN_BUTTON, intuiwin, windowObject, bottomText, scanButton, backButton, listBrowser, fileRequester, doneFirst, scanning, CompareHook, buffer);
 								doneFirst = TRUE;
-
-								DoGadgetMethod((struct Gadget*)listBrowser, intuiwin, NULL, LBM_SORT, NULL, 1, LBMSORT_REVERSE, &CompareHook);
-								ColumnSorting[1].Sorting = LBMSORT_REVERSE;
-
-								updateMenuItems(intuiwin, TRUE);
-
-								// printf("Donefirst: %d\n", doneFirst);
-								STRPTR TotalText = returnFormatWithTotal();
-								updateBottomTextW2AndTotal(bottomText, windowObject, "Current: ", parentName, TotalText, TRUE);
-
-								FreeVec(parentName);
-								FreeVec(TotalText);
+								FreeVec(buffer);
 								break;
 							}
 							case OID_MAIN_LIST:
@@ -782,34 +762,9 @@ void processEvents(Object *windowObject,
 										}
 
 										snprintf(newPath, MAX_BUFFER, "%s%s", pastPath, text);
-										updatePathText(fileRequester, newPath);
-										updateBottomTextW2Text(bottomText, windowObject, "Scanning: ", text, FALSE);
-										toggleButtons(windowObject, backButton, listBrowser, fileRequester, pastPath, doneFirst, TRUE, TRUE);
-
-										scanning = TRUE;
-
-										scanPath(newPath, FALSE, listBrowser);
-
-										toggleButtons(windowObject, backButton, listBrowser, fileRequester, pastPath, doneFirst, FALSE, FALSE);
-
-										scanning = FALSE;
+										scanningSequence(OID_MAIN_LIST, intuiwin, windowObject, bottomText, scanButton, backButton, listBrowser, fileRequester, doneFirst, scanning, CompareHook, newPath);
+										doneFirst = TRUE;
 									}
-
-									DoGadgetMethod((struct Gadget*)listBrowser, intuiwin, NULL, LBM_SORT, NULL, 1, LBMSORT_REVERSE, &CompareHook);
-									ColumnSorting[1].Sorting = LBMSORT_REVERSE;
-
-									updateMenuItems(intuiwin, TRUE);
-									// printf("Donefirst: %d\n", doneFirst);
-									char *parentName = AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
-									getNameFromPath(pastPath, parentName, MAX_BUFFER);
-									STRPTR TotalText = returnFormatWithTotal();
-									updateBottomTextW2AndTotal(bottomText, windowObject, "Current: ", parentName, TotalText, TRUE);
-
-									// Remove focus from the listbrowser
-									SetAttrs(listBrowser, LISTBROWSER_Selected, -1, TAG_DONE);
-
-									FreeVec(TotalText);
-									FreeVec(parentName);
 									FreeVec(parentPath);
 									}
 								break;

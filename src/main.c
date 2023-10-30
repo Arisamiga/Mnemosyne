@@ -103,7 +103,7 @@ int main(int argc, char **argv)
 		closeLibraries();
 		return 0;
 	}
-	if (argv[1][0] == '-' && argv[1][1] == 'g' && argc >= 3){
+	if (argv[1][0] == '-' && (argv[1][1] == 'g' || argv[1][1] == 'G') && !argv[1][2] && argc >= 3){
 		if (openLibraries())
 		{
 			createWindow(argv[2]);
