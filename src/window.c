@@ -583,6 +583,7 @@ void processEvents(Object *windowObject,
 						{
 							case OID_SCAN_OPEN:
 							{
+								updatePathText(fileRequester, "");
 								fileRequesterSequence(fileRequester,
 													  intuiwin,
 													  bottomText,
@@ -636,6 +637,7 @@ void processEvents(Object *windowObject,
 						{
 							case OID_FILE_REQUESTER:
 							{
+								updatePathText(fileRequester, "");
 								fileRequesterSequence(fileRequester,
 													  intuiwin,
 													  bottomText,
