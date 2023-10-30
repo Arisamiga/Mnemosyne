@@ -45,7 +45,7 @@ https://github.com/Arisamiga/Mnemosyne/issues
 * Added -g flag to open a window for scans from the shell.
 * Using proper Semantic Versioning now.
 * Current version moving to 1.0.2 -> 1.1.0
-* Made Mnemosyne program from: 32.440B to 32.452B
+* Made Mnemosyne program from: 32.440B to 32.504B
 * New Guide images updated to fit the version
 * .guide finally has a proper icon now.
 * Fixed Duplications in scanning procedure code.
