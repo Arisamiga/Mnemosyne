@@ -180,7 +180,7 @@ void updateBottomTextW2Text(Object *bottomText, Object *windowObject, char *firs
 	SetAttrs(bottomText, GA_Text, title, TAG_DONE);
 	if (Refresh)
 		DoMethod(windowObject, WM_NEWPREFS);
-	FreeVec(title);
+	// FreeVec(title);
 }
 
 void updateBottomTextW2AndTotal(Object *bottomText, Object *windowObject, char *firstText, STRPTR secondText, STRPTR totalText, BOOL Refresh)
