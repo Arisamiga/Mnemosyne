@@ -2,6 +2,7 @@
 #include <proto/exec.h>
 
 #include "scan.h"
+#include "funcs.h"
 #include "window.h"
 
 // Mnemosyne Version
@@ -16,6 +17,7 @@ struct Library *ButtonBase;
 struct Library *GetFileBase;
 struct Library *GadToolsBase;
 struct Library *WorkbenchBase;
+struct Library *IconBase;
 
 // Declare functions after main
 void info(void);
@@ -65,6 +67,10 @@ BOOL openLibraries(void)
 		printf( "Failed to open workbench.library! Make sure the version is above v39.\n");
 		return FALSE;
 	}
+	if ((IconBase = OpenLibrary("icon.library", 39)) == NULL) {
+		printf( "Failed to open icon.library! Make sure the version is above v39.\n");
+		return FALSE;
+	}
 
 	return TRUE;
 }
@@ -92,12 +98,15 @@ void closeLibraries(void)
 }
 
 
+
+
 int main(int argc, char **argv)
 {
 	if (argc <= 1)
 	{
 		if (openLibraries())
 		{
+			initializeIconTooltypes();
 			createWindow(NULL);
 		}
 		closeLibraries();

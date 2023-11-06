@@ -8,10 +8,13 @@
 #include <proto/dos.h>
 #include <proto/exec.h>
 #include <proto/listbrowser.h>
+#include <proto/icon.h>
 
 #include <exec/types.h>
 
 #include "funcs.h"
+
+NoRoundOption = FALSE;
 
 int returnFormatValue(STRPTR format){
     if(strcmp(format, "B") == 0)
@@ -234,4 +237,41 @@ size_t safeStrlen(const char *str)
         len++;
     }
     return len;
+}
+
+void initializeIconTooltypes(void)
+{
+
+	// Get path from where the program is running
+	char path[256];
+	BPTR lock = Lock("", ACCESS_READ);
+	if (lock)
+	{
+		NameFromLock(lock, path, 256);
+		// Append Mnemosyne to the path
+		strcat(path, "Mnemosyne");
+		UnLock(lock);
+	}
+
+	if (IconBase)
+	{
+		struct DiskObject *diskObj = GetDiskObjectNew(path);
+		if(diskObj)
+		{
+			char *buf = AllocVec(sizeof(char) * 256, MEMF_CLEAR);
+
+			for (STRPTR *tool_types = diskObj->do_ToolTypes; (buf = *tool_types); ++tool_types)
+			{
+				printf("%s\n", buf);
+                if (strncmp(buf, "NOROUND", 7) == 0)
+                {
+					NoRoundOption = TRUE;
+                }
+			}
+			// printf("%s\n", result);
+			FreeVec(buf);
+			FreeDiskObject(diskObj);
+		}
+	}
+	printf("NOROUND: %d\n", NoRoundOption);
 }
