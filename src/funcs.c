@@ -14,7 +14,7 @@
 
 #include "funcs.h"
 
-NoRoundOption = FALSE;
+BOOL NoRoundOption = FALSE;
 
 int returnFormatValue(STRPTR format){
     if(strcmp(format, "B") == 0)
