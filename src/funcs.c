@@ -10,6 +10,8 @@
 #include <proto/listbrowser.h>
 #include <proto/icon.h>
 
+#include <workbench/icon.h>
+
 #include <exec/types.h>
 
 #include "funcs.h"
@@ -274,4 +276,56 @@ void initializeIconTooltypes(void)
 		}
 	}
 	printf("NOROUND: %d\n", NoRoundOption);
+}
+
+void updateIconTooltypes (void)
+{
+	// Get path from where the program is running
+	char path[256];
+	BPTR lock = Lock("", ACCESS_READ);
+	if (lock)
+	{
+		NameFromLock(lock, path, 256);
+		// Append Mnemosyne to the path
+		strcat(path, "Mnemosyne");
+		UnLock(lock);
+	}
+
+	if (IconBase)
+	{
+		struct DiskObject *diskObj = GetIconTags(path, TAG_DONE);
+		if(diskObj)
+		{
+			// Create array with the new tooltypes
+			char **newToolTypes = AllocVec(sizeof(char *) * 2, MEMF_CLEAR);
+			if (newToolTypes)
+			{
+				if (NoRoundOption)
+				{
+					newToolTypes[0] = "NOROUND";
+				}
+				else
+				{
+					newToolTypes[0] = "(NOROUND)";
+				}
+				newToolTypes[1] = NULL;
+
+				diskObj->do_ToolTypes = newToolTypes;
+
+				LONG errorCode;
+				BOOL success;
+				success = PutIconTags(path, diskObj,
+					ICONPUTA_DropNewIconToolTypes, TRUE,
+					ICONA_ErrorCode, &errorCode,
+				TAG_DONE);
+
+				if(success == FALSE)
+				{
+					printf("Error: %ld\n", errorCode);
+				}
+
+				FreeVec(newToolTypes);
+			}
+		}
+	}
 }

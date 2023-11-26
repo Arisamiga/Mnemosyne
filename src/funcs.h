@@ -14,7 +14,7 @@ size_t strlcpy(char *dest, const char *source, size_t size);
 char *string_to_lower(const char *, size_t);
 size_t safeStrlen(const char *str);
 void initializeIconTooltypes(void);
-
+void updateIconTooltypes (void);
 // ------------ Varibles ------------
 
 extern BOOL NoRoundOption;

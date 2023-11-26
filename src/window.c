@@ -434,10 +434,10 @@ void createWindow(char *Path)
 	};
 	printf("Round Numbers: %d\n", NoRoundOption);
 	if (NoRoundOption == TRUE) {
-		MenuArray[7] = (struct NewMenu){NM_ITEM, "Round Numbers", 0, CHECKIT|CHECKED, 0, (APTR)OID_MENU_NO_ROUND};
+		MenuArray[7] = (struct NewMenu){NM_ITEM, "Round Numbers", 0, CHECKIT, 0, (APTR)OID_MENU_NO_ROUND};
 	}
 	else {
-		MenuArray[7] = (struct NewMenu){NM_ITEM, "Round Numbers", 0, CHECKIT, 0, (APTR)OID_MENU_NO_ROUND};
+		MenuArray[7] = (struct NewMenu){NM_ITEM, "Round Numbers", 0, CHECKIT|CHECKED, 0, (APTR)OID_MENU_NO_ROUND};
 	}
 
 	listBrowser = (struct Gadget *)ListBrowserObject,
@@ -643,11 +643,12 @@ void processEvents(Object *windowObject,
 								NoRoundOption = !NoRoundOption;
 								printf("NoRoundOption: %d\n", NoRoundOption);
 								if (NoRoundOption) {
-									MenuArray[7] = (struct NewMenu){NM_ITEM, "Round Numbers", 0, CHECKIT|CHECKED, 0, (APTR)OID_MENU_NO_ROUND};
-								}
-								else {
 									MenuArray[7] = (struct NewMenu){NM_ITEM, "Round Numbers", 0, CHECKIT, 0, (APTR)OID_MENU_NO_ROUND};
 								}
+								else {
+									MenuArray[7] = (struct NewMenu){NM_ITEM, "Round Numbers", 0, CHECKIT|CHECKED, 0, (APTR)OID_MENU_NO_ROUND};
+								}
+								updateIconTooltypes();
 								UpdateMenu(intuiwin, TRUE);
 								break;
 							}
