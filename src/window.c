@@ -123,6 +123,15 @@ static int __SAVE_DS__ __ASM__ myCompare2(__REG__(a0, struct Hook *hook), __REG_
 }
 
 
+void UpdateMenuToolTypes() {
+	if (NoRoundOption) {
+		MenuArray[7] = (struct NewMenu){NM_ITEM, "Round Numbers", 0, CHECKIT, 0, (APTR)OID_MENU_NO_ROUND};
+	}
+	else {
+		MenuArray[7] = (struct NewMenu){NM_ITEM, "Round Numbers", 0, CHECKIT|CHECKED, 0, (APTR)OID_MENU_NO_ROUND};
+	}
+}
+
 
 void UpdateMenu(struct Window *intuiwin, BOOL enabled){
 	APTR *visualInfo;
@@ -220,12 +229,7 @@ void updateMenuItems(struct Window *intuiwin, BOOL enabled){
 	else {
 		MenuArray[2] = (struct NewMenu){NM_ITEM, "Open in Workbench...", 0, ITEMENABLED, 0, (APTR)OID_MENU_OPEN_DIR};
 	}
-	if (NoRoundOption == TRUE) {
-		MenuArray[7] = (struct NewMenu){NM_ITEM, "Round Numbers", 0, CHECKIT|CHECKED, 0, (APTR)OID_MENU_NO_ROUND};
-	}
-	else {
-		MenuArray[7] = (struct NewMenu){NM_ITEM, "Round Numbers", 0, CHECKIT, 0, (APTR)OID_MENU_NO_ROUND};
-	}
+	UpdateMenuToolTypes();
 	// SetAttrs(windowObject, WINDOW_NewMenu, MenuArray, TAG_DONE);
 	UpdateMenu(intuiwin, FALSE);
 }
@@ -433,12 +437,7 @@ void createWindow(char *Path)
 		{ -1, (STRPTR)~0, -1 }
 	};
 	printf("Round Numbers: %d\n", NoRoundOption);
-	if (NoRoundOption == TRUE) {
-		MenuArray[7] = (struct NewMenu){NM_ITEM, "Round Numbers", 0, CHECKIT, 0, (APTR)OID_MENU_NO_ROUND};
-	}
-	else {
-		MenuArray[7] = (struct NewMenu){NM_ITEM, "Round Numbers", 0, CHECKIT|CHECKED, 0, (APTR)OID_MENU_NO_ROUND};
-	}
+	UpdateMenuToolTypes();
 
 	listBrowser = (struct Gadget *)ListBrowserObject,
 					GA_ID, OID_MAIN_LIST,
@@ -642,12 +641,7 @@ void processEvents(Object *windowObject,
 							{
 								NoRoundOption = !NoRoundOption;
 								printf("NoRoundOption: %d\n", NoRoundOption);
-								if (NoRoundOption) {
-									MenuArray[7] = (struct NewMenu){NM_ITEM, "Round Numbers", 0, CHECKIT, 0, (APTR)OID_MENU_NO_ROUND};
-								}
-								else {
-									MenuArray[7] = (struct NewMenu){NM_ITEM, "Round Numbers", 0, CHECKIT|CHECKED, 0, (APTR)OID_MENU_NO_ROUND};
-								}
+								UpdateMenuToolTypes();
 								updateIconTooltypes();
 								UpdateMenu(intuiwin, TRUE);
 								break;

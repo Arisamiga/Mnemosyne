@@ -241,19 +241,31 @@ size_t safeStrlen(const char *str)
     return len;
 }
 
+// Get path from where the program is running
+
+char* getProgramPath() {
+    char* path = AllocVec(sizeof(char) * 256, MEMF_CLEAR);
+    if (path == NULL) {
+        // Handle error
+        return NULL;
+    }
+
+    BPTR lock = Lock("", ACCESS_READ);
+    if (lock)
+    {
+        NameFromLock(lock, path, 256);
+        // Append Mnemosyne to the path
+        strcat(path, "Mnemosyne");
+        UnLock(lock);
+    }
+    return path;
+}
+
 void initializeIconTooltypes(void)
 {
 
 	// Get path from where the program is running
-	char path[256];
-	BPTR lock = Lock("", ACCESS_READ);
-	if (lock)
-	{
-		NameFromLock(lock, path, 256);
-		// Append Mnemosyne to the path
-		strcat(path, "Mnemosyne");
-		UnLock(lock);
-	}
+	char* path = getProgramPath();
 
 	if (IconBase)
 	{
@@ -281,15 +293,7 @@ void initializeIconTooltypes(void)
 void updateIconTooltypes (void)
 {
 	// Get path from where the program is running
-	char path[256];
-	BPTR lock = Lock("", ACCESS_READ);
-	if (lock)
-	{
-		NameFromLock(lock, path, 256);
-		// Append Mnemosyne to the path
-		strcat(path, "Mnemosyne");
-		UnLock(lock);
-	}
+	char* path = getProgramPath();
 
 	if (IconBase)
 	{
