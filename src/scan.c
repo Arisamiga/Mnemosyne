@@ -49,12 +49,6 @@ STRPTR returnGivenFormat(int format) {
     }
 }
 
-STRPTR returnFormatWithTotal(void){
-    STRPTR buffer = AllocVec(64, MEMF_CLEAR);
-    snprintf(buffer, 64, " (%lu %s)", totalSize, returnGivenFormat(currentFormat));
-    return buffer;
-}
-
 int correctFormat(ULONG size){
     if (size / 1024 / 1024 / 1024 / 1024 > 0)
         return 4;
@@ -90,6 +84,20 @@ ULONG devideByGivenFormat(ULONG size, int format){
             return size;
             break;
         }
+}
+
+
+
+STRPTR returnFormatWithTotal(void){
+    STRPTR buffer = AllocVec(64, MEMF_CLEAR);
+    if (NoRoundOption == TRUE){
+		snprintf(buffer, 64, " (%lu %s)", totalSize, returnGivenFormat(currentFormat));
+	} else {
+		int format = correctFormat(totalSize);
+		snprintf(buffer, 64, " (%lu %s)", devideByGivenFormat(totalSize, format), returnGivenFormat(format));
+	}
+
+    return buffer;
 }
 
 void addToTotalSize(ULONG size)
@@ -234,7 +242,8 @@ void scanPath(char *path, BOOL subFoldering, struct Gadget *listGadget)
                         oldTotalSize = devideByGivenFormat(oldTotalSize, currentFormat);
                     }
                     // printf("Total: %ld - %ld = %ld\n", totalSize, oldTotalSize, totalSize - oldTotalSize);
-                    if((long)(totalSize - oldTotalSize) < 0 || currentFormat == 0){
+					printf("DBG: %d\n", NoRoundOption);
+                    if((long)(totalSize - oldTotalSize) < 0 || currentFormat == 0 || NoRoundOption == FALSE){
                         int format = correctFormat(totalSize - oldTotalSize);
                         addToList(fib->fib_FileName, devideByGivenFormat(totalSize - oldTotalSize, format), returnGivenFormat(format));
                     } else {
