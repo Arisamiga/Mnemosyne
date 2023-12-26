@@ -104,9 +104,7 @@ int main(int argc, char **argv)
 		closeLibraries();
 		return 0;
 	}
-
-	int check = (int)ReadArgs((UBYTE *)"GUI/A", (LONG *)argv, NULL);
-	if (check > 0 && argc >= 3){
+	if ((int)ReadArgs((UBYTE *)"GUI/A", (LONG *)argv, NULL) > 0 && argc >= 3){
 		if (openLibraries())
 		{
 			createWindow(argv[2]);
