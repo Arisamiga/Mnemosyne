@@ -104,17 +104,17 @@ int main(int argc, char **argv)
 		closeLibraries();
 		return 0;
 	}
+	if (argv[1][0] == '?')
+	{
+		info();
+		return 0;
+	}
 	if ((int)ReadArgs((UBYTE *)"GUI/A", (LONG *)argv, NULL) > 0 && argc >= 3){
 		if (openLibraries())
 		{
 			createWindow(argv[2]);
 		}
 		closeLibraries();
-		return 0;
-	}
-	if (argv[1][0] == '?')
-	{
-		info();
 		return 0;
 	}
 	// Printf a line
