@@ -231,7 +231,12 @@ void scanPath(char *path, BOOL subFoldering, struct Gadget *listGadget)
                 if (!subFoldering && !listGadget)
                 {
                     strcat(fib->fib_FileName, "/");
-                    printf("| %-20s: %12lu %s\n", fib->fib_FileName, totalSize - oldTotalSize, returnGivenFormat(currentFormat));
+					if (NoRoundOption == FALSE) {
+						int format = correctFormat(totalSize - oldTotalSize);
+                    	printf("| %-20s: %12lu %s\n", fib->fib_FileName, devideByGivenFormat(totalSize - oldTotalSize, format), returnGivenFormat(format));
+					} else {
+                    	printf("| %-20s: %12lu %s\n", fib->fib_FileName, totalSize - oldTotalSize, returnGivenFormat(currentFormat));
+					}
                 }
                 if (listGadget)
                 {
@@ -308,7 +313,12 @@ exit:
     }
     if (!subFoldering && !listGadget)
     {
-        printf("\n--> Total Size Of Path Given: %lu %s\n\n", totalSize, returnGivenFormat(currentFormat));
+		if (NoRoundOption == FALSE) {
+			int format = correctFormat(totalSize);
+        	printf("\n--> Total Size Of Path Given: %lu %s\n\n", devideByGivenFormat(totalSize, format), returnGivenFormat(format));
+		} else {
+        	printf("\n--> Total Size Of Path Given: %lu %s\n\n", totalSize, returnGivenFormat(currentFormat));
+		}
     }
     FreeVec(fib);
     UnLock(lockPath);

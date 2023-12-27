@@ -63,15 +63,6 @@ BOOL openLibraries(void)
 		printf( "Failed to open gadtools.library! Make sure the version is above v39.\n");
 		return FALSE;
 	}
-	if ((WorkbenchBase = OpenLibrary("workbench.library", 39)) == NULL) {
-		printf( "Failed to open workbench.library! Make sure the version is above v39.\n");
-		return FALSE;
-	}
-	if ((IconBase = OpenLibrary("icon.library", 39)) == NULL) {
-		printf( "Failed to open icon.library! Make sure the version is above v39.\n");
-		return FALSE;
-	}
-
 	return TRUE;
 }
 
@@ -97,16 +88,30 @@ void closeLibraries(void)
 		CloseLibrary(WorkbenchBase);
 }
 
+BOOL openToolTypeLibraries(void)
+{
+	if ((WorkbenchBase = OpenLibrary("workbench.library", 39)) == NULL) {
+		printf( "Failed to open workbench.library! Make sure the version is above v39.\n");
+		return FALSE;
+	}
+	if ((IconBase = OpenLibrary("icon.library", 39)) == NULL) {
+		printf( "Failed to open icon.library! Make sure the version is above v39.\n");
+		return FALSE;
+	}
+	return TRUE;
+}
 
 
 
 int main(int argc, char **argv)
 {
+	if (openToolTypeLibraries()){
+		initializeIconTooltypes();
+	}
 	if (argc <= 1)
 	{
 		if (openLibraries())
 		{
-			initializeIconTooltypes();
 			createWindow(NULL);
 		}
 		closeLibraries();
