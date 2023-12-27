@@ -138,14 +138,14 @@ There are 2 ways to use Mnemosyne:
    Where <path> is the path to the directory you want to scan.
    
 
-   Using the -g CLI Flag:
+   Using the GUI CLI Keyword:
    -------------------------
 
-      @{b}Mnemosyne -g <path>@{ub}
+      @{b}Mnemosyne GUI <path>@{ub}
 
     Where <path> is the path to the directory you want to scan. 
 
-    Adding the -g flag will open the GUI and start the scanning process.
+    Adding the GUI Keyword will open the GUI and start the scanning process.
 
 
 
