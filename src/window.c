@@ -642,6 +642,12 @@ void processEvents(Object *windowObject,
 								UpdateMenuToolTypes();
 								updateIconTooltypes();
 								UpdateMenu(intuiwin, TRUE);
+
+								STRPTR Value;
+
+								sprintf(Value, "Updated Tooltypes! (Round Numbers: %s)", NoRoundOption ? "Disabled" : "Enabled");
+
+								updateBottomText(bottomText, windowObject, Value);
 								break;
 							}
 							case OID_MENU_QUIT:
