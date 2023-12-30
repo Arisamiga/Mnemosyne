@@ -514,7 +514,7 @@ void createWindow(char *Path)
 							 WINDOW_Icon, GetDiskObject("PROGDIR:Mnemosyne"),
 							 WINDOW_AppPort, appPort,
 							 WA_Activate, TRUE,
-							 WA_Title, "Mnemosyne 1.1.1",
+							 WA_Title, "Mnemosyne 1.2.0",
 							 WA_DragBar, TRUE,
 							 WA_CloseGadget, TRUE,
 							 WA_DepthGadget, TRUE,
@@ -642,12 +642,6 @@ void processEvents(Object *windowObject,
 								UpdateMenuToolTypes();
 								updateIconTooltypes();
 								UpdateMenu(intuiwin, TRUE);
-
-								STRPTR Value;
-
-								sprintf(Value, "Updated Tooltypes! (Round Numbers: %s)", NoRoundOption ? "Disabled" : "Enabled");
-
-								updateBottomText(bottomText, windowObject, Value);
 								break;
 							}
 							case OID_MENU_QUIT:

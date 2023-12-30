@@ -1,7 +1,7 @@
 @database Mnemosyne.guide
 
 @author "Aris (Arisamiga) Sokianos"
-@$VER: Mnemosyne.Guide 1.1.1
+@$VER: Mnemosyne.Guide 1.2.0
 @(c) 2023 Aris (Arisamiga) Sokianos
 @Node "Main" "Mnemosyne"
 
@@ -15,7 +15,7 @@
  |_|  |_|_| |_|\\___|_| |_| |_|\\___/|___/\\___ |_| |_|\\___|
                                         |___/            
 
-@{jright}Version 1.1.1
+@{jright}Version 1.2.0
 
 @{jcenter}
 
