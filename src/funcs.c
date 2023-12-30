@@ -276,7 +276,7 @@ void initializeIconTooltypes(void)
 
 			for (STRPTR *tool_types = diskObj->do_ToolTypes; (buf = *tool_types); ++tool_types)
 			{
-				printf("%s\n", buf);
+				// printf("%s\n", buf);
                 if (strncmp(buf, "NOROUND", 7) == 0)
                 {
 					NoRoundOption = TRUE;
@@ -287,7 +287,6 @@ void initializeIconTooltypes(void)
 			FreeDiskObject(diskObj);
 		}
 	}
-	printf("NOROUND: %d\n", NoRoundOption);
 }
 
 void updateIconTooltypes (void)

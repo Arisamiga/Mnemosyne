@@ -247,7 +247,6 @@ void scanPath(char *path, BOOL subFoldering, struct Gadget *listGadget)
                         oldTotalSize = devideByGivenFormat(oldTotalSize, currentFormat);
                     }
                     // printf("Total: %ld - %ld = %ld\n", totalSize, oldTotalSize, totalSize - oldTotalSize);
-					printf("DBG: %d\n", NoRoundOption);
                     if((long)(totalSize - oldTotalSize) < 0 || currentFormat == 0 || NoRoundOption == FALSE){
                         int format = correctFormat(totalSize - oldTotalSize);
                         addToList(fib->fib_FileName, devideByGivenFormat(totalSize - oldTotalSize, format), returnGivenFormat(format));

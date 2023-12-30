@@ -436,7 +436,6 @@ void createWindow(char *Path)
 		{60, "Size", 0},
 		{ -1, (STRPTR)~0, -1 }
 	};
-	printf("Round Numbers: %d\n", NoRoundOption);
 	UpdateMenuToolTypes();
 
 	listBrowser = (struct Gadget *)ListBrowserObject,
@@ -640,7 +639,6 @@ void processEvents(Object *windowObject,
 							case OID_MENU_NO_ROUND:
 							{
 								NoRoundOption = !NoRoundOption;
-								printf("NoRoundOption: %d\n", NoRoundOption);
 								UpdateMenuToolTypes();
 								updateIconTooltypes();
 								UpdateMenu(intuiwin, TRUE);

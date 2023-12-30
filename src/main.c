@@ -105,6 +105,12 @@ BOOL openToolTypeLibraries(void)
 
 int main(int argc, char **argv)
 {
+	if (argc > 1 && argv[1][0] == '?' && !argv[1][1])
+	{
+		info();
+		return 0;
+	}
+
 	if (openToolTypeLibraries()){
 		initializeIconTooltypes();
 	}
@@ -125,16 +131,12 @@ int main(int argc, char **argv)
 		closeLibraries();
 		return 0;
 	}
-	if (argv[1][0] == '?')
-	{
-		info();
-		return 0;
-	}
 	// Printf a line
 	printf("\n----------------------------------------\n");
 	printf("Scanning: %s\n\n", argv[1]);
 	printf("| Name: \t\t Size: \n\n");
 	scanPath(argv[1], FALSE, FALSE);
+	closeLibraries();
 	return 0;
 }
 
