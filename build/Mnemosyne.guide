@@ -308,4 +308,8 @@ as some files and folders have a very small contribution
 to the total size of the directory and having them 
 rounded up will cause the total to be more than 100%.
 
+- The rounding of the overall size of a folder is done 
+by rounding a number DOWN to the nearest integer so for example
+19.9MB will be rounded to 19MB.
+
 @EndNode
