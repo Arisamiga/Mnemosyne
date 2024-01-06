@@ -275,11 +275,11 @@ to use or not use certain features.
 
 
 
-The available tooltypes are:
-----------------------------
+    The available tooltypes are:
+    ----------------------------
 
-+ @{b}NOROUND@{ub} - This will disable the rounding of certain size values 
-(Mainly the overall size of a folder).
+    + @{b}NOROUND@{ub} - This will disable the rounding of certain size values 
+    (Mainly the overall size of a folder).
 
 
 
