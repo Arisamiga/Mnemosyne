@@ -638,10 +638,14 @@ void processEvents(Object *windowObject,
 								break;
 							case OID_MENU_NO_ROUND:
 							{
+								toggleBusyPointer(windowObject, TRUE);
+
 								NoRoundOption = !NoRoundOption;
 								UpdateMenuToolTypes();
 								updateIconTooltypes();
 								UpdateMenu(intuiwin, TRUE);
+
+								toggleBusyPointer(windowObject, FALSE);
 								break;
 							}
 							case OID_MENU_QUIT:
