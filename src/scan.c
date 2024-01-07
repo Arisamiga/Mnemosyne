@@ -13,7 +13,6 @@
 
 #define MAX_BUFFER 256
 
-
 #include "scan.h"
 #include "funcs.h"
 
@@ -49,17 +48,23 @@ STRPTR returnGivenFormat(int format) {
     }
 }
 
-int correctFormat(ULONG size){
-    if (size / 1024 / 1024 / 1024 / 1024 > 0)
-        return 4;
-    else if (size / 1024 / 1024 / 1024 > 0)
-        return 3;
-    else if (size / 1024 / 1024 > 0)
-        return 2;
-    else if (size / 1024 > 0)
-        return 1;
-    else
-        return 0;
+struct Values {
+	ULONG value;
+	int format;
+};
+
+struct Values correctFormat(ULONG size, int format){
+	int tempformat = format;
+	ULONG tempSize = size;
+    while(tempSize / 1024 > 0) {
+        tempSize /= 1024;
+        tempformat++;
+    }
+
+	struct Values values;
+	values.value = tempSize;
+	values.format = tempformat;
+	return values;
 }
 
 ULONG devideByGivenFormat(ULONG size, int format){
@@ -93,8 +98,8 @@ STRPTR returnFormatWithTotal(void){
     if (NoRoundOption == TRUE){
 		snprintf(buffer, 64, " (%lu %s)", totalSize, returnGivenFormat(currentFormat));
 	} else {
-		int format = correctFormat(totalSize);
-		snprintf(buffer, 64, " (%lu %s)", devideByGivenFormat(totalSize, format), returnGivenFormat(format));
+		struct Values format = correctFormat(totalSize, currentFormat);
+		snprintf(buffer, 64, " (%lu %s)", format.value, returnGivenFormat(format.format));
 	}
 
     return buffer;
@@ -107,6 +112,7 @@ void addToTotalSize(ULONG size)
         // switch to higher format
         currentFormat++;
         totalSize = totalSize / 1024;
+		size = size / 1024;
         addToTotalSize(size);
         return;
     }
@@ -153,13 +159,13 @@ void addToList(char *name, ULONG size, STRPTR format)
 void addFileSequence(struct Gadget *listGadget, struct FileInfoBlock *fib, BOOL subFoldering){
 	if (listGadget)
 	{
-		int format = correctFormat(fib->fib_Size);
-		addToList(fib->fib_FileName, devideByGivenFormat(fib->fib_Size, format), returnGivenFormat(format));
+		struct Values format = correctFormat(fib->fib_Size, 0);
+		addToList(fib->fib_FileName, format.value, returnGivenFormat(format.format));
 	}
 	if (!subFoldering && !listGadget)
 	{
-		int format = correctFormat(fib->fib_Size);
-		printf("| %-20.20s: %12lu %s\n", fib->fib_FileName, devideByGivenFormat(fib->fib_Size, format), returnGivenFormat(format));
+		struct Values format = correctFormat(fib->fib_Size, 0);
+		printf("| %-20.20s: %12lu %s\n", fib->fib_FileName, format.value, returnGivenFormat(format.format));
 	}
 
 	addToTotalSize(fib->fib_Size);
@@ -232,8 +238,8 @@ void scanPath(char *path, BOOL subFoldering, struct Gadget *listGadget)
                 {
                     strcat(fib->fib_FileName, "/");
 					if (NoRoundOption == FALSE) {
-						int format = correctFormat(totalSize - oldTotalSize);
-                    	printf("| %-20s: %12lu %s\n", fib->fib_FileName, devideByGivenFormat(totalSize - oldTotalSize, format), returnGivenFormat(format));
+						struct Values format = correctFormat(totalSize - oldTotalSize, currentFormat);
+                    	printf("| %-20s: %12lu %s\n", fib->fib_FileName, format.value, returnGivenFormat(format.format));
 					} else {
                     	printf("| %-20s: %12lu %s\n", fib->fib_FileName, totalSize - oldTotalSize, returnGivenFormat(currentFormat));
 					}
@@ -248,8 +254,8 @@ void scanPath(char *path, BOOL subFoldering, struct Gadget *listGadget)
                     }
                     // printf("Total: %ld - %ld = %ld\n", totalSize, oldTotalSize, totalSize - oldTotalSize);
                     if((long)(totalSize - oldTotalSize) < 0 || currentFormat == 0 || NoRoundOption == FALSE){
-                        int format = correctFormat(totalSize - oldTotalSize);
-                        addToList(fib->fib_FileName, devideByGivenFormat(totalSize - oldTotalSize, format), returnGivenFormat(format));
+                        struct Values format = correctFormat(totalSize - oldTotalSize, currentFormat);
+                        addToList(fib->fib_FileName, format.value, returnGivenFormat(format.format));
                     } else {
                         addToList(fib->fib_FileName, totalSize - oldTotalSize, returnGivenFormat(currentFormat));
                     }
@@ -313,8 +319,8 @@ exit:
     if (!subFoldering && !listGadget)
     {
 		if (NoRoundOption == FALSE) {
-			int format = correctFormat(totalSize);
-        	printf("\n--> Total Size Of Path Given: %lu %s\n\n", devideByGivenFormat(totalSize, format), returnGivenFormat(format));
+			struct Values format = correctFormat(totalSize, currentFormat);
+        	printf("\n--> Total Size Of Path Given: %lu %s\n\n", format.value, returnGivenFormat(format.format));
 		} else {
         	printf("\n--> Total Size Of Path Given: %lu %s\n\n", totalSize, returnGivenFormat(currentFormat));
 		}
