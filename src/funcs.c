@@ -272,6 +272,15 @@ void initializeIconTooltypes(void)
 		struct DiskObject *diskObj = GetDiskObjectNew(path);
 		if(diskObj)
 		{
+			// Check if the tooltypes are empty
+			if (diskObj->do_ToolTypes == NULL)
+			{
+				// printf("Empty\n");
+				NoRoundOption = FALSE;
+				FreeDiskObject(diskObj);
+				return;
+			}
+
 			char *buf = AllocVec(sizeof(char) * 256, MEMF_CLEAR);
 
 			for (STRPTR *tool_types = diskObj->do_ToolTypes; (buf = *tool_types); ++tool_types)
@@ -313,7 +322,7 @@ void updateIconTooltypes (void)
 				}
 				newToolTypes[1] = NULL;
 
-				diskObj->do_ToolTypes = newToolTypes;
+				diskObj->do_ToolTypes = (STRPTR *)newToolTypes;
 
 				LONG errorCode;
 				BOOL success;
