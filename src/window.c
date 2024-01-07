@@ -65,6 +65,7 @@ enum
 	OID_MENU_OPEN_DIR,
 	OID_MENU_ABOUT,
 	OID_MENU_QUIT,
+	OID_MENU_NO_ROUND,
 	OID_SCAN_BUTTON,
 	OID_SCAN_OPEN,
 	OID_GIVEN_PATH,
@@ -80,6 +81,9 @@ static struct NewMenu MenuArray[] = {
 	{NM_ITEM, NM_BARLABEL,0,0,0,0 },
 	{NM_ITEM, "About...", 0, 0, 0, (APTR)OID_MENU_ABOUT},
 	{NM_ITEM, "Quit...", 0, 0, 0, (APTR)OID_MENU_QUIT},
+	{NM_TITLE, "Settings", 0, 0, 0, 0},
+	{NM_ITEM, "Round Numbers", 0, CHECKIT, 0, (APTR)OID_MENU_NO_ROUND},
+
 	{NM_END, NULL, 0, 0, 0, NULL}
 };
 
@@ -118,6 +122,15 @@ static int __SAVE_DS__ __ASM__ myCompare2(__REG__(a0, struct Hook *hook), __REG_
 	return strcmp(string_to_lower(msg->lbsm_DataA.Text, safeStrlen(msg->lbsm_DataA.Text)), string_to_lower(msg->lbsm_DataB.Text, safeStrlen(msg->lbsm_DataB.Text)));
 }
 
+
+void UpdateMenuToolTypes() {
+	if (NoRoundOption) {
+		MenuArray[7] = (struct NewMenu){NM_ITEM, "Round Numbers", 0, CHECKIT, 0, (APTR)OID_MENU_NO_ROUND};
+	}
+	else {
+		MenuArray[7] = (struct NewMenu){NM_ITEM, "Round Numbers", 0, CHECKIT|CHECKED, 0, (APTR)OID_MENU_NO_ROUND};
+	}
+}
 
 
 void UpdateMenu(struct Window *intuiwin, BOOL enabled){
@@ -216,6 +229,7 @@ void updateMenuItems(struct Window *intuiwin, BOOL enabled){
 	else {
 		MenuArray[2] = (struct NewMenu){NM_ITEM, "Open in Workbench...", 0, ITEMENABLED, 0, (APTR)OID_MENU_OPEN_DIR};
 	}
+	UpdateMenuToolTypes();
 	// SetAttrs(windowObject, WINDOW_NewMenu, MenuArray, TAG_DONE);
 	UpdateMenu(intuiwin, FALSE);
 }
@@ -422,6 +436,8 @@ void createWindow(char *Path)
 		{60, "Size", 0},
 		{ -1, (STRPTR)~0, -1 }
 	};
+	UpdateMenuToolTypes();
+
 	listBrowser = (struct Gadget *)ListBrowserObject,
 					GA_ID, OID_MAIN_LIST,
 					GA_RelVerify, TRUE,
@@ -498,7 +514,7 @@ void createWindow(char *Path)
 							 WINDOW_Icon, GetDiskObject("PROGDIR:Mnemosyne"),
 							 WINDOW_AppPort, appPort,
 							 WA_Activate, TRUE,
-							 WA_Title, "Mnemosyne 1.1.1",
+							 WA_Title, "Mnemosyne 1.2.0",
 							 WA_DragBar, TRUE,
 							 WA_CloseGadget, TRUE,
 							 WA_DepthGadget, TRUE,
@@ -620,6 +636,14 @@ void processEvents(Object *windowObject,
 								// printf("About window closed\n");
 								toggleBusyPointer(windowObject, FALSE);
 								break;
+							case OID_MENU_NO_ROUND:
+							{
+								NoRoundOption = !NoRoundOption;
+								UpdateMenuToolTypes();
+								updateIconTooltypes();
+								UpdateMenu(intuiwin, TRUE);
+								break;
+							}
 							case OID_MENU_QUIT:
 								end = TRUE;
 								break;

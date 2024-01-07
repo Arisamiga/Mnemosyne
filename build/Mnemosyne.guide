@@ -1,7 +1,7 @@
 @database Mnemosyne.guide
 
 @author "Aris (Arisamiga) Sokianos"
-@$VER: Mnemosyne.Guide 1.1.1
+@$VER: Mnemosyne.Guide 1.2.0
 @(c) 2023 Aris (Arisamiga) Sokianos
 @Node "Main" "Mnemosyne"
 
@@ -15,7 +15,7 @@
  |_|  |_|_| |_|\\___|_| |_| |_|\\___/|___/\\___ |_| |_|\\___|
                                         |___/            
 
-@{jright}Version 1.1.1
+@{jright}Version 1.2.0
 
 @{jcenter}
 
@@ -29,6 +29,7 @@ which can be used to see how much disk space your files and folders are taking u
  @{" Requirements " Link "Requirements"}
  @{" Installation " Link "Installation"}
  @{" Usage " Link "Usage"}
+ @{" Tooltypes " Link "Tooltypes"}
  @{" Notes " Link "Notes"}
 
 @EndNode
@@ -233,9 +234,60 @@ There are 2 ways to use Mnemosyne:
 
 @EndNode
 
+@Node "Tooltypes" "Tooltypes"
+@Next "Notes"
+@Prev "Usage"
+@Toc "Main"
+
+@{jleft}@{lindent 3}
+@{b}Tooltypes@{ub}
+***************
+
+Mnemosyne has available tooltypes already in the .info file. 
+
+These tooltypes can be used to change the behavior of Mnemosyne
+to use or not use certain features.
+
+  How to use Tooltypes:
+  ---------------------
+
+    To use tooltypes, 
+    you need to @{b}open the Mnemosyne icon 
+    information window@{ub} and click on the @{b}"Icon"@{ub} tab. 
+
+    There you will see a list of tooltypes that you can use.
+
+    There will be mostly words with @{b}()@{ub} around them 
+    which means that the specific feature is @{b}disabled@{ub}. 
+    To enable it, just remove the @{b}()@{ub}.
+
+  Using the Tooltypes on the Menu Bar:
+  ------------------------------------
+    You can also change the features you want by 
+    using Mnemosyne's Menu Bar. 
+    They will be under @{b}Settings@{ub} on menu.
+    @{lindent 8}@{IMG "GUIDEDIR:Guide_Images/Tooltypes.iff"}@{lindent 0}
+    The features that are @{b}enabled@{ub} will have a @{b}*@{ub} next to them.
+
+    Note: The Settings Names are @{b}not the same as the tooltypes names@{ub}. 
+    (If you want to know the tooltype name try to enable the feature
+    and then open the icon information window and see the tooltype name)
+
+
+
+    The available tooltypes are:
+    ----------------------------
+
+    + @{b}NOROUND@{ub} - This will disable the rounding of certain size values 
+    (Mainly the overall size of a folder).
+
+
+
+@EndNode
+
 
 @Node "Notes" "Notes"
-@Prev "Usage"
+@Prev "Tooltypes"
 @Toc "Main"
 
 @{jleft}@{lindent 3}
@@ -255,5 +307,9 @@ the directory you have scanned.
 as some files and folders have a very small contribution
 to the total size of the directory and having them 
 rounded up will cause the total to be more than 100%.
+
+- The rounding of the overall size of a folder is done 
+by rounding a number DOWN to the nearest integer so for example
+19.9MB will be rounded to 19MB.
 
 @EndNode

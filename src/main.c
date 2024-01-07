@@ -3,10 +3,11 @@
 #include <proto/dos.h>
 
 #include "scan.h"
+#include "funcs.h"
 #include "window.h"
 
 // Mnemosyne Version
-char *vers = "\0$VER: Mnemosyne 1.1.1";
+char *vers = "\0$VER: Mnemosyne 1.2.0";
 
 struct IntuitionBase *IntuitionBase;
 struct Library *UtilityBase;
@@ -17,6 +18,7 @@ struct Library *ButtonBase;
 struct Library *GetFileBase;
 struct Library *GadToolsBase;
 struct Library *WorkbenchBase;
+struct Library *IconBase;
 
 // Declare functions after main
 void info(void);
@@ -62,11 +64,6 @@ BOOL openLibraries(void)
 		printf( "Failed to open gadtools.library! Make sure the version is above v39.\n");
 		return FALSE;
 	}
-	if ((WorkbenchBase = OpenLibrary("workbench.library", 39)) == NULL) {
-		printf( "Failed to open workbench.library! Make sure the version is above v39.\n");
-		return FALSE;
-	}
-
 	return TRUE;
 }
 
@@ -92,9 +89,32 @@ void closeLibraries(void)
 		CloseLibrary(WorkbenchBase);
 }
 
+BOOL openToolTypeLibraries(void)
+{
+	if ((WorkbenchBase = OpenLibrary("workbench.library", 39)) == NULL) {
+		printf( "Failed to open workbench.library! Make sure the version is above v39.\n");
+		return FALSE;
+	}
+	if ((IconBase = OpenLibrary("icon.library", 39)) == NULL) {
+		printf( "Failed to open icon.library! Make sure the version is above v39.\n");
+		return FALSE;
+	}
+	return TRUE;
+}
+
+
 
 int main(int argc, char **argv)
 {
+	if (argc > 1 && argv[1][0] == '?' && !argv[1][1])
+	{
+		info();
+		return 0;
+	}
+
+	if (openToolTypeLibraries()){
+		initializeIconTooltypes();
+	}
 	if (argc <= 1)
 	{
 		if (openLibraries())
@@ -122,6 +142,7 @@ int main(int argc, char **argv)
 	printf("Scanning: %s\n\n", argv[1]);
 	printf("| Name: \t\t Size: \n\n");
 	scanPath(argv[1], FALSE, FALSE);
+	closeLibraries();
 	return 0;
 }
 

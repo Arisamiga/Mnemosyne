@@ -49,12 +49,6 @@ STRPTR returnGivenFormat(int format) {
     }
 }
 
-STRPTR returnFormatWithTotal(void){
-    STRPTR buffer = AllocVec(64, MEMF_CLEAR);
-    snprintf(buffer, 64, " (%lu %s)", totalSize, returnGivenFormat(currentFormat));
-    return buffer;
-}
-
 int correctFormat(ULONG size){
     if (size / 1024 / 1024 / 1024 / 1024 > 0)
         return 4;
@@ -90,6 +84,20 @@ ULONG devideByGivenFormat(ULONG size, int format){
             return size;
             break;
         }
+}
+
+
+
+STRPTR returnFormatWithTotal(void){
+    STRPTR buffer = AllocVec(64, MEMF_CLEAR);
+    if (NoRoundOption == TRUE){
+		snprintf(buffer, 64, " (%lu %s)", totalSize, returnGivenFormat(currentFormat));
+	} else {
+		int format = correctFormat(totalSize);
+		snprintf(buffer, 64, " (%lu %s)", devideByGivenFormat(totalSize, format), returnGivenFormat(format));
+	}
+
+    return buffer;
 }
 
 void addToTotalSize(ULONG size)
@@ -223,7 +231,12 @@ void scanPath(char *path, BOOL subFoldering, struct Gadget *listGadget)
                 if (!subFoldering && !listGadget)
                 {
                     strcat(fib->fib_FileName, "/");
-                    printf("| %-20s: %12lu %s\n", fib->fib_FileName, totalSize - oldTotalSize, returnGivenFormat(currentFormat));
+					if (NoRoundOption == FALSE) {
+						int format = correctFormat(totalSize - oldTotalSize);
+                    	printf("| %-20s: %12lu %s\n", fib->fib_FileName, devideByGivenFormat(totalSize - oldTotalSize, format), returnGivenFormat(format));
+					} else {
+                    	printf("| %-20s: %12lu %s\n", fib->fib_FileName, totalSize - oldTotalSize, returnGivenFormat(currentFormat));
+					}
                 }
                 if (listGadget)
                 {
@@ -234,7 +247,7 @@ void scanPath(char *path, BOOL subFoldering, struct Gadget *listGadget)
                         oldTotalSize = devideByGivenFormat(oldTotalSize, currentFormat);
                     }
                     // printf("Total: %ld - %ld = %ld\n", totalSize, oldTotalSize, totalSize - oldTotalSize);
-                    if((long)(totalSize - oldTotalSize) < 0 || currentFormat == 0){
+                    if((long)(totalSize - oldTotalSize) < 0 || currentFormat == 0 || NoRoundOption == FALSE){
                         int format = correctFormat(totalSize - oldTotalSize);
                         addToList(fib->fib_FileName, devideByGivenFormat(totalSize - oldTotalSize, format), returnGivenFormat(format));
                     } else {
@@ -299,7 +312,12 @@ exit:
     }
     if (!subFoldering && !listGadget)
     {
-        printf("\n--> Total Size Of Path Given: %lu %s\n\n", totalSize, returnGivenFormat(currentFormat));
+		if (NoRoundOption == FALSE) {
+			int format = correctFormat(totalSize);
+        	printf("\n--> Total Size Of Path Given: %lu %s\n\n", devideByGivenFormat(totalSize, format), returnGivenFormat(format));
+		} else {
+        	printf("\n--> Total Size Of Path Given: %lu %s\n\n", totalSize, returnGivenFormat(currentFormat));
+		}
     }
     FreeVec(fib);
     UnLock(lockPath);

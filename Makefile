@@ -31,7 +31,7 @@ Mnemosyne: $(OBJ)
 # Files and Dependances
 src/funcs.o: src/funcs.h src/funcs.c
 
-src/main.o:	src/main.c	src/scan.h src/window.h
+src/main.o:	src/main.c	src/scan.h src/window.h src/funcs.h
 
 src/scan.o:	src/scan.h	src/scan.c src/funcs.h
 
