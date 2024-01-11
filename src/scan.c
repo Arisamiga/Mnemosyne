@@ -54,16 +54,11 @@ struct Values {
 };
 
 struct Values correctFormat(ULONG size, int format){
-	int tempformat = format;
-	ULONG tempSize = size;
-    while(tempSize / 1024 > 0) {
-        tempSize /= 1024;
-        tempformat++;
+	struct Values values = {size, format};
+    while(values.value / 1024 > 0) {
+        values.value /= 1024;
+        values.format++;
     }
-
-	struct Values values;
-	values.value = tempSize;
-	values.format = tempformat;
 	return values;
 }
 
