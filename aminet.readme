@@ -41,6 +41,19 @@ https://github.com/Arisamiga/Mnemosyne/issues
 ------------------------------------------------------------------------------
 **ChangeLog**
 
+-> Update 1.2.0 (2024-01-14)
+* Version moving from 1.1.1 -> 1.2.0
+* Made Mnemosyne program from: 32.492B to 33.832B
+* Added ability for ToolType usage.
+* Added feature for Rounding numbers.
+* Added NOROUND ToolType to prevent Rounding if chosen.
+* Added Menu Toggles for Tooltypes.
+* Updated Images to represent new Version.
+* Added Tooltypes information to Wiki and Guide.
+* Making Tooltypes available for CLI Use as well.
+* ReImplemented -g flag to GUI flag.
+* Fixed Incorrect overflow handling.
+
 -> Update 1.1.1 (2023-11-02)
 
 * Fixed Damaged MungWall on scans bug (Thanks to: @bubbob42)
