@@ -55,8 +55,8 @@ struct Values {
 
 struct Values correctFormat(ULONG size, int format){
 	struct Values values = {size, format};
-    while(values.value / 1024 > 0) {
-        values.value /= 1024;
+    while(values.value >= 1024 && values.format < 4) {
+        values.value >>= 10;  /* Divide by 1024 using bit shift */
         values.format++;
     }
 	return values;
@@ -67,29 +67,25 @@ ULONG devideByGivenFormat(ULONG size, int format){
         {
         case 0:
             return size;
-            break;
         case 1:
-            return size / 1024;
-            break;
+            return size >> 10;  /* Divide by 1024 */
         case 2:
-            return size / 1024 / 1024;
-            break;
+            return size >> 20;  /* Divide by 1024^2 */
         case 3:
-            return size / 1024 / 1024 / 1024;
-            break;
+            return size >> 30;  /* Divide by 1024^3 */
         case 4:
-            return size / 1024 / 1024 / 1024 / 1024;
-            break;
+            /* For TB, need to handle carefully to avoid overflow */
+            return (size >> 20) >> 20;  /* Divide by 1024^4 */
         default:
             return size;
-            break;
         }
 }
 
 
 
 STRPTR returnFormatWithTotal(void){
-    STRPTR buffer = AllocVec(64, MEMF_CLEAR);
+    /* Note: Static buffer is safe for single-threaded AmigaOS application */
+    static char buffer[64];
     if (NoRoundOption == TRUE){
 		snprintf(buffer, 64, " (%lu %s)", totalSize, returnGivenFormat(currentFormat));
 	} else {
@@ -119,15 +115,12 @@ void addToList(char *name, ULONG size, STRPTR format)
 {
     if (!format)
         format = returnGivenFormat(currentFormat);
-    // printf("Size: %ld\n", size);
 
-    UBYTE *buffer = AllocVec(64, MEMF_CLEAR);
+    char buffer[64];
+    char buffer2[64];
+    
     snprintf(buffer, 64, "%s", name);
-
-    STRPTR prebuffer2 = ULongToString(size);
-
-    UBYTE *buffer2 = AllocVec(64, MEMF_CLEAR);
-    snprintf(buffer2, 64, "%s %s", prebuffer2, format);
+    snprintf(buffer2, 64, "%lu %s", size, format);
 
     struct Node *node = AllocListBrowserNode(3,
                                              LBNA_Column, 0,
@@ -146,9 +139,6 @@ void addToList(char *name, ULONG size, STRPTR format)
                                              TAG_DONE);
 
     AddTail(&contents, node);
-    FreeVec(buffer);
-    FreeVec(prebuffer2);
-    FreeVec(buffer2);
 }
 
 void addFileSequence(struct Gadget *listGadget, struct FileInfoBlock *fib, BOOL subFoldering){
@@ -215,15 +205,17 @@ void scanPath(char *path, BOOL subFoldering, struct Gadget *listGadget)
             if (fib->fib_DirEntryType > 0)
             {
                 // Scan SubFolders
-                char *newPath = (char *)AllocVec(256, MEMF_CLEAR);
-                strcpy(newPath, path);
-                if (getLastCharSafely(newPath) != ':' && getLastCharSafely(newPath) != '/')
+                char newPath[256];
+                char lastChar = getLastCharSafely(path);
+                
+                if (lastChar != ':' && lastChar != '/')
                 {
-                    strcat(newPath, "/");
+                    snprintf(newPath, 256, "%s/%s", path, fib->fib_FileName);
                 }
-                strcat(newPath, fib->fib_FileName);
-                // if(!subFoldering && !listGadget)
-                //     printf("---- Scanning SubFolder: %s\n", newPath);
+                else
+                {
+                    snprintf(newPath, 256, "%s%s", path, fib->fib_FileName);
+                }
 
                 ULONG oldTotalSize = totalSize;
 
@@ -255,7 +247,6 @@ void scanPath(char *path, BOOL subFoldering, struct Gadget *listGadget)
                         addToList(fib->fib_FileName, totalSize - oldTotalSize, returnGivenFormat(currentFormat));
                     }
                 }
-				FreeVec(newPath);
                 continue;
             }
 
@@ -270,33 +261,37 @@ exit:
         // struct List *list = (struct List *)&contents;
         // struct Node *node = list->lh_Head;
 		struct Node *node = contents.lh_Head;
+        struct TagItem tagList[3];
+        
         while (node->ln_Succ)
         {
             struct Node *nextNode = node->ln_Succ;
-            ULONG *initBuffer = AllocVec(sizeof(ULONG), MEMF_CLEAR);
-            struct TagItem *tagList = (struct TagItem *)AllocVec(sizeof(struct TagItem) * 2, MEMF_CLEAR);
+            ULONG initBuffer = 0;
+            
             tagList[0].ti_Tag = LBNA_Column;
             tagList[0].ti_Data = 2;
             tagList[1].ti_Tag = LBNCA_Text;
-            tagList[1].ti_Data = (ULONG)initBuffer;
+            tagList[1].ti_Data = (ULONG)&initBuffer;
             tagList[2].ti_Tag = TAG_DONE;
 
             GetListBrowserNodeAttrsA(node, tagList);
-			if (initBuffer[0] == '\0'){
+			if (initBuffer == 0 || ((char *)initBuffer)[0] == '\0'){
 				node = nextNode;
-				FreeVec(tagList);
-				FreeVec(initBuffer);
 				continue;
 			}
 
             // Get last 2 characters from word
-            char *format = getLastTwoChars((char *)initBuffer[0]);
-            ULONG firstNumber = stringToULONG((char *)initBuffer[0]);
-            STRPTR buffer = floatToString(presentageFromULongs(firstNumber, totalSize, format, returnGivenFormat(currentFormat)));
-			if(stringToFloat(buffer) < 0.01 && firstNumber != 0){
-				strcpy(buffer, "<0.01");
-			}
-            strcat(buffer, "%");
+            char *format = getLastTwoChars((char *)initBuffer);
+            ULONG firstNumber = stringToULONG((char *)initBuffer);
+            float percentage = presentageFromULongs(firstNumber, totalSize, format, returnGivenFormat(currentFormat));
+            
+            char buffer[64];
+			if(percentage < 0.01 && firstNumber != 0){
+				snprintf(buffer, 64, "<0.01%%");
+			} else {
+                snprintf(buffer, 64, "%.2f%%", percentage);
+            }
+            
             tagList[0].ti_Tag = LBNA_Column;
             tagList[0].ti_Data = 1;
             tagList[1].ti_Tag = LBNCA_Text;
@@ -305,9 +300,6 @@ exit:
 
             SetListBrowserNodeAttrsA(node, tagList);
             node = nextNode;
-            // FreeVec(tagList);
-            FreeVec(initBuffer);
-            FreeVec(buffer);
         }
         SetAttrs(listGadget, LISTBROWSER_Labels, (ULONG)&contents, TAG_DONE);
     }

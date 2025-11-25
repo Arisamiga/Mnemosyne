@@ -188,22 +188,22 @@ void toggleBusyPointer(Object *windowObject, BOOL option)
 
 void updateBottomTextW2Text(Object *bottomText, Object *windowObject, char *firstText, STRPTR secondText, BOOL Refresh)
 {
-	char *title = AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
+	/* Note: Static buffer is safe for single-threaded AmigaOS application */
+	static char title[MAX_BUFFER];
 	snprintf(title, MAX_BUFFER, "%s%s", firstText, secondText);
 	SetAttrs(bottomText, GA_Text, title, TAG_DONE);
 	if (Refresh)
 		DoMethod(windowObject, WM_NEWPREFS);
-	// FreeVec(title);
 }
 
 void updateBottomTextW2AndTotal(Object *bottomText, Object *windowObject, char *firstText, STRPTR secondText, STRPTR totalText, BOOL Refresh)
 {
-	char *title = AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
+	/* Note: Static buffer is safe for single-threaded AmigaOS application */
+	static char title[MAX_BUFFER];
 	snprintf(title, MAX_BUFFER, "%s%s%s", firstText, secondText, totalText);
 	SetAttrs(bottomText, GA_Text, title, TAG_DONE);
 	if (Refresh)
 		DoMethod(windowObject, WM_NEWPREFS);
-	FreeVec(title);
 }
 
 void updateBottomText(Object *bottomText, Object *windowObject, STRPTR secondText)
@@ -249,7 +249,7 @@ void fileRequesterSequence(Object *fileRequester,
 		struct List contents;
 		NewList(&contents);
 
-		TEXT *path = AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
+		TEXT path[MAX_BUFFER];
 		ULONG pathPtr;
 		GetAttr(GETFILE_FullFile, fileRequester, &pathPtr);
 		strlcpy(path, (const char*)pathPtr, MAX_BUFFER - 1);
@@ -264,7 +264,6 @@ void fileRequesterSequence(Object *fileRequester,
 			updateMenuItems(intuiwin, FALSE);
 
 			updateBottomText(bottomText, windowObject, "Invalid Path, Select a valid path");
-			FreeVec(path);
 			return;
 		}
 		UnLock(lock);
@@ -314,7 +313,7 @@ void scanningSequence(int type,
 
 	scanning = TRUE;
 
-	char *parentName = AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
+	char parentName[MAX_BUFFER];
 
 	getNameFromPath(givenPath, parentName, MAX_BUFFER);
 
@@ -345,9 +344,6 @@ void scanningSequence(int type,
 
 	// Remove focus from the listbrowser
 	SetAttrs(listBrowser, LISTBROWSER_Selected, -1, TAG_DONE);
-
-	FreeVec(TotalText);
-	FreeVec(parentName);
 }
 
 // -------------
@@ -682,7 +678,7 @@ void processEvents(Object *windowObject,
 								if (scanning || !doneFirst || getLastCharSafely(pastPath) == ':')
 									break;
 
-								char *parentPath = AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
+								char parentPath[MAX_BUFFER];
 								getParentPath(pastPath, parentPath, MAX_BUFFER);
 								// printf("Parent Path: %s\n", parentPath);
 
@@ -694,7 +690,6 @@ void processEvents(Object *windowObject,
 								scanningSequence(OID_BACK_BUTTON, intuiwin, windowObject, bottomText, scanButton, backButton, listBrowser, fileRequester, doneFirst, scanning, CompareHook, parentPath);
 								doneFirst = TRUE;
 
-								FreeVec(parentPath);
 								break;
 							}
 							case OID_SCAN_BUTTON:
@@ -712,7 +707,7 @@ void processEvents(Object *windowObject,
 									break;
 								}
 
-								TEXT *buffer = AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
+								TEXT buffer[MAX_BUFFER];
 								ULONG pathPtr;
 
 								GetAttr(GETFILE_FullFile, fileRequester, &pathPtr);
@@ -721,7 +716,6 @@ void processEvents(Object *windowObject,
 
 								scanningSequence(OID_SCAN_BUTTON, intuiwin, windowObject, bottomText, scanButton, backButton, listBrowser, fileRequester, doneFirst, scanning, CompareHook, buffer);
 								doneFirst = TRUE;
-								FreeVec(buffer);
 								break;
 							}
 							case OID_MAIN_LIST:
@@ -771,7 +765,7 @@ void processEvents(Object *windowObject,
 								{
 									const int len = strlen(text);
 
-									char *parentPath = AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
+									char parentPath[MAX_BUFFER];
 
 									// printf("Selected %s\n", text);
 									getParentPath(text, parentPath, MAX_BUFFER);
@@ -786,7 +780,7 @@ void processEvents(Object *windowObject,
 
 									if (doneFirst && text != NULL)
 									{
-										char *newPath = AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
+										char newPath[MAX_BUFFER];
 										if (getLastCharSafely(pastPath) != '/' && getLastCharSafely(pastPath) != ':'){
 											strcat(pastPath, "/");
 										}
@@ -795,7 +789,6 @@ void processEvents(Object *windowObject,
 										scanningSequence(OID_MAIN_LIST, intuiwin, windowObject, bottomText, scanButton, backButton, listBrowser, fileRequester, doneFirst, scanning, CompareHook, newPath);
 										doneFirst = TRUE;
 									}
-									FreeVec(parentPath);
 									}
 								break;
 							}
