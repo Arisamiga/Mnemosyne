@@ -247,7 +247,7 @@ void fileRequesterSequence(Object *fileRequester,
 		struct List contents;
 		NewList(&contents);
 
-		TEXT *path = AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
+		TEXT path[MAX_BUFFER];
 		ULONG pathPtr;
 		GetAttr(GETFILE_FullFile, fileRequester, &pathPtr);
 		strlcpy(path, (const char*)pathPtr, MAX_BUFFER - 1);
@@ -262,7 +262,6 @@ void fileRequesterSequence(Object *fileRequester,
 			updateMenuItems(intuiwin, FALSE);
 
 			updateBottomText(bottomText, windowObject, "Invalid Path, Select a valid path");
-			FreeVec(path);
 			return;
 		}
 		UnLock(lock);

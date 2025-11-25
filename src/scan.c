@@ -260,28 +260,29 @@ exit:
         // struct List *list = (struct List *)&contents;
         // struct Node *node = list->lh_Head;
 		struct Node *node = contents.lh_Head;
+        struct TagItem tagList[3];
+        ULONG initBuffer;
+        
         while (node->ln_Succ)
         {
             struct Node *nextNode = node->ln_Succ;
-            ULONG *initBuffer = AllocVec(sizeof(ULONG), MEMF_CLEAR);
-            struct TagItem *tagList = (struct TagItem *)AllocVec(sizeof(struct TagItem) * 2, MEMF_CLEAR);
+            initBuffer = 0;
+            
             tagList[0].ti_Tag = LBNA_Column;
             tagList[0].ti_Data = 2;
             tagList[1].ti_Tag = LBNCA_Text;
-            tagList[1].ti_Data = (ULONG)initBuffer;
+            tagList[1].ti_Data = (ULONG)&initBuffer;
             tagList[2].ti_Tag = TAG_DONE;
 
             GetListBrowserNodeAttrsA(node, tagList);
-			if (initBuffer[0] == '\0'){
+			if (initBuffer == 0 || ((char *)initBuffer)[0] == '\0'){
 				node = nextNode;
-				FreeVec(tagList);
-				FreeVec(initBuffer);
 				continue;
 			}
 
             // Get last 2 characters from word
-            char *format = getLastTwoChars((char *)initBuffer[0]);
-            ULONG firstNumber = stringToULONG((char *)initBuffer[0]);
+            char *format = getLastTwoChars((char *)initBuffer);
+            ULONG firstNumber = stringToULONG((char *)initBuffer);
             float percentage = presentageFromULongs(firstNumber, totalSize, format, returnGivenFormat(currentFormat));
             
             char buffer[64];
@@ -299,8 +300,6 @@ exit:
 
             SetListBrowserNodeAttrsA(node, tagList);
             node = nextNode;
-            // FreeVec(tagList);
-            FreeVec(initBuffer);
         }
         SetAttrs(listGadget, LISTBROWSER_Labels, (ULONG)&contents, TAG_DONE);
     }
