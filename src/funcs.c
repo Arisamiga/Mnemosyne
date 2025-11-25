@@ -107,38 +107,29 @@ STRPTR ULongToString(ULONG num)
 
 float presentageFromULongs(ULONG num1, ULONG num2, STRPTR num1Format, STRPTR num2Format)
 {
-    // printf("%ld\t%ld\n", num1, num2);
-    if (num1Format != num2Format){
-        int num1FormatValue = returnFormatValue(num1Format);
-        int num2FormatValue = returnFormatValue(num2Format);
-        // printf("Values: %d\t%d\n", num1FormatValue, num2FormatValue);
-        if (num1FormatValue > num2FormatValue)
-        {
-            // printf("1\n");
-            while (num1FormatValue != num2FormatValue)
-            {
-                num1 *= 1024;
-                num1FormatValue--;
-            }
-        }
-        if (num1FormatValue < num2FormatValue)
-        {
-            // printf("2\n");
-            while (num1FormatValue != num2FormatValue)
-            {
-                num1 /= 1024;
-                num1FormatValue++;
-            }
-        }
-    }
 	if (num1 == 0 || num2 == 0)
 	{
 		return 0;
 	}
+	
+    if (num1Format != num2Format){
+        int num1FormatValue = returnFormatValue(num1Format);
+        int num2FormatValue = returnFormatValue(num2Format);
+        int diff = num1FormatValue - num2FormatValue;
+        
+        if (diff > 0)
+        {
+            /* num1 is in a larger format, multiply (shift left) */
+            num1 <<= (diff * 10);  /* Each format level is 1024 = 2^10 */
+        }
+        else if (diff < 0)
+        {
+            /* num1 is in a smaller format, divide (shift right) */
+            num1 >>= ((-diff) * 10);
+        }
+    }
+	
     float percentage = (((float)num1 / (float)num2) * 100.0);
-    // printf("%ld\t%ld\t%f\n", num1, num2, percentage);
-    // printf("Both Formats: %s\t%s\n", num1Format, num2Format);
-    // printf("Float: %f\n", percentage);
     return percentage;
 }
 
@@ -210,10 +201,7 @@ char* getLastTwoChars(const char* str) {
         return NULL;
     }
 
-    size_t length = 0;
-    while (str[length] != '\0') {
-        length++;
-    }
+    size_t length = strlen(str);
 
     if (length <= 1) {
         // Handle string with less than two characters
@@ -234,11 +222,7 @@ char *string_to_lower(const char *text, size_t len)
 
 size_t safeStrlen(const char *str)
 {
-    size_t len = 0;
-    while (str[len] != '\0') {
-        len++;
-    }
-    return len;
+    return strlen(str);
 }
 
 // Get path from where the program is running
@@ -281,7 +265,7 @@ void initializeIconTooltypes(void)
 				return;
 			}
 
-			char *buf = AllocVec(sizeof(char) * 256, MEMF_CLEAR);
+			char *buf;
 
 			for (STRPTR *tool_types = diskObj->do_ToolTypes; (buf = *tool_types); ++tool_types)
 			{
@@ -291,8 +275,6 @@ void initializeIconTooltypes(void)
 					NoRoundOption = TRUE;
                 }
 			}
-			// printf("%s\n", result);
-			FreeVec(buf);
 			FreeDiskObject(diskObj);
 		}
 	}
