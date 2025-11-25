@@ -201,7 +201,10 @@ char* getLastTwoChars(const char* str) {
         return NULL;
     }
 
-    size_t length = strlen(str);
+    size_t length = 0;
+    while (str[length] != '\0') {
+        length++;
+    }
 
     if (length <= 1) {
         // Handle string with less than two characters
@@ -222,7 +225,11 @@ char *string_to_lower(const char *text, size_t len)
 
 size_t safeStrlen(const char *str)
 {
-    return strlen(str);
+    size_t len = 0;
+    while (str[len] != '\0') {
+        len++;
+    }
+    return len;
 }
 
 // Get path from where the program is running
