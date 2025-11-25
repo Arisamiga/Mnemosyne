@@ -84,6 +84,7 @@ ULONG devideByGivenFormat(ULONG size, int format){
 
 
 STRPTR returnFormatWithTotal(void){
+    /* Note: Static buffer is safe for single-threaded AmigaOS application */
     static char buffer[64];
     if (NoRoundOption == TRUE){
 		snprintf(buffer, 64, " (%lu %s)", totalSize, returnGivenFormat(currentFormat));
@@ -261,12 +262,11 @@ exit:
         // struct Node *node = list->lh_Head;
 		struct Node *node = contents.lh_Head;
         struct TagItem tagList[3];
-        ULONG initBuffer;
         
         while (node->ln_Succ)
         {
             struct Node *nextNode = node->ln_Succ;
-            initBuffer = 0;
+            ULONG initBuffer = 0;
             
             tagList[0].ti_Tag = LBNA_Column;
             tagList[0].ti_Data = 2;

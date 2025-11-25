@@ -188,6 +188,7 @@ void toggleBusyPointer(Object *windowObject, BOOL option)
 
 void updateBottomTextW2Text(Object *bottomText, Object *windowObject, char *firstText, STRPTR secondText, BOOL Refresh)
 {
+	/* Note: Static buffer is safe for single-threaded AmigaOS application */
 	static char title[MAX_BUFFER];
 	snprintf(title, MAX_BUFFER, "%s%s", firstText, secondText);
 	SetAttrs(bottomText, GA_Text, title, TAG_DONE);
@@ -197,6 +198,7 @@ void updateBottomTextW2Text(Object *bottomText, Object *windowObject, char *firs
 
 void updateBottomTextW2AndTotal(Object *bottomText, Object *windowObject, char *firstText, STRPTR secondText, STRPTR totalText, BOOL Refresh)
 {
+	/* Note: Static buffer is safe for single-threaded AmigaOS application */
 	static char title[MAX_BUFFER];
 	snprintf(title, MAX_BUFFER, "%s%s%s", firstText, secondText, totalText);
 	SetAttrs(bottomText, GA_Text, title, TAG_DONE);
