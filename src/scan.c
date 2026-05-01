@@ -62,28 +62,17 @@ struct Values correctFormat(ULONG size, int format){
 	return values;
 }
 
-ULONG devideByGivenFormat(ULONG size, int format){
-    switch (format)
-        {
-        case 0:
-            return size;
-            break;
-        case 1:
-            return size / 1024;
-            break;
-        case 2:
-            return size / 1024 / 1024;
-            break;
-        case 3:
-            return size / 1024 / 1024 / 1024;
-            break;
-        case 4:
-            return size / 1024 / 1024 / 1024 / 1024;
-            break;
-        default:
-            return size;
-            break;
-        }
+ULONG devideByGivenFormat(ULONG size, int format) {
+    // Bit-shift amounts for bytes, kilobytes, megabytes, gigabytes
+    int shifts[] = {0, 10, 20, 30};
+
+    // Validate 'format' is within supported range
+    if (format >= 0 && format <= 3)
+        // Fast division: shift right by specified amount
+        return size >> shifts[format];
+
+    // Fallback for unsupported 'format' values
+    return size;
 }
 
 
