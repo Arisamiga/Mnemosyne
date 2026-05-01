@@ -101,6 +101,19 @@ struct  {
 };
 
 BOOL fileEntered = FALSE;
+static BOOL scanning = FALSE;
+
+static void flushAppPort(struct MsgPort *appPort)
+{
+	if (!appPort)
+		return;
+
+	struct AppMessage *appMsg;
+	while ((appMsg = (struct AppMessage *)GetMsg(appPort)))
+	{
+		ReplyMsg((struct Message *)appMsg);
+	}
+}
 
 // -------------
 // Functions and such
@@ -304,9 +317,9 @@ void scanningSequence(int type,
 		struct Gadget *listBrowser,
 		Object *fileRequester,
 		BOOL doneFirst,
-		BOOL scanning,
 		struct Hook CompareHook,
-		char *givenPath)
+		char *givenPath,
+		struct MsgPort *appPort)
 {
 	if (scanning)
 	{
@@ -345,6 +358,9 @@ void scanningSequence(int type,
 	toggleButtons(windowObject, backButton, listBrowser, fileRequester, pastPath, doneFirst, TRUE, TRUE);
 
 	scanPath(givenPath, FALSE, listBrowser);
+
+	// Drop any Workbench icon-drop messages that arrived during scanning.
+	flushAppPort(appPort);
 
 	scanning = FALSE;
 
@@ -574,7 +590,6 @@ void processEvents(Object *windowObject,
 	ULONG result;
 	WORD code;
 	BOOL end = FALSE;
-	BOOL scanning = FALSE;
 
 	if (givenPath != NULL){
 		fileEntered = TRUE;
@@ -583,7 +598,7 @@ void processEvents(Object *windowObject,
 			__asm_strncat(givenPath, "/",2);
 		}
 		updatePathText(fileRequester, givenPath);
-		scanningSequence(OID_GIVEN_PATH, intuiwin, windowObject, bottomText, scanButton, backButton, listBrowser, fileRequester, doneFirst, scanning, CompareHook, givenPath);
+		scanningSequence(OID_GIVEN_PATH, intuiwin, windowObject, bottomText, scanButton, backButton, listBrowser, fileRequester, doneFirst, CompareHook, givenPath, appPort);
 		doneFirst = TRUE;
 	}
 
@@ -714,7 +729,7 @@ void processEvents(Object *windowObject,
 									__asm_strncat(parentPath, "/",2);
 								}
 
-								scanningSequence(OID_BACK_BUTTON, intuiwin, windowObject, bottomText, scanButton, backButton, listBrowser, fileRequester, doneFirst, scanning, CompareHook, parentPath);
+								scanningSequence(OID_BACK_BUTTON, intuiwin, windowObject, bottomText, scanButton, backButton, listBrowser, fileRequester, doneFirst, CompareHook, parentPath, appPort);
 								doneFirst = TRUE;
 
 								FreeVec(parentPath);
@@ -742,7 +757,7 @@ void processEvents(Object *windowObject,
 
 								snprintf(buffer, MAX_BUFFER, "%s", (char *)pathPtr);
 
-								scanningSequence(OID_SCAN_BUTTON, intuiwin, windowObject, bottomText, scanButton, backButton, listBrowser, fileRequester, doneFirst, scanning, CompareHook, buffer);
+								scanningSequence(OID_SCAN_BUTTON, intuiwin, windowObject, bottomText, scanButton, backButton, listBrowser, fileRequester, doneFirst, CompareHook, buffer, appPort);
 								doneFirst = TRUE;
 								FreeVec(buffer);
 								break;
@@ -815,7 +830,7 @@ void processEvents(Object *windowObject,
 										}
 
 										snprintf(newPath, MAX_BUFFER, "%s%s", pastPath, text);
-										scanningSequence(OID_MAIN_LIST, intuiwin, windowObject, bottomText, scanButton, backButton, listBrowser, fileRequester, doneFirst, scanning, CompareHook, newPath);
+										scanningSequence(OID_MAIN_LIST, intuiwin, windowObject, bottomText, scanButton, backButton, listBrowser, fileRequester, doneFirst, CompareHook, newPath, appPort);
 										doneFirst = TRUE;
 									}
 									FreeVec(parentPath);
