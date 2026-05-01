@@ -46,6 +46,10 @@
 #include <reaction/reaction_macros.h>
 
 #include <clib/alib_protos.h>
+
+#include <workbench/workbench.h>
+#include <workbench/startup.h>
+
 //
 
 #include "window.h"
@@ -234,6 +238,41 @@ void updateMenuItems(struct Window *intuiwin, BOOL enabled){
 	UpdateMenu(intuiwin, FALSE);
 }
 
+void setFileSequence(
+	struct Window *intuiwin,
+	Object *bottomText,
+	Object *windowObject,
+	Object *scanButton,
+	struct Gadget *listBrowser,
+	Object *backButton,
+	BOOL doneFirst,
+	TEXT *path
+)
+{
+	BPTR lock = Lock(path, ACCESS_READ);
+	SetAttrs(listBrowser, GA_DISABLED, TRUE, TAG_DONE);
+	SetAttrs(backButton, GA_Disabled, TRUE, TAG_DONE);
+	if (!lock)
+	{
+		SetAttrs(scanButton, GA_Disabled, TRUE, TAG_DONE);
+
+		updateMenuItems(intuiwin, FALSE);
+
+		updateBottomText(bottomText, windowObject, "Invalid Path, Select a valid path");
+		FreeVec(path);
+		return;
+	}
+	UnLock(lock);
+	SetAttrs(scanButton, GA_Disabled, FALSE, TAG_DONE);
+
+	updateMenuItems(intuiwin, FALSE);
+
+	updateBottomText(bottomText, windowObject, "Ready to Scan!");
+	fileEntered = TRUE;
+	doneFirst = FALSE;
+	SetAttrs(listBrowser, LISTBROWSER_TitleClickable, FALSE, TAG_DONE);
+}
+
 void fileRequesterSequence(Object *fileRequester,
 	struct Window *intuiwin,
 	Object *bottomText,
@@ -245,7 +284,6 @@ void fileRequesterSequence(Object *fileRequester,
 {
 	int fileSelect = gfRequestDir(fileRequester, intuiwin);
 	if (fileSelect){
-
 		struct List contents;
 		NewList(&contents);
 
@@ -254,28 +292,7 @@ void fileRequesterSequence(Object *fileRequester,
 		GetAttr(GETFILE_FullFile, fileRequester, &pathPtr);
 		strlcpy(path, (const char*)pathPtr, MAX_BUFFER - 1);
 		path[MAX_BUFFER - 1] = '\0';
-		BPTR lock = Lock(path, ACCESS_READ);
-		SetAttrs(listBrowser, GA_DISABLED, TRUE, TAG_DONE);
-		SetAttrs(backButton, GA_Disabled, TRUE, TAG_DONE);
-		if (!lock)
-		{
-			SetAttrs(scanButton, GA_Disabled, TRUE, TAG_DONE);
-
-			updateMenuItems(intuiwin, FALSE);
-
-			updateBottomText(bottomText, windowObject, "Invalid Path, Select a valid path");
-			FreeVec(path);
-			return;
-		}
-		UnLock(lock);
-		SetAttrs(scanButton, GA_Disabled, FALSE, TAG_DONE);
-
-		updateMenuItems(intuiwin, FALSE);
-
-		updateBottomText(bottomText, windowObject, "Ready to Scan!");
-		fileEntered = TRUE;
-		doneFirst = FALSE;
-		SetAttrs(listBrowser, LISTBROWSER_TitleClickable, FALSE, TAG_DONE);
+		setFileSequence(intuiwin, bottomText, windowObject, scanButton, listBrowser, backButton, doneFirst, path);
 	}
 }
 void scanningSequence(int type,
@@ -354,10 +371,11 @@ void scanningSequence(int type,
 // Main Window Functions
 // -------------
 
-void cleanexit(Object *windowObject, struct MsgPort *appPort);
+void cleanexit(Object *windowObject, struct MsgPort *appPort, struct AppWindow *appWin);
 void processEvents(Object *windowObject,
 				   struct Window *intuiwin,
 				   struct Gadget *listBrowser,
+				   struct MsgPort *appPort,
 				   Object *backButton,
 				   BOOL doneFirst,
 				   struct Hook CompareHook,
@@ -376,6 +394,8 @@ void createWindow(char *Path)
 	struct Hook NameHook;
 
 	struct MsgPort *appPort;
+
+	struct AppWindow *appWin;
 
 	Object *mainLayout = NULL;
 	Object *upperLayout = NULL;
@@ -526,18 +546,20 @@ void createWindow(char *Path)
 							 WINDOW_Layout, mainLayout,
 							 TAG_DONE);
 	if (!windowObject)
-		cleanexit(NULL, NULL);
+		cleanexit(NULL, NULL, NULL);
 	if (!(intuiwin = (struct Window *)DoMethod(windowObject, WM_OPEN, NULL)))
-		cleanexit(windowObject, appPort);
+		cleanexit(windowObject, appPort, appWin);
+	appWin = AddAppWindow(1, 0, intuiwin, appPort, NULL);
 	UpdateMenu(intuiwin, TRUE);
-	processEvents(windowObject, intuiwin, listBrowser, backButton, doneFirst, CompareHook, NameHook, bottomText, fileRequester, scanButton, Path);
+	processEvents(windowObject, intuiwin, listBrowser, appPort, backButton, doneFirst, CompareHook, NameHook, bottomText, fileRequester, scanButton, Path);
 	DoMethod(windowObject, WM_CLOSE);
 	clearList(contents);
-	cleanexit(windowObject, appPort);
+	cleanexit(windowObject, appPort, appWin);
 }
 void processEvents(Object *windowObject,
 				   struct Window *intuiwin,
 				   struct Gadget *listBrowser,
+				   struct MsgPort *appPort,
 				   Object *backButton,
 				   BOOL doneFirst,
 				   struct Hook CompareHook,
@@ -587,7 +609,8 @@ void processEvents(Object *windowObject,
 							GetAttr(WINDOW_SigMask, windowObject, &windowsignal);
 					}
 						break;
-					case WMHI_MENUPICK: {
+					case WMHI_MENUPICK:
+					{
 						struct Menu *menuStrip;
 						GetAttr(WINDOW_MenuStrip, windowObject, (ULONG *)&menuStrip);
 						struct MenuItem *menuItem = ItemAddress(menu, code);
@@ -812,12 +835,38 @@ void processEvents(Object *windowObject,
 				}
 			}
 		}
+		struct AppMessage *appMsg;
+		while ((appMsg = (struct AppMessage *)GetMsg(appPort))) {
+			if (scanning) {
+				// Drop/ignore icon drop events while scanning
+				ReplyMsg((struct Message *)appMsg);
+				continue;
+			}
+			for (int i = 0; i < appMsg->am_NumArgs; i++) {
+				struct WBArg *arg = &appMsg->am_ArgList[i];
+				char *fullPath = AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
+				NameFromLock(arg->wa_Lock, fullPath, MAX_BUFFER);
+				// printf("Received dropped file: %s\n", fullPath);
+				if (i == 0) {
+					updatePathText(fileRequester, fullPath);
+					fileEntered = TRUE;
+					// Instead of scanning immediately, just update the requester and UI
+					setFileSequence(intuiwin, bottomText, windowObject, scanButton, listBrowser, backButton, doneFirst, fullPath);
+					doneFirst = TRUE;
+				}
+				FreeVec(fullPath);
+			}
+			ReplyMsg((struct Message *)appMsg);
+		}
 	}
 }
-void cleanexit(Object *windowObject, struct MsgPort *appPort)
+void cleanexit(Object *windowObject, struct MsgPort *appPort, struct AppWindow *appWin)
 {
 	if (windowObject)
 		DisposeObject(windowObject);
+
+	if (appWin)
+    	RemoveAppWindow(appWin);
 
 	if (appPort)
 		DeleteMsgPort(appPort);
