@@ -18,5 +18,6 @@ void updateIconTooltypes (void);
 // ------------ Varibles ------------
 
 extern BOOL NoRoundOption;
+extern BOOL EnableGraphOption;
 
 #endif

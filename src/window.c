@@ -45,6 +45,14 @@
 #include <reaction/reaction.h>
 #include <reaction/reaction_macros.h>
 
+#include <images/bitmap.h>
+#include <proto/bitmap.h>
+#include <graphics/gfx.h>
+#include <proto/graphics.h>
+#include <graphics/rastport.h>
+#include <gadgets/space.h>
+#include <proto/space.h>
+
 #include <clib/alib_protos.h>
 
 #include <workbench/workbench.h>
@@ -70,6 +78,7 @@ enum
 	OID_MENU_ABOUT,
 	OID_MENU_QUIT,
 	OID_MENU_NO_ROUND,
+	OID_MENU_ENABLE_GRAPH,
 	OID_SCAN_BUTTON,
 	OID_SCAN_OPEN,
 	OID_GIVEN_PATH,
@@ -87,6 +96,7 @@ static struct NewMenu MenuArray[] = {
 	{NM_ITEM, "Quit...", 0, 0, 0, (APTR)OID_MENU_QUIT},
 	{NM_TITLE, "Settings", 0, 0, 0, 0},
 	{NM_ITEM, "Round Numbers", 0, CHECKIT, 0, (APTR)OID_MENU_NO_ROUND},
+	{NM_ITEM, "Enable Graph", 0, CHECKIT, 0, (APTR)OID_MENU_ENABLE_GRAPH},
 
 	{NM_END, NULL, 0, 0, 0, NULL}
 };
@@ -102,6 +112,61 @@ struct  {
 
 BOOL fileEntered = FALSE;
 static BOOL scanning = FALSE;
+static Object *completionButton = NULL;
+static Object *mainWindowObject = NULL;
+
+static void clearCompletionBitmap(Object *bottomText)
+{
+	if (!completionButton || !EnableGraphOption)
+		return;
+
+	SetAttrs(completionButton,
+			 GA_Image, NULL,
+			 GA_Width, 0,
+			 GA_Height, 0,
+			 GA_Disabled, TRUE,
+			 TAG_DONE);
+	if (mainWindowObject)
+		DoMethod(mainWindowObject, WM_NEWPREFS);
+}
+
+static void showCompletionBitmap(Object *bottomText)
+{
+	if (!completionButton || !EnableGraphOption)
+		return;
+
+	// Make completionImage from bitmap
+
+	struct Image *image1=NULL;
+	struct BitMap *bm = AllocVec(sizeof(struct BitMap), MEMF_CLEAR);
+	InitBitMap(bm, 1, 120, 80);
+	bm->Planes[0] = AllocRaster(120, 80);
+	memset(bm->Planes[0], 0, RASSIZE(120, 80));
+
+	struct RastPort rp;
+	InitRastPort(&rp);
+	rp.BitMap = bm;
+
+	// Fill with a pattern that should be visible
+	SetRast(&rp, 1);
+
+	image1 = BitMapObject,
+		BITMAP_BitMap,        bm,
+		BITMAP_Width,         15,
+		BITMAP_Height,        20,
+		BITMAP_OffsetX,       110,
+		BITMAP_OffsetY,       28,
+	EndImage;
+
+	SetAttrs(completionButton,
+			 GA_Image, image1,
+			 GA_Width, 15,
+			 GA_Height, 20,
+			 GA_Disabled, FALSE,
+			 TAG_DONE);
+	if (mainWindowObject)
+		DoMethod(mainWindowObject, WM_NEWPREFS);
+}
 
 static void flushAppPort(struct MsgPort *appPort)
 {
@@ -146,6 +211,12 @@ void UpdateMenuToolTypes() {
 	}
 	else {
 		MenuArray[7] = (struct NewMenu){NM_ITEM, "Round Numbers", 0, CHECKIT|CHECKED, 0, (APTR)OID_MENU_NO_ROUND};
+	}
+	if (EnableGraphOption) {
+		MenuArray[8] = (struct NewMenu){NM_ITEM, "Enable Graph", 0, CHECKIT|CHECKED, 0, (APTR)OID_MENU_ENABLE_GRAPH};
+	}
+	else {
+		MenuArray[8] = (struct NewMenu){NM_ITEM, "Enable Graph", 0, CHECKIT, 0, (APTR)OID_MENU_ENABLE_GRAPH};
 	}
 }
 
@@ -207,7 +278,7 @@ void updateBottomTextW2Text(Object *bottomText, Object *windowObject, char *firs
 {
 	char *title = AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
 	snprintf(title, MAX_BUFFER, "%s%s", firstText, secondText);
-	SetAttrs(bottomText, GA_Text, title, TAG_DONE);
+	SetAttrs(bottomText, GA_Image, NULL, GA_Text, title, TAG_DONE);
 	if (Refresh)
 		DoMethod(windowObject, WM_NEWPREFS);
 	// FreeVec(title);
@@ -217,7 +288,7 @@ void updateBottomTextW2AndTotal(Object *bottomText, Object *windowObject, char *
 {
 	char *title = AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
 	snprintf(title, MAX_BUFFER, "%s%s%s", firstText, secondText, totalText);
-	SetAttrs(bottomText, GA_Text, title, TAG_DONE);
+	SetAttrs(bottomText, GA_Image, NULL, GA_Text, title, TAG_DONE);
 	if (Refresh)
 		DoMethod(windowObject, WM_NEWPREFS);
 	FreeVec(title);
@@ -231,7 +302,7 @@ void updateBottomText(Object *bottomText, Object *windowObject, STRPTR secondTex
 	// if (strcmp(bottomTextString, secondText) == 0)
 	// 	return;
 
-	SetAttrs(bottomText, GA_Text, secondText, TAG_DONE);
+	SetAttrs(bottomText, GA_Image, NULL, GA_Text, secondText, TAG_DONE);
 	DoMethod(windowObject, WM_NEWPREFS);
 }
 
@@ -343,6 +414,7 @@ void scanningSequence(int type,
 	UnLock(lockPath);
 
 	scanning = TRUE;
+	clearCompletionBitmap(bottomText);
 
 	char *parentName = AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
 
@@ -366,8 +438,16 @@ void scanningSequence(int type,
 
 	toggleButtons(windowObject, backButton, listBrowser, fileRequester, pastPath, doneFirst, FALSE, FALSE);
 
-	DoGadgetMethod(listBrowser, intuiwin, NULL, LBM_SORT, NULL, 1, LBMSORT_REVERSE, &CompareHook);
-	ColumnSorting[1].Sorting = LBMSORT_REVERSE;
+	if (EnableGraphOption){
+		ColumnSorting[1].Sorting = LBMSORT_REVERSE;
+		DoGadgetMethod(listBrowser, intuiwin, NULL, LBM_SORT, NULL, 2, ColumnSorting[1].Sorting, &CompareHook);
+	}
+	else
+	{
+		ColumnSorting[1].Sorting = LBMSORT_REVERSE;
+		DoGadgetMethod(listBrowser, intuiwin, NULL, LBM_SORT, NULL, 1, ColumnSorting[1].Sorting, &CompareHook);
+	}
+
 	if(type == OID_BACK_BUTTON)
 		updatePathText(fileRequester, givenPath);
 
@@ -375,6 +455,8 @@ void scanningSequence(int type,
 
 	STRPTR TotalText = returnFormatWithTotal();
 	updateBottomTextW2AndTotal(bottomText, windowObject, "Current: ", parentName, TotalText, TRUE);
+
+	showCompletionBitmap(bottomText);
 
 	// Remove focus from the listbrowser
 	SetAttrs(listBrowser, LISTBROWSER_Selected, -1, TAG_DONE);
@@ -400,7 +482,6 @@ void processEvents(Object *windowObject,
 				   Object *fileRequester,
 				   Object *scanButton,
 				   char *givenPath);
-
 void createWindow(char *Path)
 {
 	struct Window *intuiwin = NULL;
@@ -416,6 +497,7 @@ void createWindow(char *Path)
 	Object *mainLayout = NULL;
 	Object *upperLayout = NULL;
 	Object *upperRightLayout = NULL;
+	Object *lowerLayout = NULL;
 
 	struct Gadget *listBrowser = NULL;
 	Object *backButton = NULL;
@@ -465,32 +547,90 @@ void createWindow(char *Path)
 	NameHook.h_SubEntry = NULL;
 	NameHook.h_Data = NULL;
 
-	struct ColumnInfo ci[] =
+	struct ColumnInfo ciWithColours[] =
+	{
+		{10, "", 0},
+		{80, "Name", CIF_SORTABLE},
+		{45, "Approx %", CIF_SORTABLE},
+		{60, "Size", 0},
+		{ -1, (STRPTR)~0, -1 }
+	};
+
+	struct ColumnInfo ciWithoutColours[] =
 	{
 		{80, "Name", CIF_SORTABLE},
 		{45, "Approx %", CIF_SORTABLE},
 		{60, "Size", 0},
 		{ -1, (STRPTR)~0, -1 }
 	};
-	UpdateMenuToolTypes();
 
 	listBrowser = (struct Gadget *)ListBrowserObject,
+			GA_ID, OID_MAIN_LIST,
+			GA_RelVerify, TRUE,
+			GA_Disabled, TRUE,
+			LISTBROWSER_Labels, &contents,
+			LISTBROWSER_ColumnInfo, &ciWithoutColours,
+			LISTBROWSER_ColumnTitles, TRUE,
+			LISTBROWSER_MultiSelect, FALSE,
+			LISTBROWSER_Separators, TRUE,
+			LISTBROWSER_ShowSelected, FALSE,
+			LISTBROWSER_TitleClickable, TRUE,
+			ListBrowserEnd;
+
+	if (EnableGraphOption){
+		node = AllocListBrowserNode(4,
+						LBNA_Column, 0,
+						LBNCA_Image, NULL,
+						LBNA_Column, 1,
+						LBNCA_CopyText, TRUE,
+						LBNCA_Text, "",
+						LBNCA_MaxChars, 40,
+						LBNA_Column, 2,
+						LBNCA_CopyText, TRUE,
+						LBNCA_Text, "",
+						LBNCA_MaxChars, 40,
+						LBNA_Column, 3,
+						LBNCA_CopyText, TRUE,
+						LBNCA_Text, "",
+						LBNCA_MaxChars, 40,
+						TAG_DONE);
+
+		if (node)
+			NewList(&contents);
+			AddTail(&contents, node);
+
+
+		listBrowser = (struct Gadget *)ListBrowserObject,
 					GA_ID, OID_MAIN_LIST,
 					GA_RelVerify, TRUE,
 					GA_Disabled, TRUE,
 					LISTBROWSER_Labels, &contents,
-					LISTBROWSER_ColumnInfo, &ci,
+					LISTBROWSER_ColumnInfo, &ciWithColours,
 					LISTBROWSER_ColumnTitles, TRUE,
 					LISTBROWSER_MultiSelect, FALSE,
 					LISTBROWSER_Separators, TRUE,
 					LISTBROWSER_ShowSelected, FALSE,
 					LISTBROWSER_TitleClickable, TRUE,
 					ListBrowserEnd;
+
+	}
+
+	UpdateMenuToolTypes();
+
+
+
 	bottomText = NewObject(BUTTON_GetClass(), NULL,
 						   GA_Text, "Welcome to Mnemosyne!",
 						   GA_ReadOnly, TRUE,
 						   BUTTON_BevelStyle, BVS_GROUP,
 						   TAG_END);
+
+	completionButton = NewObject(BUTTON_GetClass(), NULL,
+						GA_Width, 1,
+						GA_Height, 1,
+						GA_ReadOnly, TRUE,
+						BUTTON_Transparent, TRUE,
+						TAG_END);
 
 	fileRequester = NewObject(GETFILE_GetClass(), NULL,
 								GA_ID, OID_FILE_REQUESTER,
@@ -528,18 +668,44 @@ void createWindow(char *Path)
 							LAYOUT_AddChild, upperRightLayout,
 							TAG_DONE);
 
+	lowerLayout = NewObject(LAYOUT_GetClass(), NULL,
+					LAYOUT_Orientation, LAYOUT_ORIENT_VERT,
+					LAYOUT_DeferLayout, TRUE,
+					LAYOUT_SpaceInner, TRUE,
+					LAYOUT_SpaceOuter, FALSE,
+					LAYOUT_AddChild, completionButton,
+					LAYOUT_AddChild, bottomText,
+						CHILD_WeightedHeight, 10,
+					TAG_DONE);
+
 	mainLayout = NewObject(LAYOUT_GetClass(), NULL,
-						   LAYOUT_Orientation, LAYOUT_ORIENT_VERT,
-						   LAYOUT_DeferLayout, TRUE,
-						   LAYOUT_SpaceInner, TRUE,
-						   LAYOUT_SpaceOuter, TRUE,
-						   LAYOUT_EvenSize, TRUE,
-						   LAYOUT_AddChild, upperLayout,
-						   		CHILD_WeightedHeight, 10,
-						   LAYOUT_AddChild, listBrowser,
-						   LAYOUT_AddChild, bottomText,
-						   		CHILD_WeightedHeight, 10,
-						   TAG_DONE);
+			LAYOUT_Orientation, LAYOUT_ORIENT_VERT,
+			LAYOUT_DeferLayout, TRUE,
+			LAYOUT_SpaceInner, TRUE,
+			LAYOUT_SpaceOuter, TRUE,
+			LAYOUT_EvenSize, TRUE,
+			LAYOUT_AddChild, upperLayout,
+					CHILD_WeightedHeight, 10,
+			LAYOUT_AddChild, listBrowser,
+			LAYOUT_AddChild, bottomText,
+				CHILD_WeightedHeight, 10,
+			TAG_DONE);
+
+
+	if (EnableGraphOption)
+	{
+		mainLayout = NewObject(LAYOUT_GetClass(), NULL,
+							LAYOUT_Orientation, LAYOUT_ORIENT_VERT,
+							LAYOUT_DeferLayout, TRUE,
+							LAYOUT_SpaceInner, TRUE,
+							LAYOUT_SpaceOuter, TRUE,
+							LAYOUT_EvenSize, TRUE,
+							LAYOUT_AddChild, upperLayout,
+									CHILD_WeightedHeight, 10,
+							LAYOUT_AddChild, listBrowser,
+							LAYOUT_AddChild, lowerLayout,
+							TAG_DONE);
+	}
 
 	appPort = CreateMsgPort();
 	windowObject = NewObject(WINDOW_GetClass(), NULL,
@@ -561,6 +727,7 @@ void createWindow(char *Path)
 							 WA_IDCMP, IDCMP_CLOSEWINDOW | IDCMP_GADGETUP | IDCMP_GADGETDOWN | IDCMP_MENUPICK,
 							 WINDOW_Layout, mainLayout,
 							 TAG_DONE);
+			mainWindowObject = windowObject;
 	if (!windowObject)
 		cleanexit(NULL, NULL, NULL);
 	if (!(intuiwin = (struct Window *)DoMethod(windowObject, WM_OPEN, NULL)))
@@ -686,6 +853,27 @@ void processEvents(Object *windowObject,
 								toggleBusyPointer(windowObject, FALSE);
 								break;
 							}
+							case OID_MENU_ENABLE_GRAPH:
+							{
+								toggleBusyPointer(windowObject, TRUE);
+
+								EnableGraphOption = !EnableGraphOption;
+								UpdateMenuToolTypes();
+								updateIconTooltypes();
+								UpdateMenu(intuiwin, TRUE);
+
+								struct EasyStruct requesterAbout = {
+									sizeof(struct EasyStruct),
+									0,
+									"Notice",
+									"Please restart the application for the graph option to take effect.",
+									"OK"
+								};
+								EasyRequest(intuiwin, &requesterAbout, NULL, NULL);
+
+								toggleBusyPointer(windowObject, FALSE);
+								break;
+							}
 							case OID_MENU_QUIT:
 								end = TRUE;
 								break;
@@ -760,6 +948,7 @@ void processEvents(Object *windowObject,
 								scanningSequence(OID_SCAN_BUTTON, intuiwin, windowObject, bottomText, scanButton, backButton, listBrowser, fileRequester, doneFirst, CompareHook, buffer, appPort);
 								doneFirst = TRUE;
 								FreeVec(buffer);
+
 								break;
 							}
 							case OID_MAIN_LIST:
@@ -793,18 +982,38 @@ void processEvents(Object *windowObject,
 
 								if (!node){
 									ULONG column = 0;
+									ULONG stateIndex = 0;   // index into ColumnSorting[0..1]
 									GetAttr(LISTBROWSER_RelColumn, listBrowser, &column);
-									// printf("Colums: %ld\n", column);
-									// printf("Current sorting: %d\n", ColumnSorting[column].Sorting);
-									ColumnSorting[column].Sorting = !ColumnSorting[column].Sorting;
-									if (column == 1)
-										DoGadgetMethod((struct Gadget*)listBrowser, intuiwin, NULL, LBM_SORT, NULL, column, ColumnSorting[column].Sorting, &CompareHook);
-									else if (column == 0)
-										DoGadgetMethod((struct Gadget*)listBrowser, intuiwin, NULL, LBM_SORT, NULL, column, ColumnSorting[column].Sorting, &NameHook);
+
+									if (EnableGraphOption) {
+										if (column == 0) {
+											break; // image column, not sortable
+										}
+										stateIndex = column - 1; // map Name(1)->0, Approx(2)->1
+									} else {
+										stateIndex = column;     // Name(0)->0, Approx(1)->1
+									}
+
+									if (stateIndex > 1) {
+										break; // safety
+									}
+
+									ColumnSorting[stateIndex].Sorting = !ColumnSorting[stateIndex].Sorting;
+
+									if (stateIndex == 1) {
+										DoGadgetMethod((struct Gadget *)listBrowser, intuiwin, NULL,
+													LBM_SORT, NULL, column, ColumnSorting[stateIndex].Sorting, &CompareHook);
+									} else {
+										DoGadgetMethod((struct Gadget *)listBrowser, intuiwin, NULL,
+													LBM_SORT, NULL, column, ColumnSorting[stateIndex].Sorting, &NameHook);
+									}
 									break;
 								}
 								STRPTR text = NULL;
-								GetListBrowserNodeAttrs(node, LBNA_Column, 0, LBNCA_Text, &text, TAG_DONE);
+								if (EnableGraphOption)
+									GetListBrowserNodeAttrs(node, LBNA_Column, 1, LBNCA_Text, &text, TAG_DONE);
+								else
+									GetListBrowserNodeAttrs(node, LBNA_Column, 0, LBNCA_Text, &text, TAG_DONE);
 								if (text)
 								{
 									const int len = strlen(text);

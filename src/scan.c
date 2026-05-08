@@ -11,6 +11,13 @@
 #include <proto/alib.h>
 #include <proto/utility.h>
 
+#include <images/bitmap.h>
+#include <proto/bitmap.h>
+#include <graphics/gfx.h>
+#include <proto/graphics.h>
+#include <graphics/rastport.h>
+#include <reaction/reaction_macros.h>
+
 #define MAX_BUFFER 256
 
 #include "scan.h"
@@ -133,6 +140,63 @@ void addToList(char *name, ULONG size, STRPTR format)
                                              LBNCA_MaxChars, 40,
                                              LBNCA_Justification, LCJ_RIGHT,
                                              TAG_DONE);
+
+	if (EnableGraphOption) {
+
+		// Get length of contents
+		int entryIndex = 0;
+		struct Node *tempNode = contents.lh_Head;
+		while (tempNode->ln_Succ) {
+			entryIndex++;
+			tempNode = tempNode->ln_Succ;
+		}
+
+
+        struct Image *image1 = NULL;
+        LONG bmpW = 10;
+        LONG bmpH = 10;
+        struct BitMap *bm = AllocVec(sizeof(struct BitMap), MEMF_CLEAR);
+
+        InitBitMap(bm, 4, bmpW, bmpH);
+
+        for (int plane = 0; plane < 4; plane++) {
+            bm->Planes[plane] = AllocRaster(bmpW, bmpH);
+            memset(bm->Planes[plane], 0, RASSIZE(bmpW, bmpH));
+        }
+
+        struct RastPort rp;
+        InitRastPort(&rp);
+        rp.BitMap = bm;
+
+        int filledCols = (entryIndex % 5) + 1;   /* 1..5 columns */
+        int x;
+
+		SetRast(&rp, entryIndex);
+
+        image1 = BitMapObject,
+            BITMAP_BitMap, bm,
+            BITMAP_Width,  bmpW,
+            BITMAP_Height, bmpH,
+        EndImage;
+
+
+		node = AllocListBrowserNode(4,
+				LBNA_Column, 0,
+				LBNCA_Image, image1,
+				LBNA_Column, 1,
+				LBNCA_CopyText, TRUE,
+				LBNCA_Text, buffer,
+				LBNCA_MaxChars, 40,
+				LBNA_Column, 2,
+				LBNCA_CopyText, TRUE,
+				LBNCA_Text, "",
+				LBNCA_MaxChars, 40,
+				LBNA_Column, 3,
+				LBNCA_CopyText, TRUE,
+				LBNCA_Text, buffer2,
+				LBNCA_MaxChars, 40,
+				TAG_DONE);
+	}
 
     AddTail(&contents, node);
     FreeVec(buffer);
@@ -265,7 +329,10 @@ exit:
             ULONG *initBuffer = AllocVec(sizeof(ULONG), MEMF_CLEAR);
             struct TagItem *tagList = (struct TagItem *)AllocVec(sizeof(struct TagItem) * 2, MEMF_CLEAR);
             tagList[0].ti_Tag = LBNA_Column;
-            tagList[0].ti_Data = 2;
+			if (EnableGraphOption)
+				tagList[0].ti_Data = 3;
+			else
+				tagList[0].ti_Data = 2;
             tagList[1].ti_Tag = LBNCA_Text;
             tagList[1].ti_Data = (ULONG)initBuffer;
             tagList[2].ti_Tag = TAG_DONE;
@@ -287,7 +354,10 @@ exit:
 			}
             strcat(buffer, "%");
             tagList[0].ti_Tag = LBNA_Column;
-            tagList[0].ti_Data = 1;
+			if (EnableGraphOption)
+				tagList[0].ti_Data = 2;
+			else
+            	tagList[0].ti_Data = 1;
             tagList[1].ti_Tag = LBNCA_Text;
             tagList[1].ti_Data = (ULONG)buffer;
             tagList[2].ti_Tag = TAG_DONE;

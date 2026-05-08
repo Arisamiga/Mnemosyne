@@ -17,6 +17,7 @@
 #include "funcs.h"
 
 BOOL NoRoundOption = FALSE;
+BOOL EnableGraphOption = FALSE;
 
 int returnFormatValue(STRPTR format){
     if(strcmp(format, "B") == 0)
@@ -277,6 +278,7 @@ void initializeIconTooltypes(void)
 			{
 				// printf("Empty\n");
 				NoRoundOption = FALSE;
+                EnableGraphOption = FALSE;
 				FreeDiskObject(diskObj);
 				return;
 			}
@@ -289,6 +291,10 @@ void initializeIconTooltypes(void)
                 if (strncmp(buf, "NOROUND", 7) == 0)
                 {
 					NoRoundOption = TRUE;
+                }
+                if (strncmp(buf, "ENABLEGRAPH", 11) == 0)
+                {
+                    EnableGraphOption = TRUE;
                 }
 			}
 			// printf("%s\n", result);
@@ -309,7 +315,7 @@ void updateIconTooltypes (void)
 		if(diskObj)
 		{
 			// Create array with the new tooltypes
-			char **newToolTypes = AllocVec(sizeof(char *) * 2, MEMF_CLEAR);
+            char **newToolTypes = AllocVec(sizeof(char *) * 3, MEMF_CLEAR);
 			if (newToolTypes)
 			{
 				if (NoRoundOption)
@@ -320,7 +326,15 @@ void updateIconTooltypes (void)
 				{
 					newToolTypes[0] = "(NOROUND)";
 				}
-				newToolTypes[1] = NULL;
+                if (EnableGraphOption)
+                {
+                    newToolTypes[1] = "ENABLEGRAPH";
+                }
+                else
+                {
+                    newToolTypes[1] = "(ENABLEGRAPH)";
+                }
+                newToolTypes[2] = NULL;
 
 				diskObj->do_ToolTypes = (STRPTR *)newToolTypes;
 
