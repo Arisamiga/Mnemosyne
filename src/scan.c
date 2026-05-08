@@ -144,7 +144,7 @@ void addToList(char *name, ULONG size, STRPTR format)
 	if (EnableGraphOption) {
 
 		// Get length of contents
-		int entryIndex = 0;
+		int entryIndex = 1;
 		struct Node *tempNode = contents.lh_Head;
 		while (tempNode->ln_Succ) {
 			entryIndex++;

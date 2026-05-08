@@ -129,45 +129,197 @@ static void clearCompletionBitmap(Object *bottomText)
 	if (mainWindowObject)
 		DoMethod(mainWindowObject, WM_NEWPREFS);
 }
+// Helper structure to collect node data
+struct NodeData {
+    float percent;
+    ULONG colorPen;  // 0-15 for 4-bit bitmap
+};
 
-static void showCompletionBitmap(Object *bottomText)
+// Extract the color pen from a bitmap (4-bit)
+static ULONG getBitmapColorPen(struct BitMap *bm)
 {
-	if (!completionButton || !EnableGraphOption)
-		return;
+    if (!bm || bm->BytesPerRow == 0)
+        return 1;  // Fallback to pen 1
 
-	// Make completionImage from bitmap
+    UBYTE *planes[4];
+    for (int i = 0; i < 4; i++) {
+        planes[i] = bm->Planes[i];
+        if (!planes[i])
+            return 1;
+    }
 
-	struct Image *image1=NULL;
-	struct BitMap *bm = AllocVec(sizeof(struct BitMap), MEMF_CLEAR);
-	InitBitMap(bm, 1, 120, 80);
-	bm->Planes[0] = AllocRaster(120, 80);
-	memset(bm->Planes[0], 0, RASSIZE(120, 80));
+    UBYTE byte0 = planes[0][0];
+    UBYTE byte1 = planes[1][0];
+    UBYTE byte2 = planes[2][0];
+    UBYTE byte3 = planes[3][0];
 
-	struct RastPort rp;
-	InitRastPort(&rp);
-	rp.BitMap = bm;
+    ULONG pen = ((byte3 & 0x80) >> 7) * 8 |
+                ((byte2 & 0x80) >> 7) * 4 |
+                ((byte1 & 0x80) >> 7) * 2 |
+                ((byte0 & 0x80) >> 7);
 
-	// Fill with a pattern that should be visible
-	SetRast(&rp, 1);
-
-	image1 = BitMapObject,
-		BITMAP_BitMap,        bm,
-		BITMAP_Width,         15,
-		BITMAP_Height,        20,
-		BITMAP_OffsetX,       110,
-		BITMAP_OffsetY,       28,
-	EndImage;
-
-	SetAttrs(completionButton,
-			 GA_Image, image1,
-			 GA_Width, 15,
-			 GA_Height, 20,
-			 GA_Disabled, FALSE,
-			 TAG_DONE);
-	if (mainWindowObject)
-		DoMethod(mainWindowObject, WM_NEWPREFS);
+    return pen > 0 ? pen : 1;
 }
 
+// Collect all node percentages from the list browser WITH COLORS from column 0 images
+static ULONG collectAllNodePercentages(struct Gadget *listbrowser, struct NodeData *nodeArray, ULONG maxNodes)
+{
+    struct List *nodeList = NULL;
+    GetAttr(LISTBROWSER_Labels, listbrowser, (ULONG *)&nodeList);
+
+    if (!nodeList)
+        return 0;
+
+    ULONG nodeCount = 0;
+    struct Node *node;
+    for (node = nodeList->lh_Head; node->ln_Succ && nodeCount < maxNodes; node = node->ln_Succ) {
+        STRPTR percentText = NULL;
+        ULONG percentColumn = 2;
+
+        GetListBrowserNodeAttrs(node,
+                                LBNA_Column, percentColumn,
+                                LBNCA_Text, &percentText,
+                                TAG_DONE);
+
+        if (percentText) {
+            float percent = atof(percentText);
+            if (percent > 100.0f) percent = 100.0f;
+            if (percent < 0.0f) percent = 0.0f;
+
+            nodeArray[nodeCount].percent = percent;
+
+            struct Image *image = NULL;
+            GetListBrowserNodeAttrs(node,
+                                    LBNA_Column, 0,
+                                    LBNCA_Image, &image,
+                                    TAG_DONE);
+
+            if (image) {
+                struct BitMap *imgBitMap = NULL;
+                GetAttr(BITMAP_BitMap, image, (ULONG *)&imgBitMap);
+                if (imgBitMap) {
+                    nodeArray[nodeCount].colorPen = getBitmapColorPen(imgBitMap);
+                } else {
+                    nodeArray[nodeCount].colorPen = (nodeCount % 14) + 1;
+                }
+            } else {
+                nodeArray[nodeCount].colorPen = (nodeCount % 14) + 1;
+            }
+
+            nodeCount++;
+        }
+    }
+
+    return nodeCount;
+}
+
+// Simple row-based treemap layout
+static void drawTreemapRectangles(struct RastPort *rp, struct NodeData *nodeArray, ULONG nodeCount, ULONG bitmapWidth, ULONG bitmapHeight)
+{
+    if (nodeCount == 0)
+        return;
+
+    float totalPercent = 0.0f;
+    for (ULONG i = 0; i < nodeCount; i++) {
+        totalPercent += nodeArray[i].percent;
+    }
+
+    if (totalPercent < 0.01f)
+        totalPercent = 100.0f;
+
+    ULONG x = 0, y = 0;
+    ULONG rowHeight = bitmapHeight / (nodeCount > 10 ? 10 : (nodeCount > 5 ? 5 : 3));
+    if (rowHeight < 2) rowHeight = 2;
+
+    ULONG currentRow = 0;
+    ULONG rowY = 0;
+    ULONG nextRowY = rowHeight;
+
+    for (ULONG i = 0; i < nodeCount; i++) {
+        float fraction = nodeArray[i].percent / totalPercent;
+        ULONG itemWidth = (ULONG)(fraction * bitmapWidth);
+        if (itemWidth < 1) itemWidth = 1;
+
+        if (x + itemWidth > bitmapWidth) {
+            x = 0;
+            rowY = nextRowY;
+            nextRowY += rowHeight;
+            if (nextRowY > bitmapHeight) nextRowY = bitmapHeight;
+            currentRow++;
+        }
+
+        if (rowY < bitmapHeight) {
+            ULONG rectHeight = nextRowY - rowY;
+            if (rowY + rectHeight > bitmapHeight)
+                rectHeight = bitmapHeight - rowY;
+
+            SetAPen(rp, nodeArray[i].colorPen);
+            RectFill(rp, x, rowY, x + itemWidth - 1, rowY + rectHeight - 1);
+
+            if (x + itemWidth < bitmapWidth) {
+                SetAPen(rp, 0);
+                RectFill(rp, x + itemWidth, rowY, x + itemWidth, rowY + rectHeight - 1);
+            }
+
+            x += itemWidth + 1;
+        }
+    }
+}
+
+static void showCompletionBitmap(Object *bottomText, struct Gadget *listbrowser)
+{
+    if (!completionButton || !EnableGraphOption)
+        return;
+
+    if (!listbrowser)
+        return;
+
+    struct NodeData nodeArray[20];
+    ULONG nodeCount = collectAllNodePercentages(listbrowser, nodeArray, 20);
+
+    if (nodeCount == 0)
+        return;
+
+    struct Image *image1 = NULL;
+    struct BitMap *bm = AllocVec(sizeof(struct BitMap), MEMF_CLEAR);
+    if (!bm)
+        return;
+
+    ULONG bitmapWidth = 200;
+	ULONG bitmapHeight = 100;
+    InitBitMap(bm, 4, bitmapWidth, bitmapHeight);
+
+    for (int plane = 0; plane < 4; plane++) {
+        bm->Planes[plane] = AllocRaster(bitmapWidth, bitmapHeight);
+        if (!bm->Planes[plane]) {
+            FreeVec(bm);
+            return;
+        }
+        memset(bm->Planes[plane], 0, RASSIZE(bitmapWidth, bitmapHeight));
+    }
+
+    struct RastPort rp;
+    InitRastPort(&rp);
+    rp.BitMap = bm;
+
+    drawTreemapRectangles(&rp, nodeArray, nodeCount, bitmapWidth, bitmapHeight);
+
+    image1 = BitMapObject,
+        BITMAP_BitMap, bm,
+        BITMAP_Width, bitmapWidth,
+        BITMAP_Height, 20,
+    EndImage;
+
+    SetAttrs(completionButton,
+             GA_Image, image1,
+             GA_Width, bitmapWidth,
+			 GA_Height, 30,
+             GA_Disabled, FALSE,
+             TAG_DONE);
+
+    if (mainWindowObject)
+        DoMethod(mainWindowObject, WM_NEWPREFS);
+}
 static void flushAppPort(struct MsgPort *appPort)
 {
 	if (!appPort)
@@ -456,7 +608,7 @@ void scanningSequence(int type,
 	STRPTR TotalText = returnFormatWithTotal();
 	updateBottomTextW2AndTotal(bottomText, windowObject, "Current: ", parentName, TotalText, TRUE);
 
-	showCompletionBitmap(bottomText);
+	showCompletionBitmap(bottomText, listBrowser);
 
 	// Remove focus from the listbrowser
 	SetAttrs(listBrowser, LISTBROWSER_Selected, -1, TAG_DONE);
@@ -626,10 +778,7 @@ void createWindow(char *Path)
 						   TAG_END);
 
 	completionButton = NewObject(BUTTON_GetClass(), NULL,
-						GA_Width, 1,
-						GA_Height, 1,
 						GA_ReadOnly, TRUE,
-						BUTTON_Transparent, TRUE,
 						TAG_END);
 
 	fileRequester = NewObject(GETFILE_GetClass(), NULL,
@@ -674,6 +823,7 @@ void createWindow(char *Path)
 					LAYOUT_SpaceInner, TRUE,
 					LAYOUT_SpaceOuter, FALSE,
 					LAYOUT_AddChild, completionButton,
+						CHILD_WeightedHeight, 40,
 					LAYOUT_AddChild, bottomText,
 						CHILD_WeightedHeight, 10,
 					TAG_DONE);
