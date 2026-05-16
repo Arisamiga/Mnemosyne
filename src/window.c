@@ -129,142 +129,7 @@ static void clearCompletionBitmap(Object *bottomText)
 	if (mainWindowObject)
 		DoMethod(mainWindowObject, WM_NEWPREFS);
 }
-// Helper structure to collect node data
-struct NodeData {
-    float percent;
-    ULONG colorPen;  // 0-15 for 4-bit bitmap
-};
 
-// Extract the color pen from a bitmap (4-bit)
-static ULONG getBitmapColorPen(struct BitMap *bm)
-{
-    if (!bm || bm->BytesPerRow == 0)
-        return 1;  // Fallback to pen 1
-
-    UBYTE *planes[4];
-    for (int i = 0; i < 4; i++) {
-        planes[i] = bm->Planes[i];
-        if (!planes[i])
-            return 1;
-    }
-
-    UBYTE byte0 = planes[0][0];
-    UBYTE byte1 = planes[1][0];
-    UBYTE byte2 = planes[2][0];
-    UBYTE byte3 = planes[3][0];
-
-    ULONG pen = ((byte3 & 0x80) >> 7) * 8 |
-                ((byte2 & 0x80) >> 7) * 4 |
-                ((byte1 & 0x80) >> 7) * 2 |
-                ((byte0 & 0x80) >> 7);
-
-    return pen > 0 ? pen : 1;
-}
-
-// Collect all node percentages from the list browser WITH COLORS from column 0 images
-static ULONG collectAllNodePercentages(struct Gadget *listbrowser, struct NodeData *nodeArray, ULONG maxNodes)
-{
-    struct List *nodeList = NULL;
-    GetAttr(LISTBROWSER_Labels, listbrowser, (ULONG *)&nodeList);
-
-    if (!nodeList)
-        return 0;
-
-    ULONG nodeCount = 0;
-    struct Node *node;
-    for (node = nodeList->lh_Head; node->ln_Succ && nodeCount < maxNodes; node = node->ln_Succ) {
-        STRPTR percentText = NULL;
-        ULONG percentColumn = 2;
-
-        GetListBrowserNodeAttrs(node,
-                                LBNA_Column, percentColumn,
-                                LBNCA_Text, &percentText,
-                                TAG_DONE);
-
-        if (percentText) {
-            float percent = atof(percentText);
-            if (percent > 100.0f) percent = 100.0f;
-            if (percent < 0.0f) percent = 0.0f;
-
-            nodeArray[nodeCount].percent = percent;
-
-            struct Image *image = NULL;
-            GetListBrowserNodeAttrs(node,
-                                    LBNA_Column, 0,
-                                    LBNCA_Image, &image,
-                                    TAG_DONE);
-
-            if (image) {
-                struct BitMap *imgBitMap = NULL;
-                GetAttr(BITMAP_BitMap, image, (ULONG *)&imgBitMap);
-                if (imgBitMap) {
-                    nodeArray[nodeCount].colorPen = getBitmapColorPen(imgBitMap);
-                } else {
-                    nodeArray[nodeCount].colorPen = (nodeCount % 14) + 1;
-                }
-            } else {
-                nodeArray[nodeCount].colorPen = (nodeCount % 14) + 1;
-            }
-
-            nodeCount++;
-        }
-    }
-
-    return nodeCount;
-}
-
-// Simple row-based treemap layout
-static void drawTreemapRectangles(struct RastPort *rp, struct NodeData *nodeArray, ULONG nodeCount, ULONG bitmapWidth, ULONG bitmapHeight)
-{
-    if (nodeCount == 0)
-        return;
-
-    float totalPercent = 0.0f;
-    for (ULONG i = 0; i < nodeCount; i++) {
-        totalPercent += nodeArray[i].percent;
-    }
-
-    if (totalPercent < 0.01f)
-        totalPercent = 100.0f;
-
-    ULONG x = 0, y = 0;
-    ULONG rowHeight = bitmapHeight / (nodeCount > 10 ? 10 : (nodeCount > 5 ? 5 : 3));
-    if (rowHeight < 2) rowHeight = 2;
-
-    ULONG currentRow = 0;
-    ULONG rowY = 0;
-    ULONG nextRowY = rowHeight;
-
-    for (ULONG i = 0; i < nodeCount; i++) {
-        float fraction = nodeArray[i].percent / totalPercent;
-        ULONG itemWidth = (ULONG)(fraction * bitmapWidth);
-        if (itemWidth < 1) itemWidth = 1;
-
-        if (x + itemWidth > bitmapWidth) {
-            x = 0;
-            rowY = nextRowY;
-            nextRowY += rowHeight;
-            if (nextRowY > bitmapHeight) nextRowY = bitmapHeight;
-            currentRow++;
-        }
-
-        if (rowY < bitmapHeight) {
-            ULONG rectHeight = nextRowY - rowY;
-            if (rowY + rectHeight > bitmapHeight)
-                rectHeight = bitmapHeight - rowY;
-
-            SetAPen(rp, nodeArray[i].colorPen);
-            RectFill(rp, x, rowY, x + itemWidth - 1, rowY + rectHeight - 1);
-
-            if (x + itemWidth < bitmapWidth) {
-                SetAPen(rp, 0);
-                RectFill(rp, x + itemWidth, rowY, x + itemWidth, rowY + rectHeight - 1);
-            }
-
-            x += itemWidth + 1;
-        }
-    }
-}
 
 static void showCompletionBitmap(Object *bottomText, struct Gadget *listbrowser)
 {
@@ -274,8 +139,8 @@ static void showCompletionBitmap(Object *bottomText, struct Gadget *listbrowser)
     if (!listbrowser)
         return;
 
-    struct NodeData nodeArray[20];
-    ULONG nodeCount = collectAllNodePercentages(listbrowser, nodeArray, 20);
+    struct NodeData nodeArray[128];
+    ULONG nodeCount = collectAllNodePercentages(listbrowser, nodeArray, 128);
 
     if (nodeCount == 0)
         return;
@@ -320,41 +185,13 @@ static void showCompletionBitmap(Object *bottomText, struct Gadget *listbrowser)
     if (mainWindowObject)
         DoMethod(mainWindowObject, WM_NEWPREFS);
 }
-static void flushAppPort(struct MsgPort *appPort)
-{
-	if (!appPort)
-		return;
 
-	struct AppMessage *appMsg;
-	while ((appMsg = (struct AppMessage *)GetMsg(appPort)))
-	{
-		ReplyMsg((struct Message *)appMsg);
-	}
-}
 
 // -------------
 // Functions and such
 // -------------
 
-static float asValue(STRPTR s)
-{
-	float v = atof(s);
-	// Check if first char is a < sign
-	if (s[0] == '<')
-		v = 0.001f;
-	return v;
-}
-static float __SAVE_DS__ __ASM__ myCompare(__REG__(a0, struct Hook *hook), __REG__(a2, Object *obj),
-										   __REG__(a1, struct LBSortMsg *msg))
-{
-	return asValue(msg->lbsm_DataA.Text) - asValue(msg->lbsm_DataB.Text);
-}
 
-static int __SAVE_DS__ __ASM__ myCompare2(__REG__(a0, struct Hook *hook), __REG__(a2, Object *obj),
-										   __REG__(a1, struct LBSortMsg *msg))
-{
-	return strcmp(string_to_lower(msg->lbsm_DataA.Text, safeStrlen(msg->lbsm_DataA.Text)), string_to_lower(msg->lbsm_DataB.Text, safeStrlen(msg->lbsm_DataB.Text)));
-}
 
 
 void UpdateMenuToolTypes() {
@@ -398,69 +235,7 @@ void UpdateMenu(struct Window *intuiwin, BOOL enabled){
 	}
 }
 
-void checkBackButton(char *pastPath, BOOL doneFirst, Object *backButton) {
-	if (getLastCharSafely(pastPath) != ':' && doneFirst && pastPath[0] != '\0')
-		SetAttrs(backButton, GA_Disabled, FALSE, TAG_DONE);
-	else
-		SetAttrs(backButton, GA_Disabled, TRUE, TAG_DONE);
-}
 
-void toggleButtons(Object *windowObject, Object *backButton, struct Gadget *listBrowser, Object *fileRequester, char *pastPath, BOOL doneFirst, BOOL option, BOOL Refresh)
-{
-	SetAttrs(windowObject, WA_BusyPointer, option, TAG_DONE);
-	SetAttrs(backButton, GA_Disabled, option, TAG_DONE);
-	SetAttrs(listBrowser, LISTBROWSER_TitleClickable, !option, TAG_DONE);
-	SetAttrs(fileRequester, GA_Disabled, option, TAG_DONE);
-	SetAttrs(listBrowser, GA_Disabled, option, TAG_DONE);
-
-	if(!option){
-		checkBackButton(pastPath, doneFirst, backButton);
-	}
-	if (Refresh)
-		DoMethod(windowObject, WM_NEWPREFS);
-}
-
-
-void toggleBusyPointer(Object *windowObject, BOOL option)
-{
-	SetAttrs(windowObject, WA_BusyPointer, option, TAG_DONE);
-}
-
-void updateBottomTextW2Text(Object *bottomText, Object *windowObject, char *firstText, STRPTR secondText, BOOL Refresh)
-{
-	char *title = AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
-	snprintf(title, MAX_BUFFER, "%s%s", firstText, secondText);
-	SetAttrs(bottomText, GA_Image, NULL, GA_Text, title, TAG_DONE);
-	if (Refresh)
-		DoMethod(windowObject, WM_NEWPREFS);
-	// FreeVec(title);
-}
-
-void updateBottomTextW2AndTotal(Object *bottomText, Object *windowObject, char *firstText, STRPTR secondText, STRPTR totalText, BOOL Refresh)
-{
-	char *title = AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
-	snprintf(title, MAX_BUFFER, "%s%s%s", firstText, secondText, totalText);
-	SetAttrs(bottomText, GA_Image, NULL, GA_Text, title, TAG_DONE);
-	if (Refresh)
-		DoMethod(windowObject, WM_NEWPREFS);
-	FreeVec(title);
-}
-
-void updateBottomText(Object *bottomText, Object *windowObject, STRPTR secondText)
-{
-	// Check that the text is not the same as the current text
-	STRPTR bottomTextString = NULL;
-	GetAttr(GA_Text, bottomText, (ULONG *)&bottomTextString);
-	// if (strcmp(bottomTextString, secondText) == 0)
-	// 	return;
-
-	SetAttrs(bottomText, GA_Image, NULL, GA_Text, secondText, TAG_DONE);
-	DoMethod(windowObject, WM_NEWPREFS);
-}
-
-void updatePathText(Object *fileRequester, STRPTR path) {
-	SetAttrs(fileRequester, GETFILE_FullFile, path, TAG_DONE);
-}
 
 void updateMenuItems(struct Window *intuiwin, BOOL enabled){
 	if (enabled == TRUE && WorkbenchBase->lib_Version >= 44){
