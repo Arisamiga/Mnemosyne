@@ -10,6 +10,7 @@
 #include <proto/layout.h>
 #include <proto/alib.h>
 #include <proto/utility.h>
+#include <proto/gadtools.h>
 
 #include <images/bitmap.h>
 #include <proto/bitmap.h>
@@ -17,6 +18,8 @@
 #include <proto/graphics.h>
 #include <graphics/rastport.h>
 #include <reaction/reaction_macros.h>
+
+#include <intuition/intuition.h>
 
 #define MAX_BUFFER 256
 
@@ -30,6 +33,11 @@ int currentFormat = 0; // 0 = Bytes, 1 = KB, 2 = MB, 3 = GB, 4 = TB
 struct List contents;
 
 char pastPath[256];
+
+// Stop scanning variables
+BOOL shouldStopScanning = FALSE;
+struct Window *stopWindow = NULL;
+ULONG stopWindowSignal = 0;
 
 STRPTR returnGivenFormat(int format) {
     switch (format)
@@ -219,12 +227,94 @@ void addFileSequence(struct Gadget *listGadget, struct FileInfoBlock *fib, BOOL 
 	addToTotalSize(fib->fib_Size);
 }
 
+// Open a window with a stop message for scanning
+void openStopWindow(void) {
+	shouldStopScanning = FALSE;
+
+	if (!IntuitionBase)
+		return;
+
+	// Create a simple window
+	stopWindow = OpenWindowTags(NULL,
+		WA_Title, (ULONG)"Mnemosyne Scanning...",
+		WA_Width, 300,
+		WA_Height, 100,
+		WA_Left, 300,
+		WA_Top, 100,
+		WA_Flags, WFLG_DEPTHGADGET | WFLG_CLOSEGADGET | WFLG_DRAGBAR | WFLG_ACTIVATE | WFLG_SMART_REFRESH,
+		WA_IDCMP, CLOSEWINDOW | GADGETUP,
+		TAG_DONE
+	);
+
+	if (stopWindow) {
+		stopWindowSignal = 1L << stopWindow->UserPort->mp_SigBit;
+
+		// Add text info to window
+		struct IntuiText itext = {
+			2, 0,			// front pen, back pen
+			JAM2,			// draw mode
+			10, 20,			// x, y position
+			NULL,			// font
+			(STRPTR)"Scanning in progress...",	// text
+			NULL			// next IntuiText
+		};
+
+		PrintIText(stopWindow->RPort, &itext, 0, 0);
+
+		struct IntuiText itext2 = {
+			2, 0,
+			JAM2,
+			10, 40,
+			NULL,
+			(STRPTR)"Close window to stop scanning.",
+			NULL
+		};
+
+		PrintIText(stopWindow->RPort, &itext2, 0, 0);
+	}
+}
+
+// Check for messages from stop window and return TRUE if stop was pressed
+BOOL checkStopMessage(void) {
+	struct IntuiMessage *msg;
+	BOOL stopPressed = FALSE;
+
+	if (!stopWindow)
+		return FALSE;
+
+	while ((msg = (struct IntuiMessage *)GetMsg(stopWindow->UserPort)) != NULL) {
+		if (msg->Class == CLOSEWINDOW) {
+			stopPressed = TRUE;
+		}
+		ReplyMsg((struct Message *)msg);
+	}
+
+	if (stopPressed) {
+		shouldStopScanning = TRUE;
+	}
+
+	return shouldStopScanning;
+}
+
+// Close the stop window
+void closeStopWindow(void) {
+	if (stopWindow) {
+		CloseWindow(stopWindow);
+		stopWindow = NULL;
+		stopWindowSignal = 0;
+	}
+	shouldStopScanning = FALSE;
+}
+
 void scanPath(char *path, BOOL subFoldering, struct Gadget *listGadget, void (*progress_cb)(const char *path, void *userData), void *userData)
 {
     BPTR lockPath = Lock(path, ACCESS_READ);
     if (!lockPath)
     {
         printf("Path Doesn't Exist: %s\n", path);
+		if (!subFoldering) {
+			closeStopWindow();
+		}
         return;
     }
 
@@ -234,6 +324,9 @@ void scanPath(char *path, BOOL subFoldering, struct Gadget *listGadget, void (*p
     if (!Examine(lockPath, fib))
     {
         printf("Examine Failed on path: %s\n", path);
+		if (!subFoldering) {
+			closeStopWindow();
+		}
         goto exit;
     }
 
@@ -250,6 +343,8 @@ void scanPath(char *path, BOOL subFoldering, struct Gadget *listGadget, void (*p
 		}
         totalSize = 0;
         currentFormat = 0;
+		// Open stop window when starting scan
+		openStopWindow();
     }
 
     // If file return size
@@ -264,6 +359,11 @@ void scanPath(char *path, BOOL subFoldering, struct Gadget *listGadget, void (*p
     {
         while (ExNext(lockPath, fib))
         {
+			// Check for stop signal
+			if (checkStopMessage()) {
+				break;
+			}
+
 			// Check if The next entity is a folder
             if (fib->fib_DirEntryType > 0)
             {
@@ -315,6 +415,12 @@ void scanPath(char *path, BOOL subFoldering, struct Gadget *listGadget, void (*p
                     }
                 }
 				FreeVec(newPath);
+
+				// Check if stop was requested after recursive scan
+				if (shouldStopScanning) {
+					break;
+				}
+
                 continue;
             }
 
@@ -385,6 +491,12 @@ exit:
         	printf("\n--> Total Size Of Path Given: %lu %s\n\n", totalSize, returnGivenFormat(currentFormat));
 		}
     }
+
+	// Close stop window when scan is done
+	if (!subFoldering) {
+		closeStopWindow();
+	}
+
     FreeVec(fib);
     UnLock(lockPath);
     return;

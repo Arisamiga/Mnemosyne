@@ -9,4 +9,10 @@ STRPTR returnFormatWithTotal(void);
 void scanPath(char *, BOOL, struct Gadget *, void (*progress_cb)(const char *path, void *userData), void *userData);
 void clearScanning(void);
 
+// Stop scanning functions
+void openStopWindow(void);
+BOOL checkStopMessage(void);
+void closeStopWindow(void);
+extern BOOL shouldStopScanning;
+
 #endif
