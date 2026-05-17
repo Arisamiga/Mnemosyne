@@ -115,6 +115,36 @@ static BOOL scanning = FALSE;
 static Object *completionButton = NULL;
 static Object *mainWindowObject = NULL;
 
+// Progress callback used by scanPath to report the current path being scanned.
+static void scanProgressCallback(const char *path, void *userData)
+{
+	if (!path || !userData)
+		return;
+	Object **objs = (Object **)userData;
+	Object *bottomText = objs[0];
+	Object *windowObject = objs[1];
+	if (!bottomText || !windowObject)
+		return;
+
+	char *displayName = AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
+	if (!displayName)
+		return;
+	getNameFromPath((char *)path, displayName, MAX_BUFFER);
+
+
+	if ((rand() % 1000) == 0) {
+		char *eggName = AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
+		if (eggName) {
+			snprintf(eggName, MAX_BUFFER, "%s :D", displayName);
+			updateBottomTextW2Text(bottomText, windowObject, "Scanning: ", eggName, TRUE);
+			FreeVec(eggName);
+		}
+	} else {
+		updateBottomTextW2Text(bottomText, windowObject, "Scanning: ", displayName, TRUE);
+	}
+	FreeVec(displayName);
+}
+
 static void clearCompletionBitmap(Object *bottomText)
 {
 	if (!completionButton || !EnableGraphOption)
@@ -365,7 +395,14 @@ void scanningSequence(int type,
 
 	toggleButtons(windowObject, backButton, listBrowser, fileRequester, pastPath, doneFirst, TRUE, TRUE);
 
-	scanPath(givenPath, FALSE, listBrowser);
+	/* Pass progress callback so the UI receives periodic updates while
+	 * scanning. We pass a small stack array as userData; it remains valid
+	 * for the duration of the synchronous scan.
+	 */
+	Object *cbData[2];
+	cbData[0] = bottomText;
+	cbData[1] = windowObject;
+	scanPath(givenPath, FALSE, listBrowser, scanProgressCallback, cbData);
 
 	// Drop any Workbench icon-drop messages that arrived during scanning.
 	flushAppPort(appPort);

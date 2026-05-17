@@ -219,7 +219,7 @@ void addFileSequence(struct Gadget *listGadget, struct FileInfoBlock *fib, BOOL 
 	addToTotalSize(fib->fib_Size);
 }
 
-void scanPath(char *path, BOOL subFoldering, struct Gadget *listGadget)
+void scanPath(char *path, BOOL subFoldering, struct Gadget *listGadget, void (*progress_cb)(const char *path, void *userData), void *userData)
 {
     BPTR lockPath = Lock(path, ACCESS_READ);
     if (!lockPath)
@@ -280,7 +280,13 @@ void scanPath(char *path, BOOL subFoldering, struct Gadget *listGadget)
 
                 ULONG oldTotalSize = totalSize;
 
-                scanPath(newPath, TRUE, 0);
+                /* Notify progress (if provided).
+                 */
+                if (progress_cb && !subFoldering) {
+                    progress_cb(newPath, userData);
+                }
+
+                scanPath(newPath, TRUE, 0, progress_cb, userData);
 
                 if (!subFoldering && !listGadget)
                 {
