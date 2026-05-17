@@ -89,11 +89,11 @@ static struct Menu *menu;
 
 static struct NewMenu MenuArray[] = {
 	{NM_TITLE, "Project", 0, 0, 0, 0},
-	{NM_ITEM, "Open", 0, 0, 0, (APTR)OID_SCAN_OPEN},
+	{NM_ITEM, "Open", "O", 0, 0, (APTR)OID_SCAN_OPEN},
 	{NM_ITEM, "Open in Workbench...", 0, ITEMENABLED, 0, (APTR)OID_MENU_OPEN_DIR},
 	{NM_ITEM, NM_BARLABEL,0,0,0,0 },
-	{NM_ITEM, "About...", 0, 0, 0, (APTR)OID_MENU_ABOUT},
-	{NM_ITEM, "Quit...", 0, 0, 0, (APTR)OID_MENU_QUIT},
+	{NM_ITEM, "About...", "A", 0, 0, (APTR)OID_MENU_ABOUT},
+	{NM_ITEM, "Quit...", "Q", 0, 0, (APTR)OID_MENU_QUIT},
 	{NM_TITLE, "Settings", 0, 0, 0, 0},
 	{NM_ITEM, "Round Numbers", 0, CHECKIT, 0, (APTR)OID_MENU_NO_ROUND},
 	{NM_ITEM, "Enable Graph", 0, CHECKIT, 0, (APTR)OID_MENU_ENABLE_GRAPH},
@@ -248,7 +248,7 @@ void UpdateMenu(struct Window *intuiwin, BOOL enabled){
 
 void updateMenuItems(struct Window *intuiwin, BOOL enabled){
 	if (enabled == TRUE && WorkbenchBase->lib_Version >= 44){
-		MenuArray[2] = (struct NewMenu){NM_ITEM, "Open in Workbench...", 0, 0, 0, (APTR)OID_MENU_OPEN_DIR};
+		MenuArray[2] = (struct NewMenu){NM_ITEM, "Open in Workbench...", "W", 0, 0, (APTR)OID_MENU_OPEN_DIR};
 	}
 	else {
 		MenuArray[2] = (struct NewMenu){NM_ITEM, "Open in Workbench...", 0, ITEMENABLED, 0, (APTR)OID_MENU_OPEN_DIR};
