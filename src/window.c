@@ -150,8 +150,17 @@ static void showCompletionBitmap(Object *bottomText, struct Gadget *listbrowser)
     if (!bm)
         return;
 
-    ULONG bitmapWidth = 200;
-	ULONG bitmapHeight = 100;
+	/* Use current gadget size so the graph fills the entire completion area. */
+	ULONG bitmapWidth = 0;
+	ULONG bitmapHeight = 0;
+	GetAttr(GA_Width, completionButton, &bitmapWidth);
+	GetAttr(GA_Height, completionButton, &bitmapHeight);
+
+	if (bitmapWidth < 16)
+		bitmapWidth = 200;
+	if (bitmapHeight < 16)
+		bitmapHeight = 100;
+
     InitBitMap(bm, 4, bitmapWidth, bitmapHeight);
 
     for (int plane = 0; plane < 4; plane++) {
@@ -172,13 +181,13 @@ static void showCompletionBitmap(Object *bottomText, struct Gadget *listbrowser)
     image1 = BitMapObject,
         BITMAP_BitMap, bm,
         BITMAP_Width, bitmapWidth,
-        BITMAP_Height, 20,
+		BITMAP_Height, bitmapHeight,
     EndImage;
 
     SetAttrs(completionButton,
              GA_Image, image1,
              GA_Width, bitmapWidth,
-			 GA_Height, 30,
+			 GA_Height, bitmapHeight,
              GA_Disabled, FALSE,
              TAG_DONE);
 
@@ -624,11 +633,13 @@ void createWindow(char *Path)
 							LAYOUT_DeferLayout, TRUE,
 							LAYOUT_SpaceInner, TRUE,
 							LAYOUT_SpaceOuter, TRUE,
-							LAYOUT_EvenSize, TRUE,
+							LAYOUT_EvenSize, FALSE,
 							LAYOUT_AddChild, upperLayout,
 									CHILD_WeightedHeight, 10,
 							LAYOUT_AddChild, listBrowser,
+									CHILD_WeightedHeight, 55,
 							LAYOUT_AddChild, lowerLayout,
+									CHILD_WeightedHeight, 35,
 							TAG_DONE);
 	}
 

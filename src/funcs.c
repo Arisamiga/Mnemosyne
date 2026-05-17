@@ -375,8 +375,15 @@ void updateIconTooltypes (void)
 // Extract the color pen from a bitmap (4-bit)
 ULONG getBitmapColorPen(struct BitMap *bm)
 {
+    /*
+     * The bitmap used for our small color preview is a 4-plane (4-bit)
+     * image. Each plane contains a bit that contributes to the final
+     * pen index. We extract the top-left bit from each plane and build
+     * a 4-bit index: plane3..plane0 -> bit3..bit0. If anything looks
+     * wrong (null planes or zero stride) we fall back to pen 1.
+     */
     if (!bm || bm->BytesPerRow == 0)
-        return 1;  // Fallback to pen 1
+        return 1;  /* Fallback to pen 1 */
 
     UBYTE *planes[4];
     for (int i = 0; i < 4; i++) {
@@ -385,11 +392,13 @@ ULONG getBitmapColorPen(struct BitMap *bm)
             return 1;
     }
 
+    /* Read the first byte from each plane (top-left pixel) */
     UBYTE byte0 = planes[0][0];
     UBYTE byte1 = planes[1][0];
     UBYTE byte2 = planes[2][0];
     UBYTE byte3 = planes[3][0];
 
+    /* Compose a 4-bit pen index from the high bits of each plane */
     ULONG pen = ((byte3 & 0x80) >> 7) * 8 |
                 ((byte2 & 0x80) >> 7) * 4 |
                 ((byte1 & 0x80) >> 7) * 2 |
@@ -399,6 +408,12 @@ ULONG getBitmapColorPen(struct BitMap *bm)
 }
 
 // Collect all node percentages from the list browser WITH COLORS from column 0 images
+//
+// Walk the ListBrowser node list and read the text in the 'percent' column
+// (column 2). For each node we parse the percentage and also try to obtain
+// a small per-row image from column 0; if present we extract its bitmap and
+// derive a pen to use for display. Results are written into the supplied
+// nodeArray and the number of items filled is returned.
 ULONG collectAllNodePercentages(struct Gadget *listbrowser, struct NodeData *nodeArray, ULONG maxNodes)
 {
     struct List *nodeList = NULL;
@@ -419,12 +434,17 @@ ULONG collectAllNodePercentages(struct Gadget *listbrowser, struct NodeData *nod
                                 TAG_DONE);
 
         if (percentText) {
+            /* Parse percentage text into a float and clamp to [0..100] */
             float percent = atof(percentText);
             if (percent > 100.0f) percent = 100.0f;
             if (percent < 0.0f) percent = 0.0f;
 
             nodeArray[nodeCount].percent = percent;
 
+            /* If an Image object exists in column 0, try to fetch its BitMap
+             * and derive a pen from the top-left pixel. Otherwise use a
+             * rotating default pen value so adjacent rows are visually
+             * distinct. */
             struct Image *image = NULL;
             GetListBrowserNodeAttrs(node,
                                     LBNA_Column, 0,
@@ -450,10 +470,15 @@ ULONG collectAllNodePercentages(struct Gadget *listbrowser, struct NodeData *nod
     return nodeCount;
 }
 
-// Simple row-based treemap layout
+// Adaptive treemap layout (slice-and-dice)
+//
+// Rectangle sizes are computed from the currently available width/height,
+// so layout scales naturally with any bitmap size. We repeatedly split the
+// remaining area along its longest side, assigning each node an area
+// proportional to its percentage.
 void drawTreemapRectangles(struct RastPort *rp, struct NodeData *nodeArray, ULONG nodeCount, ULONG bitmapWidth, ULONG bitmapHeight)
 {
-    if (nodeCount == 0)
+    if (nodeCount == 0 || bitmapWidth == 0 || bitmapHeight == 0)
         return;
 
     float totalPercent = 0.0f;
@@ -464,41 +489,63 @@ void drawTreemapRectangles(struct RastPort *rp, struct NodeData *nodeArray, ULON
     if (totalPercent < 0.01f)
         totalPercent = 100.0f;
 
-    ULONG x = 0, y = 0;
-    ULONG rowHeight = bitmapHeight / (nodeCount > 10 ? 10 : (nodeCount > 5 ? 5 : 3));
-    if (rowHeight < 2) rowHeight = 2;
-
-    ULONG currentRow = 0;
-    ULONG rowY = 0;
-    ULONG nextRowY = rowHeight;
+    ULONG x = 0;
+    ULONG y = 0;
+    ULONG w = bitmapWidth;
+    ULONG h = bitmapHeight;
+    float remainingPercent = totalPercent;
 
     for (ULONG i = 0; i < nodeCount; i++) {
-        float fraction = nodeArray[i].percent / totalPercent;
-        ULONG itemWidth = (ULONG)(fraction * bitmapWidth);
-        if (itemWidth < 1) itemWidth = 1;
+        if (w == 0 || h == 0)
+            break;
 
-        if (x + itemWidth > bitmapWidth) {
-            x = 0;
-            rowY = nextRowY;
-            nextRowY += rowHeight;
-            if (nextRowY > bitmapHeight) nextRowY = bitmapHeight;
-            currentRow++;
+        ULONG rectX = x;
+        ULONG rectY = y;
+        ULONG rectW = w;
+        ULONG rectH = h;
+
+        if (i < nodeCount - 1 && remainingPercent > 0.0f) {
+            float fraction = nodeArray[i].percent / remainingPercent;
+            if (fraction < 0.0f)
+                fraction = 0.0f;
+            if (fraction > 1.0f)
+                fraction = 1.0f;
+
+            if (w >= h) {
+                rectW = (ULONG)(fraction * (float)w);
+                if (rectW < 1)
+                    rectW = 1;
+                if (rectW > w)
+                    rectW = w;
+            } else {
+                rectH = (ULONG)(fraction * (float)h);
+                if (rectH < 1)
+                    rectH = 1;
+                if (rectH > h)
+                    rectH = h;
+            }
         }
 
-        if (rowY < bitmapHeight) {
-            ULONG rectHeight = nextRowY - rowY;
-            if (rowY + rectHeight > bitmapHeight)
-                rectHeight = bitmapHeight - rowY;
+        SetAPen(rp, nodeArray[i].colorPen);
+        RectFill(rp, rectX, rectY, rectX + rectW - 1, rectY + rectH - 1);
 
-            SetAPen(rp, nodeArray[i].colorPen);
-            RectFill(rp, x, rowY, x + itemWidth - 1, rowY + rectHeight - 1);
-
-            if (x + itemWidth < bitmapWidth) {
-                SetAPen(rp, 0);
-                RectFill(rp, x + itemWidth, rowY, x + itemWidth, rowY + rectHeight - 1);
+        /* Draw split line without affecting next rectangle geometry. */
+        if (i < nodeCount - 1) {
+            SetAPen(rp, 0);
+            if (w >= h) {
+                if (rectX + rectW < bitmapWidth)
+                    RectFill(rp, rectX + rectW - 1, rectY, rectX + rectW - 1, rectY + rectH - 1);
+                x += rectW;
+                w -= rectW;
+            } else {
+                if (rectY + rectH < bitmapHeight)
+                    RectFill(rp, rectX, rectY + rectH - 1, rectX + rectW - 1, rectY + rectH - 1);
+                y += rectH;
+                h -= rectH;
             }
-
-            x += itemWidth + 1;
+            remainingPercent -= nodeArray[i].percent;
+            if (remainingPercent < 0.0f)
+                remainingPercent = 0.0f;
         }
     }
 }
