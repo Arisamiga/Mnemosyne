@@ -97,11 +97,17 @@ void getNameFromPath(char *path, char *result, unsigned int resultSize)
     {
         struct FileInfoBlock *FIblock = (struct FileInfoBlock *)AllocVec(sizeof(struct FileInfoBlock), MEMF_CLEAR);
 
+        if (!FIblock) {
+            UnLock(pathLock);
+            return;
+        }
+
         if (Examine(pathLock, FIblock))
         {
             strlcpy(result, FIblock->fib_FileName, resultSize);
-            FreeVec(FIblock);
         }
+
+        FreeVec(FIblock);
         UnLock(pathLock);
     }
 }
@@ -284,7 +290,7 @@ void initializeIconTooltypes(void)
 
 	if (IconBase)
 	{
-		struct DiskObject *diskObj = GetDiskObjectNew(path);
+        struct DiskObject *diskObj = GetDiskObjectNew(path);
 		if(diskObj)
 		{
 			// Check if the tooltypes are empty
@@ -294,12 +300,13 @@ void initializeIconTooltypes(void)
 				NoRoundOption = FALSE;
                 EnableGraphOption = FALSE;
 				FreeDiskObject(diskObj);
-				return;
+                if (path) FreeVec(path);
+                return;
 			}
 
-			char *buf = AllocVec(sizeof(char) * 256, MEMF_CLEAR);
+            STRPTR buf;
 
-			for (STRPTR *tool_types = diskObj->do_ToolTypes; (buf = *tool_types); ++tool_types)
+            for (STRPTR *tool_types = diskObj->do_ToolTypes; (buf = *tool_types); ++tool_types)
 			{
 				// printf("%s\n", buf);
                 if (strncmp(buf, "NOROUND", 7) == 0)
@@ -312,10 +319,10 @@ void initializeIconTooltypes(void)
                 }
 			}
 			// printf("%s\n", result);
-			FreeVec(buf);
 			FreeDiskObject(diskObj);
 		}
 	}
+    if (path) FreeVec(path);
 }
 
 void updateIconTooltypes (void)
@@ -368,6 +375,7 @@ void updateIconTooltypes (void)
 			}
 		}
 	}
+    if (path) FreeVec(path);
 }
 
 // ------------ Utility Functions for Window (moved from window.c) -----------
@@ -580,7 +588,14 @@ float __SAVE_DS__ __ASM__ myCompare(__REG__(a0, struct Hook *hook), __REG__(a2, 
 int __SAVE_DS__ __ASM__ myCompare2(__REG__(a0, struct Hook *hook), __REG__(a2, Object *obj),
 									   __REG__(a1, struct LBSortMsg *msg))
 {
-	return strcmp(string_to_lower(msg->lbsm_DataA.Text, safeStrlen(msg->lbsm_DataA.Text)), string_to_lower(msg->lbsm_DataB.Text, safeStrlen(msg->lbsm_DataB.Text)));
+    char *a = string_to_lower(msg->lbsm_DataA.Text, safeStrlen(msg->lbsm_DataA.Text));
+    char *b = string_to_lower(msg->lbsm_DataB.Text, safeStrlen(msg->lbsm_DataB.Text));
+    int rc = 0;
+    if (a && b)
+        rc = strcmp(a, b);
+    if (a) FreeVec(a);
+    if (b) FreeVec(b);
+    return rc;
 }
 
 void checkBackButton(char *pastPath, BOOL doneFirst, Object *backButton) {
@@ -617,7 +632,7 @@ void updateBottomTextW2Text(Object *bottomText, Object *windowObject, char *firs
 	SetAttrs(bottomText, GA_Image, NULL, GA_Text, title, TAG_DONE);
 	if (Refresh)
 		DoMethod(windowObject, WM_NEWPREFS);
-	// FreeVec(title);
+    FreeVec(title);
 }
 
 void updateBottomTextW2AndTotal(Object *bottomText, Object *windowObject, char *firstText, STRPTR secondText, STRPTR totalText, BOOL Refresh)
