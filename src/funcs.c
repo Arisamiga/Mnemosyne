@@ -275,8 +275,15 @@ char* getProgramPath() {
     if (lock)
     {
         NameFromLock(lock, path, 256);
-        // Append Mnemosyne to the path
-        strcat(path, "Mnemosyne");
+
+		// Check if path ends with : if yes then we are at root
+		if (getLastCharSafely(path) == ':') {
+			// Append Mnemosyne to the path
+			strcat(path, "Mnemosyne");
+		}
+		else {
+			strcat(path, "/Mnemosyne");
+		}
         UnLock(lock);
     }
     return path;
@@ -287,7 +294,6 @@ void initializeIconTooltypes(void)
 
 	// Get path from where the program is running
 	char* path = getProgramPath();
-
 	if (IconBase)
 	{
         struct DiskObject *diskObj = GetDiskObjectNew(path);
