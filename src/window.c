@@ -844,6 +844,8 @@ void processEvents(Object *windowObject,
 								};
 								EasyRequest(intuiwin, &requesterAbout, NULL, NULL);
 
+
+								toggleButtons(windowObject, backButton, listBrowser, fileRequester, pastPath, doneFirst, TRUE, TRUE);
 								toggleBusyPointer(windowObject, FALSE);
 								break;
 							}
