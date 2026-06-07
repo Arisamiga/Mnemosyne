@@ -266,7 +266,7 @@ void openStopWindow(void) {
 			JAM2,
 			10, 40,
 			NULL,
-			(STRPTR)"Close window to stop scanning.",
+			(STRPTR)"Close this window to stop scanning.",
 			NULL
 		};
 

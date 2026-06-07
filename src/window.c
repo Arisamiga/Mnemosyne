@@ -50,8 +50,6 @@
 #include <graphics/gfx.h>
 #include <proto/graphics.h>
 #include <graphics/rastport.h>
-#include <gadgets/space.h>
-#include <proto/space.h>
 
 #include <clib/alib_protos.h>
 
@@ -839,14 +837,11 @@ void processEvents(Object *windowObject,
 									sizeof(struct EasyStruct),
 									0,
 									"Notice",
-									"Please restart the application for the graph option to take effect.",
+									"Mnemosyne will now exit for the graph option to take effect.",
 									"OK"
 								};
 								EasyRequest(intuiwin, &requesterAbout, NULL, NULL);
-
-
-								toggleButtons(windowObject, backButton, listBrowser, fileRequester, pastPath, doneFirst, TRUE, TRUE);
-								toggleBusyPointer(windowObject, FALSE);
+								end = TRUE;
 								break;
 							}
 							case OID_MENU_QUIT:
