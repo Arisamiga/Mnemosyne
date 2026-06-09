@@ -633,19 +633,38 @@ void toggleBusyPointer(Object *windowObject, BOOL option)
 
 void updateBottomTextW2Text(Object *bottomText, Object *windowObject, char *firstText, STRPTR secondText, BOOL Refresh)
 {
-	char *title = AllocVec(sizeof(char) * 256, MEMF_CLEAR);
-	snprintf(title, 256, "%s%s", firstText, secondText);
-	SetAttrs(bottomText, GA_Image, NULL, GA_Text, title, TAG_DONE);
-	if (Refresh)
-		DoMethod(windowObject, WM_NEWPREFS);
+    char *title = AllocVec(256, MEMF_CLEAR);
+    if (!title) return;
+
+    snprintf(title, 256, "%s%s", firstText, secondText);
+
+    // Note: ReAction string gadgets usually expect STRINGA_TextVal directly,
+    // rather than modifying a GA_Image attribute.
+    SetAttrs(bottomText, STRINGA_TextVal, (ULONG)title, TAG_DONE);
+
+    if (Refresh && windowObject)
+    {
+        struct Window *intuiWindow = NULL;
+
+        // Safely extract the real Intuition window pointer from your window object
+        GetAttr(WINDOW_Window, windowObject, (ULONG *)&intuiWindow);
+
+        // If the window is currently open on screen, render ONLY this specific gadget
+        if (intuiWindow)
+        {
+            RefreshGList((struct Gadget *)bottomText, intuiWindow, NULL, 1);
+        }
+    }
+
     FreeVec(title);
 }
+
 
 void updateBottomTextW2AndTotal(Object *bottomText, Object *windowObject, char *firstText, STRPTR secondText, STRPTR totalText, BOOL Refresh)
 {
 	char *title = AllocVec(sizeof(char) * 256, MEMF_CLEAR);
 	snprintf(title, 256, "%s%s%s", firstText, secondText, totalText);
-	SetAttrs(bottomText, GA_Image, NULL, GA_Text, title, TAG_DONE);
+	SetAttrs(bottomText, GA_Image, NULL, STRINGA_TextVal, title, TAG_DONE);
 	if (Refresh)
 		DoMethod(windowObject, WM_NEWPREFS);
 	FreeVec(title);
@@ -655,11 +674,11 @@ void updateBottomText(Object *bottomText, Object *windowObject, STRPTR secondTex
 {
 	// Check that the text is not the same as the current text
 	STRPTR bottomTextString = NULL;
-	GetAttr(GA_Text, bottomText, (ULONG *)&bottomTextString);
+	GetAttr(STRINGA_TextVal, bottomText, (ULONG *)&bottomTextString);
 	// if (strcmp(bottomTextString, secondText) == 0)
 	// 	return;
 
-	SetAttrs(bottomText, GA_Image, NULL, GA_Text, secondText, TAG_DONE);
+	SetAttrs(bottomText, GA_Image, NULL, STRINGA_TextVal, secondText, TAG_DONE);
 	DoMethod(windowObject, WM_NEWPREFS);
 }
 

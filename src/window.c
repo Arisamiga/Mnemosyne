@@ -30,6 +30,8 @@
 #include <proto/dos.h>
 #include <proto/gadtools.h>
 
+#include <proto/string.h>
+
 #include <libraries/gadtools.h>
 
 #include <clib/reaction_lib_protos.h>
@@ -590,11 +592,11 @@ void createWindow(char *Path)
 
 
 
-	bottomText = NewObject(BUTTON_GetClass(), NULL,
-						   GA_Text, "Welcome to Mnemosyne!",
-						   GA_ReadOnly, TRUE,
-						   BUTTON_BevelStyle, BVS_GROUP,
-						   TAG_END);
+	bottomText = NewObject(STRING_GetClass(), NULL,
+						GA_ReadOnly, TRUE,
+						STRINGA_TextVal, "Welcome to Mnemosyne!",
+						STRINGA_Justification, GACT_STRINGCENTER,
+						TAG_END);
 
 	completionButton = NewObject(BUTTON_GetClass(), NULL,
 						GA_ReadOnly, TRUE,

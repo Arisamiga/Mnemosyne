@@ -20,7 +20,7 @@ struct Library *GadToolsBase;
 struct Library *WorkbenchBase;
 struct Library *IconBase;
 struct Library *BitMapBase;
-struct Library *SpaceBase;
+struct Library *StringBase;
 
 // Declare functions after main
 void info(void);
@@ -62,12 +62,16 @@ BOOL openLibraries(void)
 		printf("Failed to open gadgets/getfile.gadget! Make sure the version is above v39.\n");
 		return FALSE;
 	}
-	if ((GadToolsBase = OpenLibrary("gadtools.library", 39)) == NULL) {
+	if (!(GadToolsBase = OpenLibrary("gadtools.library", 39))) {
 		printf( "Failed to open gadtools.library! Make sure the version is above v39.\n");
 		return FALSE;
 	}
 	if (EnableGraphOption && (BitMapBase = OpenLibrary("images/bitmap.image", 39)) == NULL) {
 		printf( "Failed to open images/bitmap.image! Make sure the version is above v39.\n");
+		return FALSE;
+	}
+	if (!(StringBase = OpenLibrary("gadgets/string.gadget", 39))) {
+		printf( "Failed to open gadgets/string.gadget! Make sure the version is above v39.\n");
 		return FALSE;
 	}
 	return TRUE;
@@ -95,6 +99,8 @@ void closeLibraries(void)
 		CloseLibrary(WorkbenchBase);
 	if (BitMapBase)
 		CloseLibrary(BitMapBase);
+	if (StringBase)
+		CloseLibrary(StringBase);
 }
 
 BOOL openToolTypeLibraries(void)
