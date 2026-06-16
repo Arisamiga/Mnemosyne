@@ -25,7 +25,9 @@ jobs:
       - name: 🚚 Get latest code
         uses: actions/checkout@v2
       - name: Make sure we have clang-format installed
-        run: apt-get install -y clang-format
+        run:
+          apt-get update
+          apt-get install -y clang-format
       - name: 🏃 Running Make
         run: make
       - name: 🏃 Running format check
