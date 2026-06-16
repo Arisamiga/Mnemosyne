@@ -21,6 +21,9 @@ jobs:
       image: walkero/docker4amigavbcc:latest-m68k
       volumes:
         - '${{ github.workspace }}:/opt/code'
+    defaults:
+      run:
+        working-directory: /opt/code
     steps:
       - name: 🚚 Get latest code
         uses: actions/checkout@v2
