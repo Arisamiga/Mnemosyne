@@ -5,7 +5,7 @@
 #include <exec/types.h>
 #include <graphics/rastport.h>
 #include <intuition/gadgetclass.h>
-
+#include <proto/intuition.h>
 // Forward declarations
 struct Image;
 struct BitMap;
