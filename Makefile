@@ -40,3 +40,7 @@ src/window.o: src/window.h src/window.c src/funcs.h
 # Clean command for .o files and current Executable
 clean:
 	@rm src/*.o Mnemosyne
+
+# Format command for clang
+format:
+	@clang-format -i src/*.c src/*.h
