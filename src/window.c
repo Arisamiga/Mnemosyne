@@ -1107,7 +1107,6 @@ void processEvents(Object *windowObject,
                                          appPort);
                         doneFirst = TRUE;
                         FreeVec(buffer);
-
                         break;
                     }
                     case OID_MAIN_LIST: {

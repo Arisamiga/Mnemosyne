@@ -182,6 +182,15 @@ void addToList(char *name, ULONG size, STRPTR format) {
 
         for (int plane = 0; plane < 4; plane++) {
             bm->Planes[plane] = AllocRaster(bmpW, bmpH);
+            if (!bm->Planes[plane]) {
+                printf("Failed to allocate raster for plane %d\n", plane);
+                // Free previously allocated planes
+                for (int j = 0; j < plane; j++) {
+                    FreeRaster(bm->Planes[j], bmpW, bmpH);
+                }
+                FreeVec(bm);
+                return;
+            }
             memset(bm->Planes[plane], 0, RASSIZE(bmpW, bmpH));
         }
 
