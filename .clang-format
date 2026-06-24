@@ -1,7 +1,29 @@
+Language: Cpp
 BasedOnStyle: LLVM
+Standard: Auto
 UseTab: Never
 IndentWidth: 4
 TabWidth: 4
+ColumnLimit: 80
+
+# AmigaOS NDK 3.2 Specific Keywords & Pragmas
+AttributeMacros:
+  - __asm
+  - __reg
+  - __saveds
+  - __chip
+  - __far
+  - __stdargs
+  - __stackparm
+  - ASM
+  - REG
+  - SAVEDS
+
+WhitespaceSensitiveMacros:
+  - VA_START
+  - NewObject
+  - WindowObject
+  - AllocListBrowserNode
 
 # Readability Enhancements
 AllowShortBlocksOnASingleLine: Never
@@ -9,16 +31,31 @@ AllowShortIfStatementsOnASingleLine: Never
 AllowShortLoopsOnASingleLine: false
 BreakBeforeBraces: Attach
 
+# Legacy Alignment Syntax
 AlignConsecutiveAssignments: true
 AlignConsecutiveMacros: true
 AlignTrailingComments: true
-AlignAfterOpenBracket: Align
 
-ColumnLimit: 80
+# Classic C Pointer Style (e.g., struct Library *SysBase;)
+PointerAlignment: Right
+
+# Key-Value Tag Layout Strategy (Fixes BOOPSI Macro Wrapping)
+AlignAfterOpenBracket: DontAlign
 BinPackArguments: false
 BinPackParameters: false
-BreakBeforeBinaryOperators: NonAssignment
 
+# Pure C Formatting Mechanics
+BreakBeforeBinaryOperators: NonAssignment
 SpaceBeforeAssignmentOperators: true
 SpaceBeforeParens: ControlStatements
 SpaceInEmptyParentheses: false
+SpacesInSquareBrackets: false
+
+# Amiga Switch and Structure Alignment Fixes
+IndentCaseLabels: true
+AlignEscapedNewlines: Left
+
+# Disabled C++ Features to Prevent Formatting Bugs
+FixNamespaceComments: false
+SortIncludes: false
+ReflowComments: false

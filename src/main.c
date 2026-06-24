@@ -27,7 +27,7 @@ void info(void);
 
 BOOL openLibraries(void) {
     if (!(IntuitionBase =
-              (struct IntuitionBase *)OpenLibrary("intuition.library", 39))) {
+                (struct IntuitionBase *)OpenLibrary("intuition.library", 39))) {
         printf("Failed to open intuition.library! Make sure the version is "
                "above v39.\n");
         return FALSE;

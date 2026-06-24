@@ -85,15 +85,14 @@ enum {
 
 static struct Menu *menu;
 
-static struct NewMenu MenuArray[] = {
-    {NM_TITLE, "Project", 0, 0, 0, 0},
+static struct NewMenu MenuArray[] = {{NM_TITLE, "Project", 0, 0, 0, 0},
     {NM_ITEM, "Open", "O", 0, 0, (APTR)OID_SCAN_OPEN},
     {NM_ITEM,
-     "Open in Workbench...",
-     0,
-     ITEMENABLED,
-     0,
-     (APTR)OID_MENU_OPEN_DIR},
+        "Open in Workbench...",
+        0,
+        ITEMENABLED,
+        0,
+        (APTR)OID_MENU_OPEN_DIR},
     {NM_ITEM, NM_BARLABEL, 0, 0, 0, 0},
     {NM_ITEM, "About...", "A", 0, 0, (APTR)OID_MENU_ABOUT},
     {NM_ITEM, "Quit...", "Q", 0, 0, (APTR)OID_MENU_QUIT},
@@ -171,8 +170,8 @@ static void clearCompletionBitmap(Object *windowObject) {
     RefreshGList((struct Gadget *)completionButton, intuiWindow, NULL, 1);
 }
 
-static void showCompletionBitmap(struct Gadget *listbrowser,
-                                 Object *windowObject) {
+static void showCompletionBitmap(
+    struct Gadget *listbrowser, Object *windowObject) {
     if (!completionButton || !EnableGraphOption || !listbrowser)
         return;
 
@@ -238,26 +237,26 @@ void UpdateMenuToolTypes() {
             NM_ITEM, "Round Numbers", 0, CHECKIT, 0, (APTR)OID_MENU_NO_ROUND};
     } else {
         MenuArray[7] = (struct NewMenu){NM_ITEM,
-                                        "Round Numbers",
-                                        0,
-                                        CHECKIT | CHECKED,
-                                        0,
-                                        (APTR)OID_MENU_NO_ROUND};
+            "Round Numbers",
+            0,
+            CHECKIT | CHECKED,
+            0,
+            (APTR)OID_MENU_NO_ROUND};
     }
     if (EnableGraphOption) {
         MenuArray[8] = (struct NewMenu){NM_ITEM,
-                                        "Enable Graph",
-                                        0,
-                                        CHECKIT | CHECKED,
-                                        0,
-                                        (APTR)OID_MENU_ENABLE_GRAPH};
+            "Enable Graph",
+            0,
+            CHECKIT | CHECKED,
+            0,
+            (APTR)OID_MENU_ENABLE_GRAPH};
     } else {
         MenuArray[8] = (struct NewMenu){NM_ITEM,
-                                        "Enable Graph",
-                                        0,
-                                        CHECKIT,
-                                        0,
-                                        (APTR)OID_MENU_ENABLE_GRAPH};
+            "Enable Graph",
+            0,
+            CHECKIT,
+            0,
+            (APTR)OID_MENU_ENABLE_GRAPH};
     }
 }
 
@@ -291,18 +290,18 @@ void UpdateMenu(struct Window *intuiwin, BOOL enabled) {
 void updateMenuItems(struct Window *intuiwin, BOOL enabled) {
     if (enabled == TRUE && WorkbenchBase->lib_Version >= 44) {
         MenuArray[2] = (struct NewMenu){NM_ITEM,
-                                        "Open in Workbench...",
-                                        "W",
-                                        0,
-                                        0,
-                                        (APTR)OID_MENU_OPEN_DIR};
+            "Open in Workbench...",
+            "W",
+            0,
+            0,
+            (APTR)OID_MENU_OPEN_DIR};
     } else {
         MenuArray[2] = (struct NewMenu){NM_ITEM,
-                                        "Open in Workbench...",
-                                        0,
-                                        ITEMENABLED,
-                                        0,
-                                        (APTR)OID_MENU_OPEN_DIR};
+            "Open in Workbench...",
+            0,
+            ITEMENABLED,
+            0,
+            (APTR)OID_MENU_OPEN_DIR};
     }
     UpdateMenuToolTypes();
     // SetAttrs(windowObject, WINDOW_NewMenu, MenuArray, TAG_DONE);
@@ -310,13 +309,13 @@ void updateMenuItems(struct Window *intuiwin, BOOL enabled) {
 }
 
 void setFileSequence(struct Window *intuiwin,
-                     Object *bottomText,
-                     Object *windowObject,
-                     Object *scanButton,
-                     struct Gadget *listBrowser,
-                     Object *backButton,
-                     BOOL doneFirst,
-                     TEXT *path) {
+    Object *bottomText,
+    Object *windowObject,
+    Object *scanButton,
+    struct Gadget *listBrowser,
+    Object *backButton,
+    BOOL doneFirst,
+    TEXT *path) {
     BPTR lock = Lock(path, ACCESS_READ);
     SetAttrs(listBrowser, GA_DISABLED, TRUE, TAG_DONE);
     SetAttrs(backButton, GA_Disabled, TRUE, TAG_DONE);
@@ -344,13 +343,13 @@ void setFileSequence(struct Window *intuiwin,
 }
 
 void fileRequesterSequence(Object *fileRequester,
-                           struct Window *intuiwin,
-                           Object *bottomText,
-                           Object *windowObject,
-                           Object *scanButton,
-                           struct Gadget *listBrowser,
-                           Object *backButton,
-                           BOOL doneFirst) {
+    struct Window *intuiwin,
+    Object *bottomText,
+    Object *windowObject,
+    Object *scanButton,
+    struct Gadget *listBrowser,
+    Object *backButton,
+    BOOL doneFirst) {
     int fileSelect = gfRequestDir(fileRequester, intuiwin);
     if (fileSelect) {
         struct List contents;
@@ -362,27 +361,27 @@ void fileRequesterSequence(Object *fileRequester,
         strlcpy(path, (const char *)pathPtr, MAX_BUFFER - 1);
         path[MAX_BUFFER - 1] = '\0';
         setFileSequence(intuiwin,
-                        bottomText,
-                        windowObject,
-                        scanButton,
-                        listBrowser,
-                        backButton,
-                        doneFirst,
-                        path);
+            bottomText,
+            windowObject,
+            scanButton,
+            listBrowser,
+            backButton,
+            doneFirst,
+            path);
     }
 }
 void scanningSequence(int type,
-                      struct Window *intuiwin,
-                      Object *windowObject,
-                      Object *bottomText,
-                      Object *scanButton,
-                      Object *backButton,
-                      struct Gadget *listBrowser,
-                      Object *fileRequester,
-                      BOOL doneFirst,
-                      struct Hook CompareHook,
-                      char *givenPath,
-                      struct MsgPort *appPort) {
+    struct Window *intuiwin,
+    Object *windowObject,
+    Object *bottomText,
+    Object *scanButton,
+    Object *backButton,
+    struct Gadget *listBrowser,
+    Object *fileRequester,
+    BOOL doneFirst,
+    struct Hook CompareHook,
+    char *givenPath,
+    struct MsgPort *appPort) {
     if (scanning) {
         // printf("Scanning already in progress\n");
         return;
@@ -417,13 +416,13 @@ void scanningSequence(int type,
     SetAttrs(scanButton, GA_Disabled, TRUE, TAG_DONE);
 
     toggleButtons(windowObject,
-                  backButton,
-                  listBrowser,
-                  fileRequester,
-                  pastPath,
-                  doneFirst,
-                  TRUE,
-                  TRUE);
+        backButton,
+        listBrowser,
+        fileRequester,
+        pastPath,
+        doneFirst,
+        TRUE,
+        TRUE);
 
     /* Pass progress callback so the UI receives periodic updates while
      * scanning. We pass a small stack array as userData; it remains valid
@@ -440,34 +439,34 @@ void scanningSequence(int type,
     scanning = FALSE;
 
     toggleButtons(windowObject,
-                  backButton,
-                  listBrowser,
-                  fileRequester,
-                  pastPath,
-                  doneFirst,
-                  FALSE,
-                  FALSE);
+        backButton,
+        listBrowser,
+        fileRequester,
+        pastPath,
+        doneFirst,
+        FALSE,
+        FALSE);
 
     if (EnableGraphOption) {
         ColumnSorting[1].Sorting = LBMSORT_REVERSE;
         DoGadgetMethod(listBrowser,
-                       intuiwin,
-                       NULL,
-                       LBM_SORT,
-                       NULL,
-                       2,
-                       ColumnSorting[1].Sorting,
-                       &CompareHook);
+            intuiwin,
+            NULL,
+            LBM_SORT,
+            NULL,
+            2,
+            ColumnSorting[1].Sorting,
+            &CompareHook);
     } else {
         ColumnSorting[1].Sorting = LBMSORT_REVERSE;
         DoGadgetMethod(listBrowser,
-                       intuiwin,
-                       NULL,
-                       LBM_SORT,
-                       NULL,
-                       1,
-                       ColumnSorting[1].Sorting,
-                       &CompareHook);
+            intuiwin,
+            NULL,
+            LBM_SORT,
+            NULL,
+            1,
+            ColumnSorting[1].Sorting,
+            &CompareHook);
     }
 
     if (type == OID_BACK_BUTTON)
@@ -492,21 +491,20 @@ void scanningSequence(int type,
 // Main Window Functions
 // -------------
 
-void cleanexit(Object *windowObject,
-               struct MsgPort *appPort,
-               struct AppWindow *appWin);
+void cleanexit(
+    Object *windowObject, struct MsgPort *appPort, struct AppWindow *appWin);
 void processEvents(Object *windowObject,
-                   struct Window *intuiwin,
-                   struct Gadget *listBrowser,
-                   struct MsgPort *appPort,
-                   Object *backButton,
-                   BOOL doneFirst,
-                   struct Hook CompareHook,
-                   struct Hook NameHook,
-                   Object *bottomText,
-                   Object *fileRequester,
-                   Object *scanButton,
-                   char *givenPath);
+    struct Window *intuiwin,
+    struct Gadget *listBrowser,
+    struct MsgPort *appPort,
+    Object *backButton,
+    BOOL doneFirst,
+    struct Hook CompareHook,
+    struct Hook NameHook,
+    Object *bottomText,
+    Object *fileRequester,
+    Object *scanButton,
+    char *givenPath);
 void createWindow(char *Path) {
     struct Window *intuiwin = NULL;
     Object *windowObject    = NULL;
@@ -537,47 +535,30 @@ void createWindow(char *Path) {
 
     struct Node *node;
     node = AllocListBrowserNode(3,
-                                LBNA_Column,
-                                0,
-                                LBNCA_CopyText,
-                                TRUE,
-                                LBNCA_Text,
-                                "",
-                                LBNCA_MaxChars,
-                                40,
-                                LBNA_Column,
-                                1,
-                                LBNCA_CopyText,
-                                TRUE,
-                                LBNCA_Text,
-                                "",
-                                LBNCA_MaxChars,
-                                40,
-                                LBNA_Column,
-                                2,
-                                LBNCA_CopyText,
-                                TRUE,
-                                LBNCA_Text,
-                                "",
-                                LBNCA_MaxChars,
-                                40,
-                                TAG_DONE);
+        LBNA_Column, 0,
+        LBNCA_CopyText, TRUE,
+        LBNCA_Text, "",
+        LBNCA_MaxChars, 40,
+        LBNA_Column, 1,
+        LBNCA_CopyText, TRUE,
+        LBNCA_Text, "",
+        LBNCA_MaxChars, 40,
+        LBNA_Column, 2,
+        LBNCA_CopyText, TRUE,
+        LBNCA_Text, "",
+        LBNCA_MaxChars, 40,
+        TAG_DONE);
     if (node)
         AddTail(&contents, node);
 
-    backButton = NewObject(BUTTON_GetClass(),
-                           NULL,
-                           GA_ID,
-                           OID_BACK_BUTTON,
-                           GA_RelVerify,
-                           TRUE,
-                           //    GA_Width, 10,
-                           //    GA_Height, 10,
-                           GA_Text,
-                           "Back",
-                           GA_Disabled,
-                           TRUE, // Disabled so it doesn't go back to SYS:
-                           TAG_END);
+    backButton = NewObject(BUTTON_GetClass(), NULL,
+        GA_ID, OID_BACK_BUTTON,
+        GA_RelVerify, TRUE,
+        //    GA_Width, 10,
+        //    GA_Height, 10,
+        GA_Text, "Back",
+        GA_Disabled, TRUE, // Disabled so it doesn't go back to SYS:
+        TAG_END);
 
     /* initialize CompareHook for sorting the column */
     CompareHook.h_Entry    = (ULONG(*)())myCompare;
@@ -589,15 +570,15 @@ void createWindow(char *Path) {
     NameHook.h_Data     = NULL;
 
     struct ColumnInfo ciWithColours[] = {{10, "", 0},
-                                         {80, "Name", CIF_SORTABLE},
-                                         {45, "Approx %", CIF_SORTABLE},
-                                         {60, "Size", 0},
-                                         {-1, (STRPTR)~0, -1}};
+        {80, "Name", CIF_SORTABLE},
+        {45, "Approx %", CIF_SORTABLE},
+        {60, "Size", 0},
+        {-1, (STRPTR)~0, -1}};
 
     struct ColumnInfo ciWithoutColours[] = {{80, "Name", CIF_SORTABLE},
-                                            {45, "Approx %", CIF_SORTABLE},
-                                            {60, "Size", 0},
-                                            {-1, (STRPTR)~0, -1}};
+        {45, "Approx %", CIF_SORTABLE},
+        {60, "Size", 0},
+        {-1, (STRPTR)~0, -1}};
 
     listBrowser = (struct Gadget *)ListBrowserObject, GA_ID, OID_MAIN_LIST,
     GA_RelVerify, TRUE, GA_Disabled, TRUE, LISTBROWSER_Labels, &contents,
@@ -608,35 +589,21 @@ void createWindow(char *Path) {
 
     if (EnableGraphOption) {
         node = AllocListBrowserNode(4,
-                                    LBNA_Column,
-                                    0,
-                                    LBNCA_Image,
-                                    NULL,
-                                    LBNA_Column,
-                                    1,
-                                    LBNCA_CopyText,
-                                    TRUE,
-                                    LBNCA_Text,
-                                    "",
-                                    LBNCA_MaxChars,
-                                    40,
-                                    LBNA_Column,
-                                    2,
-                                    LBNCA_CopyText,
-                                    TRUE,
-                                    LBNCA_Text,
-                                    "",
-                                    LBNCA_MaxChars,
-                                    40,
-                                    LBNA_Column,
-                                    3,
-                                    LBNCA_CopyText,
-                                    TRUE,
-                                    LBNCA_Text,
-                                    "",
-                                    LBNCA_MaxChars,
-                                    40,
-                                    TAG_DONE);
+            LBNA_Column, 0,
+            LBNCA_Image, NULL,
+            LBNA_Column, 1,
+            LBNCA_CopyText, TRUE,
+            LBNCA_Text, "",
+            LBNCA_MaxChars, 40,
+            LBNA_Column, 2,
+            LBNCA_CopyText, TRUE,
+            LBNCA_Text, "",
+            LBNCA_MaxChars, 40,
+            LBNA_Column, 3,
+            LBNCA_CopyText, TRUE,
+            LBNCA_Text, "",
+            LBNCA_MaxChars, 40,
+            TAG_DONE);
 
         if (node)
             NewList(&contents);
@@ -652,195 +619,112 @@ void createWindow(char *Path) {
 
     UpdateMenuToolTypes();
 
-    bottomText = NewObject(STRING_GetClass(),
-                           NULL,
-                           GA_ReadOnly,
-                           TRUE,
-                           STRINGA_TextVal,
-                           "Welcome to Mnemosyne!",
-                           STRINGA_Justification,
-                           GACT_STRINGCENTER,
-                           TAG_END);
+    bottomText = NewObject(STRING_GetClass(), NULL,
+        GA_ReadOnly, TRUE,
+        STRINGA_TextVal, "Welcome to Mnemosyne!",
+        STRINGA_Justification, GACT_STRINGCENTER,
+        TAG_END);
 
     completionButton =
         NewObject(BUTTON_GetClass(), NULL, GA_ReadOnly, TRUE, TAG_END);
 
-    fileRequester = NewObject(GETFILE_GetClass(),
-                              NULL,
-                              GA_ID,
-                              OID_FILE_REQUESTER,
-                              GETFILE_DrawersOnly,
-                              TRUE,
-                              GETFILE_ReadOnly,
-                              TRUE,
-                              GETFILE_TitleText,
-                              "Select a Folder to Scan:",
-                              GA_RelVerify,
-                              TRUE,
-                              TAG_END);
+    fileRequester = NewObject(GETFILE_GetClass(), NULL,
+        GA_ID, OID_FILE_REQUESTER,
+        GETFILE_DrawersOnly, TRUE,
+        GETFILE_ReadOnly, TRUE,
+        GETFILE_TitleText, "Select a Folder to Scan:",
+        GA_RelVerify, TRUE,
+        TAG_END);
 
-    scanButton = NewObject(BUTTON_GetClass(),
-                           NULL,
-                           GA_Text,
-                           "Scan",
-                           GA_RelVerify,
-                           TRUE,
-                           GA_ID,
-                           OID_SCAN_BUTTON,
-                           GA_Disabled,
-                           TRUE,
-                           TAG_DONE);
+    scanButton = NewObject(BUTTON_GetClass(), NULL,
+        GA_Text, "Scan",
+        GA_RelVerify, TRUE,
+        GA_ID, OID_SCAN_BUTTON,
+        GA_Disabled, TRUE,
+        TAG_DONE);
 
-    upperRightLayout = NewObject(LAYOUT_GetClass(),
-                                 NULL,
-                                 LAYOUT_Orientation,
-                                 LAYOUT_ORIENT_VERT,
-                                 LAYOUT_DeferLayout,
-                                 TRUE,
-                                 LAYOUT_SpaceInner,
-                                 TRUE,
-                                 LAYOUT_SpaceOuter,
-                                 TRUE,
-                                 LAYOUT_AddChild,
-                                 fileRequester,
-                                 CHILD_WeightedHeight,
-                                 10,
-                                 LAYOUT_AddChild,
-                                 scanButton,
-                                 TAG_DONE);
+    upperRightLayout = NewObject(LAYOUT_GetClass(), NULL,
+        LAYOUT_Orientation, LAYOUT_ORIENT_VERT,
+        LAYOUT_DeferLayout, TRUE,
+        LAYOUT_SpaceInner, TRUE,
+        LAYOUT_SpaceOuter, TRUE,
+        LAYOUT_AddChild, fileRequester,
+        CHILD_WeightedHeight, 10,
+        LAYOUT_AddChild, scanButton,
+        TAG_DONE);
 
-    upperLayout = NewObject(LAYOUT_GetClass(),
-                            NULL,
-                            LAYOUT_Orientation,
-                            LAYOUT_ORIENT_HORIZ,
-                            LAYOUT_DeferLayout,
-                            TRUE,
-                            LAYOUT_SpaceInner,
-                            TRUE,
-                            LAYOUT_SpaceOuter,
-                            FALSE,
-                            LAYOUT_VertAlignment,
-                            LALIGN_CENTER,
-                            LAYOUT_AddChild,
-                            backButton,
-                            CHILD_WeightedWidth,
-                            10,
-                            LAYOUT_AddChild,
-                            upperRightLayout,
-                            TAG_DONE);
+    upperLayout = NewObject(LAYOUT_GetClass(), NULL,
+        LAYOUT_Orientation, LAYOUT_ORIENT_HORIZ,
+        LAYOUT_DeferLayout, TRUE,
+        LAYOUT_SpaceInner, TRUE,
+        LAYOUT_SpaceOuter, FALSE,
+        LAYOUT_VertAlignment, LALIGN_CENTER,
+        LAYOUT_AddChild, backButton,
+        CHILD_WeightedWidth, 10,
+        LAYOUT_AddChild, upperRightLayout,
+        TAG_DONE);
 
-    lowerLayout = NewObject(LAYOUT_GetClass(),
-                            NULL,
-                            LAYOUT_Orientation,
-                            LAYOUT_ORIENT_VERT,
-                            LAYOUT_DeferLayout,
-                            TRUE,
-                            LAYOUT_SpaceInner,
-                            TRUE,
-                            LAYOUT_SpaceOuter,
-                            FALSE,
-                            LAYOUT_AddChild,
-                            completionButton,
-                            CHILD_WeightedHeight,
-                            40,
-                            LAYOUT_AddChild,
-                            bottomText,
-                            CHILD_WeightedHeight,
-                            10,
-                            TAG_DONE);
+    lowerLayout = NewObject(LAYOUT_GetClass(), NULL,
+        LAYOUT_Orientation, LAYOUT_ORIENT_VERT,
+        LAYOUT_DeferLayout, TRUE,
+        LAYOUT_SpaceInner, TRUE,
+        LAYOUT_SpaceOuter, FALSE,
+        LAYOUT_AddChild, completionButton,
+        CHILD_WeightedHeight, 40,
+        LAYOUT_AddChild, bottomText,
+        CHILD_WeightedHeight, 10,
+        TAG_DONE);
 
-    mainLayout = NewObject(LAYOUT_GetClass(),
-                           NULL,
-                           LAYOUT_Orientation,
-                           LAYOUT_ORIENT_VERT,
-                           LAYOUT_DeferLayout,
-                           TRUE,
-                           LAYOUT_SpaceInner,
-                           TRUE,
-                           LAYOUT_SpaceOuter,
-                           TRUE,
-                           LAYOUT_EvenSize,
-                           TRUE,
-                           LAYOUT_AddChild,
-                           upperLayout,
-                           CHILD_WeightedHeight,
-                           10,
-                           LAYOUT_AddChild,
-                           listBrowser,
-                           LAYOUT_AddChild,
-                           bottomText,
-                           CHILD_WeightedHeight,
-                           10,
-                           TAG_DONE);
+    mainLayout = NewObject(LAYOUT_GetClass(), NULL,
+        LAYOUT_Orientation, LAYOUT_ORIENT_VERT,
+        LAYOUT_DeferLayout, TRUE,
+        LAYOUT_SpaceInner, TRUE,
+        LAYOUT_SpaceOuter, TRUE,
+        LAYOUT_EvenSize, TRUE,
+        LAYOUT_AddChild, upperLayout,
+        CHILD_WeightedHeight, 10,
+        LAYOUT_AddChild, listBrowser,
+        LAYOUT_AddChild, bottomText,
+        CHILD_WeightedHeight, 10,
+        TAG_DONE);
 
     if (EnableGraphOption) {
-        mainLayout = NewObject(LAYOUT_GetClass(),
-                               NULL,
-                               LAYOUT_Orientation,
-                               LAYOUT_ORIENT_VERT,
-                               LAYOUT_DeferLayout,
-                               TRUE,
-                               LAYOUT_SpaceInner,
-                               TRUE,
-                               LAYOUT_SpaceOuter,
-                               TRUE,
-                               LAYOUT_EvenSize,
-                               FALSE,
-                               LAYOUT_AddChild,
-                               upperLayout,
-                               CHILD_WeightedHeight,
-                               10,
-                               LAYOUT_AddChild,
-                               listBrowser,
-                               CHILD_WeightedHeight,
-                               55,
-                               LAYOUT_AddChild,
-                               lowerLayout,
-                               CHILD_WeightedHeight,
-                               35,
-                               TAG_DONE);
+        mainLayout = NewObject(LAYOUT_GetClass(), NULL,
+            LAYOUT_Orientation, LAYOUT_ORIENT_VERT,
+            LAYOUT_DeferLayout, TRUE,
+            LAYOUT_SpaceInner, TRUE,
+            LAYOUT_SpaceOuter, TRUE,
+            LAYOUT_EvenSize, FALSE,
+            LAYOUT_AddChild, upperLayout,
+            CHILD_WeightedHeight, 10,
+            LAYOUT_AddChild, listBrowser,
+            CHILD_WeightedHeight, 55,
+            LAYOUT_AddChild, lowerLayout,
+            CHILD_WeightedHeight, 35,
+            TAG_DONE);
     }
 
-    appPort = CreateMsgPort();
-    windowObject =
-        NewObject(WINDOW_GetClass(),
-                  NULL,
-                  WINDOW_Position,
-                  WPOS_CENTERSCREEN,
-                  WINDOW_NewMenu,
-                  MenuArray,
-                  WINDOW_IconifyGadget,
-                  TRUE,
-                  WINDOW_IconTitle,
-                  "Mnemosyne",
-                  WINDOW_Icon,
-                  GetDiskObject("PROGDIR:Mnemosyne"),
-                  WINDOW_AppPort,
-                  appPort,
-                  WA_Activate,
-                  TRUE,
-                  WA_Title,
-                  "Mnemosyne 1.2.0",
-                  WA_DragBar,
-                  TRUE,
-                  WA_CloseGadget,
-                  TRUE,
-                  WA_DepthGadget,
-                  TRUE,
-                  WA_SizeGadget,
-                  TRUE,
-                  WA_NewLookMenus,
-                  TRUE,
-                  WA_InnerWidth,
-                  355,
-                  WA_InnerHeight,
-                  150,
-                  WA_IDCMP,
-                  IDCMP_CLOSEWINDOW | IDCMP_GADGETUP | IDCMP_GADGETDOWN
-                      | IDCMP_MENUPICK | IDCMP_NEWSIZE | IDCMP_CHANGEWINDOW,
-                  WINDOW_Layout,
-                  mainLayout,
-                  TAG_DONE);
+    appPort          = CreateMsgPort();
+    windowObject     = NewObject(WINDOW_GetClass(), NULL,
+        WINDOW_Position, WPOS_CENTERSCREEN,
+        WINDOW_NewMenu, MenuArray,
+        WINDOW_IconifyGadget, TRUE,
+        WINDOW_IconTitle, "Mnemosyne",
+        WINDOW_Icon, GetDiskObject("PROGDIR:Mnemosyne"),
+        WINDOW_AppPort, appPort,
+        WA_Activate, TRUE,
+        WA_Title, "Mnemosyne 1.2.0",
+        WA_DragBar, TRUE,
+        WA_CloseGadget, TRUE,
+        WA_DepthGadget, TRUE,
+        WA_SizeGadget, TRUE,
+        WA_NewLookMenus, TRUE,
+        WA_InnerWidth, 355,
+        WA_InnerHeight, 150,
+        WA_IDCMP, IDCMP_CLOSEWINDOW | IDCMP_GADGETUP | IDCMP_GADGETDOWN | IDCMP_MENUPICK
+            | IDCMP_NEWSIZE | IDCMP_CHANGEWINDOW,
+        WINDOW_Layout, mainLayout,
+        TAG_DONE);
     mainWindowObject = windowObject;
     if (!windowObject)
         cleanexit(NULL, NULL, NULL);
@@ -849,33 +733,33 @@ void createWindow(char *Path) {
     appWin = AddAppWindow(1, 0, intuiwin, appPort, NULL);
     UpdateMenu(intuiwin, TRUE);
     processEvents(windowObject,
-                  intuiwin,
-                  listBrowser,
-                  appPort,
-                  backButton,
-                  doneFirst,
-                  CompareHook,
-                  NameHook,
-                  bottomText,
-                  fileRequester,
-                  scanButton,
-                  Path);
+        intuiwin,
+        listBrowser,
+        appPort,
+        backButton,
+        doneFirst,
+        CompareHook,
+        NameHook,
+        bottomText,
+        fileRequester,
+        scanButton,
+        Path);
     DoMethod(windowObject, WM_CLOSE);
     clearList(contents);
     cleanexit(windowObject, appPort, appWin);
 }
 void processEvents(Object *windowObject,
-                   struct Window *intuiwin,
-                   struct Gadget *listBrowser,
-                   struct MsgPort *appPort,
-                   Object *backButton,
-                   BOOL doneFirst,
-                   struct Hook CompareHook,
-                   struct Hook NameHook,
-                   Object *bottomText,
-                   Object *fileRequester,
-                   Object *scanButton,
-                   char *givenPath) {
+    struct Window *intuiwin,
+    struct Gadget *listBrowser,
+    struct MsgPort *appPort,
+    Object *backButton,
+    BOOL doneFirst,
+    struct Hook CompareHook,
+    struct Hook NameHook,
+    Object *bottomText,
+    Object *fileRequester,
+    Object *scanButton,
+    char *givenPath) {
     ULONG windowsignal;
     ULONG receivedsignal;
     ULONG result;
@@ -889,17 +773,17 @@ void processEvents(Object *windowObject,
         }
         updatePathText(fileRequester, givenPath);
         scanningSequence(OID_GIVEN_PATH,
-                         intuiwin,
-                         windowObject,
-                         bottomText,
-                         scanButton,
-                         backButton,
-                         listBrowser,
-                         fileRequester,
-                         doneFirst,
-                         CompareHook,
-                         givenPath,
-                         appPort);
+            intuiwin,
+            windowObject,
+            bottomText,
+            scanButton,
+            backButton,
+            listBrowser,
+            fileRequester,
+            doneFirst,
+            CompareHook,
+            givenPath,
+            appPort);
         doneFirst = TRUE;
     }
 
@@ -911,354 +795,380 @@ void processEvents(Object *windowObject,
             while ((result = DoMethod(windowObject, WM_HANDLEINPUT, &code))
                    != WMHI_LASTMSG) {
                 switch (result & WMHI_CLASSMASK) {
-                case WMHI_CLOSEWINDOW:
-                    end = TRUE;
-                    break;
-                case WMHI_ICONIFY:
-                    DoMethod(windowObject, WM_ICONIFY, NULL);
-                    break;
-                case WMHI_UNICONIFY: {
-                    if ((intuiwin = (struct Window *)DoMethod(
-                             windowObject, WM_OPEN, NULL)))
-                        GetAttr(WINDOW_SigMask, windowObject, &windowsignal);
-                    break;
-                }
-                case WMHI_NEWSIZE: {
-                    struct BOOL *disabled;
-                    GetAttr(GA_Disabled, completionButton, (ULONG *)&disabled);
-                    if (EnableGraphOption && listBrowser && doneFirst
-                        && !disabled) {
-                        showCompletionBitmap(listBrowser, windowObject);
-                    }
-                    break;
-                }
-                case WMHI_MENUPICK: {
-                    struct Menu *menuStrip;
-                    GetAttr(
-                        WINDOW_MenuStrip, windowObject, (ULONG *)&menuStrip);
-                    struct MenuItem *menuItem = ItemAddress(menu, code);
-                    if (!menuItem)
-                        break;
-                    APTR item       = GTMENUITEM_USERDATA(menuItem);
-                    ULONG itemIndex = (ULONG)item;
-                    switch (itemIndex) {
-                    case OID_SCAN_OPEN: {
-                        updatePathText(fileRequester, "");
-                        fileRequesterSequence(fileRequester,
-                                              intuiwin,
-                                              bottomText,
-                                              windowObject,
-                                              scanButton,
-                                              listBrowser,
-                                              backButton,
-                                              doneFirst);
-                        break;
-                    }
-                    case OID_MENU_OPEN_DIR:
-                        // printf("Clicked Open");
-                        if (pastPath[0] != '\0' && doneFirst)
-                            OpenWorkbenchObjectA(pastPath, TAG_DONE);
-                        break;
-                    case OID_MENU_ABOUT:
-                        // printf("Clicked About\n");
-                        toggleBusyPointer(windowObject, TRUE);
-                        struct EasyStruct requesterAbout = {
-                            sizeof(struct EasyStruct),
-                            0,
-                            "About",
-                            "Copyright (c) 2023 Aris (Arisamiga) \nSokianos\n\n"
-                            "Mnemosyne is an open source disk \nutility "
-                            "application for AmigaOS 3.x,\n"
-                            "which can be used to see how much \ndisk space "
-                            "your files and folders \nare taking up.\n\n"
-                            "\"Mnemosyne\", in Greek mythology is \nthe "
-                            "goddess of memory.\n\n"
-                            "Thank you so much for using \nMnemosyne :D\n\n"
-                            "Report bugs or request features "
-                            "at:\nhttps://github.com/Arisamiga/Mnemosyne\n\n"
-                            "Distributed without warranty under \nthe terms of "
-                            "the \nGNU General Public License.",
-                            "OK"};
-                        EasyRequest(intuiwin, &requesterAbout, NULL, NULL);
-
-                        // printf("About window closed\n");
-                        toggleBusyPointer(windowObject, FALSE);
-                        break;
-                    case OID_MENU_NO_ROUND: {
-                        toggleBusyPointer(windowObject, TRUE);
-
-                        NoRoundOption = !NoRoundOption;
-                        UpdateMenuToolTypes();
-                        updateIconTooltypes();
-                        UpdateMenu(intuiwin, TRUE);
-
-                        toggleBusyPointer(windowObject, FALSE);
-                        break;
-                    }
-                    case OID_MENU_ENABLE_GRAPH: {
-                        toggleBusyPointer(windowObject, TRUE);
-
-                        EnableGraphOption = !EnableGraphOption;
-                        UpdateMenuToolTypes();
-                        updateIconTooltypes();
-                        UpdateMenu(intuiwin, TRUE);
-
-                        struct EasyStruct requesterAbout = {
-                            sizeof(struct EasyStruct),
-                            0,
-                            "Notice",
-                            "Mnemosyne will now exit for the graph option to "
-                            "take effect.",
-                            "OK"};
-                        EasyRequest(intuiwin, &requesterAbout, NULL, NULL);
+                    case WMHI_CLOSEWINDOW:
                         end = TRUE;
                         break;
-                    }
-                    case OID_MENU_QUIT:
-                        end = TRUE;
+                    case WMHI_ICONIFY:
+                        DoMethod(windowObject, WM_ICONIFY, NULL);
                         break;
-
-                        // default:
-                        //  // This is for testing only
-                        // 	printf("Unhandled event: %d\n", result &
-                        // WMHI_MENUMASK); 	break;
-                    }
-                    break;
-                }
-                case WMHI_GADGETUP:
-                    switch (result & WMHI_GADGETMASK) {
-                    case OID_FILE_REQUESTER: {
-                        updatePathText(fileRequester, "");
-                        fileRequesterSequence(fileRequester,
-                                              intuiwin,
-                                              bottomText,
-                                              windowObject,
-                                              scanButton,
-                                              listBrowser,
-                                              backButton,
-                                              doneFirst);
-                        break;
-                    }
-                    case OID_BACK_BUTTON: {
-
-                        if (scanning || !doneFirst
-                            || getLastCharSafely(pastPath) == ':')
-                            break;
-
-                        char *parentPath =
-                            AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
-                        getParentPath(pastPath, parentPath, MAX_BUFFER);
-                        // printf("Parent Path: %s\n", parentPath);
-
-                        if (getLastCharSafely(parentPath) != ':') {
-                            __asm_strncat(parentPath, "/", 2);
-                        }
-
-                        scanningSequence(OID_BACK_BUTTON,
-                                         intuiwin,
-                                         windowObject,
-                                         bottomText,
-                                         scanButton,
-                                         backButton,
-                                         listBrowser,
-                                         fileRequester,
-                                         doneFirst,
-                                         CompareHook,
-                                         parentPath,
-                                         appPort);
-                        doneFirst = TRUE;
-
-                        FreeVec(parentPath);
-                        break;
-                    }
-                    case OID_SCAN_BUTTON: {
-                        if (scanning) {
-                            // printf("Scanning already in progress\n");
-                            break;
-                        }
-
-                        if (!fileEntered) {
-                            // printf("No file entered\n");
-                            updateBottomText(bottomText,
-                                             windowObject,
-                                             "Please Select a folder");
-                            break;
-                        }
-
-                        TEXT *buffer =
-                            AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
-                        ULONG pathPtr;
-
-                        GetAttr(GETFILE_FullFile, fileRequester, &pathPtr);
-
-                        snprintf(buffer, MAX_BUFFER, "%s", (char *)pathPtr);
-
-                        scanningSequence(OID_SCAN_BUTTON,
-                                         intuiwin,
-                                         windowObject,
-                                         bottomText,
-                                         scanButton,
-                                         backButton,
-                                         listBrowser,
-                                         fileRequester,
-                                         doneFirst,
-                                         CompareHook,
-                                         buffer,
-                                         appPort);
-                        doneFirst = TRUE;
-                        FreeVec(buffer);
-                        break;
-                    }
-                    case OID_MAIN_LIST: {
-                        if (scanning) {
-                            // printf("Scanning already in progress\n");
-                            break;
-                        }
-
-                        if (!fileEntered) {
-                            // printf("No file entered\n");
-                            updateBottomText(bottomText,
-                                             windowObject,
-                                             "Please Select a folder");
-                            break;
-                        }
-
-                        // Get the current selection
-                        struct Node *node = NULL;
-                        ULONG selected    = 0;
-                        ULONG event       = 0;
-                        GetAttr(LISTBROWSER_RelEvent, listBrowser, &event);
-                        GetAttr(LISTBROWSER_SelectedNode,
-                                listBrowser,
-                                (ULONG *)&node);
-                        GetAttr(LISTBROWSER_Selected, listBrowser, &selected);
-
-                        if (event == 0) {
-                            // printf("No event\n");
-                            break;
-                        }
-
-                        if (!node) {
-                            ULONG column = 0;
-                            ULONG stateIndex =
-                                0; // index into ColumnSorting[0..1]
+                    case WMHI_UNICONIFY: {
+                        if ((intuiwin = (struct Window *)DoMethod(
+                                 windowObject, WM_OPEN, NULL)))
                             GetAttr(
-                                LISTBROWSER_RelColumn, listBrowser, &column);
-
-                            if (EnableGraphOption) {
-                                if (column == 0) {
-                                    break; // image column, not sortable
-                                }
-                                stateIndex =
-                                    column - 1; // map Name(1)->0, Approx(2)->1
-                            } else {
-                                stateIndex = column; // Name(0)->0, Approx(1)->1
-                            }
-
-                            if (stateIndex > 1) {
-                                break; // safety
-                            }
-
-                            ColumnSorting[stateIndex].Sorting =
-                                !ColumnSorting[stateIndex].Sorting;
-
-                            if (stateIndex == 1) {
-                                DoGadgetMethod(
-                                    (struct Gadget *)listBrowser,
-                                    intuiwin,
-                                    NULL,
-                                    LBM_SORT,
-                                    NULL,
-                                    column,
-                                    ColumnSorting[stateIndex].Sorting,
-                                    &CompareHook);
-                            } else {
-                                DoGadgetMethod(
-                                    (struct Gadget *)listBrowser,
-                                    intuiwin,
-                                    NULL,
-                                    LBM_SORT,
-                                    NULL,
-                                    column,
-                                    ColumnSorting[stateIndex].Sorting,
-                                    &NameHook);
-                            }
-                            break;
+                                WINDOW_SigMask, windowObject, &windowsignal);
+                        break;
+                    }
+                    case WMHI_NEWSIZE: {
+                        struct BOOL *disabled;
+                        GetAttr(
+                            GA_Disabled, completionButton, (ULONG *)&disabled);
+                        if (EnableGraphOption && listBrowser && doneFirst
+                            && !disabled) {
+                            showCompletionBitmap(listBrowser, windowObject);
                         }
-                        STRPTR text = NULL;
-                        if (EnableGraphOption)
-                            GetListBrowserNodeAttrs(node,
-                                                    LBNA_Column,
-                                                    1,
-                                                    LBNCA_Text,
-                                                    &text,
-                                                    TAG_DONE);
-                        else
-                            GetListBrowserNodeAttrs(node,
-                                                    LBNA_Column,
-                                                    0,
-                                                    LBNCA_Text,
-                                                    &text,
-                                                    TAG_DONE);
-                        if (text) {
-                            const int len = strlen(text);
-
-                            char *parentPath =
-                                AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
-
-                            // printf("Selected %s\n", text);
-                            getParentPath(text, parentPath, MAX_BUFFER);
-
-                            // Check if the selected item is not a directory
-                            if (len > 0 && text[len - 1] != '/' && doneFirst) {
-                                // Remove focus from the listbrowser
-                                SetAttrs(listBrowser,
-                                         LISTBROWSER_Selected,
-                                         -1,
-                                         TAG_DONE);
+                        break;
+                    }
+                    case WMHI_MENUPICK: {
+                        struct Menu *menuStrip;
+                        GetAttr(WINDOW_MenuStrip,
+                            windowObject,
+                            (ULONG *)&menuStrip);
+                        struct MenuItem *menuItem = ItemAddress(menu, code);
+                        if (!menuItem)
+                            break;
+                        APTR item       = GTMENUITEM_USERDATA(menuItem);
+                        ULONG itemIndex = (ULONG)item;
+                        switch (itemIndex) {
+                            case OID_SCAN_OPEN: {
+                                updatePathText(fileRequester, "");
+                                fileRequesterSequence(fileRequester,
+                                    intuiwin,
+                                    bottomText,
+                                    windowObject,
+                                    scanButton,
+                                    listBrowser,
+                                    backButton,
+                                    doneFirst);
                                 break;
                             }
+                            case OID_MENU_OPEN_DIR:
+                                // printf("Clicked Open");
+                                if (pastPath[0] != '\0' && doneFirst)
+                                    OpenWorkbenchObjectA(pastPath, TAG_DONE);
+                                break;
+                            case OID_MENU_ABOUT:
+                                // printf("Clicked About\n");
+                                toggleBusyPointer(windowObject, TRUE);
+                                struct EasyStruct requesterAbout = {
+                                    sizeof(struct EasyStruct),
+                                    0,
+                                    "About",
+                                    "Copyright (c) 2023 Aris (Arisamiga) "
+                                    "\nSokianos\n\n"
+                                    "Mnemosyne is an open source disk "
+                                    "\nutility "
+                                    "application for AmigaOS 3.x,\n"
+                                    "which can be used to see how much \ndisk "
+                                    "space "
+                                    "your files and folders \nare taking "
+                                    "up.\n\n"
+                                    "\"Mnemosyne\", in Greek mythology is "
+                                    "\nthe "
+                                    "goddess of memory.\n\n"
+                                    "Thank you so much for using \nMnemosyne "
+                                    ":D\n\n"
+                                    "Report bugs or request features "
+                                    "at:\nhttps://github.com/Arisamiga/"
+                                    "Mnemosyne\n\n"
+                                    "Distributed without warranty under \nthe "
+                                    "terms of "
+                                    "the \nGNU General Public License.",
+                                    "OK"};
+                                EasyRequest(
+                                    intuiwin, &requesterAbout, NULL, NULL);
 
-                            if (doneFirst && text != NULL) {
-                                char *newPath = AllocVec(
-                                    sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
-                                if (getLastCharSafely(pastPath) != '/'
-                                    && getLastCharSafely(pastPath) != ':') {
-                                    strcat(pastPath, "/");
-                                }
+                                // printf("About window closed\n");
+                                toggleBusyPointer(windowObject, FALSE);
+                                break;
+                            case OID_MENU_NO_ROUND: {
+                                toggleBusyPointer(windowObject, TRUE);
 
-                                snprintf(newPath,
-                                         MAX_BUFFER,
-                                         "%s%s",
-                                         pastPath,
-                                         text);
-                                scanningSequence(OID_MAIN_LIST,
-                                                 intuiwin,
-                                                 windowObject,
-                                                 bottomText,
-                                                 scanButton,
-                                                 backButton,
-                                                 listBrowser,
-                                                 fileRequester,
-                                                 doneFirst,
-                                                 CompareHook,
-                                                 newPath,
-                                                 appPort);
-                                doneFirst = TRUE;
+                                NoRoundOption = !NoRoundOption;
+                                UpdateMenuToolTypes();
+                                updateIconTooltypes();
+                                UpdateMenu(intuiwin, TRUE);
+
+                                toggleBusyPointer(windowObject, FALSE);
+                                break;
                             }
-                            FreeVec(parentPath);
+                            case OID_MENU_ENABLE_GRAPH: {
+                                toggleBusyPointer(windowObject, TRUE);
+
+                                EnableGraphOption = !EnableGraphOption;
+                                UpdateMenuToolTypes();
+                                updateIconTooltypes();
+                                UpdateMenu(intuiwin, TRUE);
+
+                                struct EasyStruct requesterAbout = {
+                                    sizeof(struct EasyStruct),
+                                    0,
+                                    "Notice",
+                                    "Mnemosyne will now exit for the graph "
+                                    "option to "
+                                    "take effect.",
+                                    "OK"};
+                                EasyRequest(
+                                    intuiwin, &requesterAbout, NULL, NULL);
+                                end = TRUE;
+                                break;
+                            }
+                            case OID_MENU_QUIT:
+                                end = TRUE;
+                                break;
+
+                                // default:
+                                //  // This is for testing only
+                                // 	printf("Unhandled event: %d\n", result &
+                                // WMHI_MENUMASK); 	break;
                         }
                         break;
                     }
+                    case WMHI_GADGETUP:
+                        switch (result & WMHI_GADGETMASK) {
+                            case OID_FILE_REQUESTER: {
+                                updatePathText(fileRequester, "");
+                                fileRequesterSequence(fileRequester,
+                                    intuiwin,
+                                    bottomText,
+                                    windowObject,
+                                    scanButton,
+                                    listBrowser,
+                                    backButton,
+                                    doneFirst);
+                                break;
+                            }
+                            case OID_BACK_BUTTON: {
+
+                                if (scanning || !doneFirst
+                                    || getLastCharSafely(pastPath) == ':')
+                                    break;
+
+                                char *parentPath = AllocVec(
+                                    sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
+                                getParentPath(pastPath, parentPath, MAX_BUFFER);
+                                // printf("Parent Path: %s\n", parentPath);
+
+                                if (getLastCharSafely(parentPath) != ':') {
+                                    __asm_strncat(parentPath, "/", 2);
+                                }
+
+                                scanningSequence(OID_BACK_BUTTON,
+                                    intuiwin,
+                                    windowObject,
+                                    bottomText,
+                                    scanButton,
+                                    backButton,
+                                    listBrowser,
+                                    fileRequester,
+                                    doneFirst,
+                                    CompareHook,
+                                    parentPath,
+                                    appPort);
+                                doneFirst = TRUE;
+
+                                FreeVec(parentPath);
+                                break;
+                            }
+                            case OID_SCAN_BUTTON: {
+                                if (scanning) {
+                                    // printf("Scanning already in progress\n");
+                                    break;
+                                }
+
+                                if (!fileEntered) {
+                                    // printf("No file entered\n");
+                                    updateBottomText(bottomText,
+                                        windowObject,
+                                        "Please Select a folder");
+                                    break;
+                                }
+
+                                TEXT *buffer = AllocVec(
+                                    sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
+                                ULONG pathPtr;
+
+                                GetAttr(
+                                    GETFILE_FullFile, fileRequester, &pathPtr);
+
+                                snprintf(
+                                    buffer, MAX_BUFFER, "%s", (char *)pathPtr);
+
+                                scanningSequence(OID_SCAN_BUTTON,
+                                    intuiwin,
+                                    windowObject,
+                                    bottomText,
+                                    scanButton,
+                                    backButton,
+                                    listBrowser,
+                                    fileRequester,
+                                    doneFirst,
+                                    CompareHook,
+                                    buffer,
+                                    appPort);
+                                doneFirst = TRUE;
+                                FreeVec(buffer);
+                                break;
+                            }
+                            case OID_MAIN_LIST: {
+                                if (scanning) {
+                                    // printf("Scanning already in progress\n");
+                                    break;
+                                }
+
+                                if (!fileEntered) {
+                                    // printf("No file entered\n");
+                                    updateBottomText(bottomText,
+                                        windowObject,
+                                        "Please Select a folder");
+                                    break;
+                                }
+
+                                // Get the current selection
+                                struct Node *node = NULL;
+                                ULONG selected    = 0;
+                                ULONG event       = 0;
+                                GetAttr(
+                                    LISTBROWSER_RelEvent, listBrowser, &event);
+                                GetAttr(LISTBROWSER_SelectedNode,
+                                    listBrowser,
+                                    (ULONG *)&node);
+                                GetAttr(LISTBROWSER_Selected,
+                                    listBrowser,
+                                    &selected);
+
+                                if (event == 0) {
+                                    // printf("No event\n");
+                                    break;
+                                }
+
+                                if (!node) {
+                                    ULONG column = 0;
+                                    ULONG stateIndex =
+                                        0; // index into ColumnSorting[0..1]
+                                    GetAttr(LISTBROWSER_RelColumn,
+                                        listBrowser,
+                                        &column);
+
+                                    if (EnableGraphOption) {
+                                        if (column == 0) {
+                                            break; // image column, not sortable
+                                        }
+                                        stateIndex =
+                                            column
+                                            - 1; // map Name(1)->0, Approx(2)->1
+                                    } else {
+                                        stateIndex =
+                                            column; // Name(0)->0, Approx(1)->1
+                                    }
+
+                                    if (stateIndex > 1) {
+                                        break; // safety
+                                    }
+
+                                    ColumnSorting[stateIndex].Sorting =
+                                        !ColumnSorting[stateIndex].Sorting;
+
+                                    if (stateIndex == 1) {
+                                        DoGadgetMethod(
+                                            (struct Gadget *)listBrowser,
+                                            intuiwin,
+                                            NULL,
+                                            LBM_SORT,
+                                            NULL,
+                                            column,
+                                            ColumnSorting[stateIndex].Sorting,
+                                            &CompareHook);
+                                    } else {
+                                        DoGadgetMethod(
+                                            (struct Gadget *)listBrowser,
+                                            intuiwin,
+                                            NULL,
+                                            LBM_SORT,
+                                            NULL,
+                                            column,
+                                            ColumnSorting[stateIndex].Sorting,
+                                            &NameHook);
+                                    }
+                                    break;
+                                }
+                                STRPTR text = NULL;
+                                if (EnableGraphOption)
+                                    GetListBrowserNodeAttrs(node,
+                                        LBNA_Column,
+                                        1,
+                                        LBNCA_Text,
+                                        &text,
+                                        TAG_DONE);
+                                else
+                                    GetListBrowserNodeAttrs(node,
+                                        LBNA_Column,
+                                        0,
+                                        LBNCA_Text,
+                                        &text,
+                                        TAG_DONE);
+                                if (text) {
+                                    const int len = strlen(text);
+
+                                    char *parentPath = AllocVec(
+                                        sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
+
+                                    // printf("Selected %s\n", text);
+                                    getParentPath(text, parentPath, MAX_BUFFER);
+
+                                    // Check if the selected item is not a
+                                    // directory
+                                    if (len > 0 && text[len - 1] != '/'
+                                        && doneFirst) {
+                                        // Remove focus from the listbrowser
+                                        SetAttrs(listBrowser,
+                                            LISTBROWSER_Selected,
+                                            -1,
+                                            TAG_DONE);
+                                        break;
+                                    }
+
+                                    if (doneFirst && text != NULL) {
+                                        char *newPath =
+                                            AllocVec(sizeof(char) * MAX_BUFFER,
+                                                MEMF_CLEAR);
+                                        if (getLastCharSafely(pastPath) != '/'
+                                            && getLastCharSafely(pastPath)
+                                                   != ':') {
+                                            strcat(pastPath, "/");
+                                        }
+
+                                        snprintf(newPath,
+                                            MAX_BUFFER,
+                                            "%s%s",
+                                            pastPath,
+                                            text);
+                                        scanningSequence(OID_MAIN_LIST,
+                                            intuiwin,
+                                            windowObject,
+                                            bottomText,
+                                            scanButton,
+                                            backButton,
+                                            listBrowser,
+                                            fileRequester,
+                                            doneFirst,
+                                            CompareHook,
+                                            newPath,
+                                            appPort);
+                                        doneFirst = TRUE;
+                                    }
+                                    FreeVec(parentPath);
+                                }
+                                break;
+                            }
+                                // default:
+                                // 	// This is for testing only
+                                // 	printf("Unhandled event of category %ld\n",
+                                // result & WMHI_GADGETMASK); 	break;
+                        }
                         // default:
                         // 	// This is for testing only
-                        // 	printf("Unhandled event of category %ld\n", result &
-                        // WMHI_GADGETMASK); 	break;
-                    }
-                    // default:
-                    // 	// This is for testing only
-                    // 	printf("Unhandled event of class %ld\n", result &
-                    // WMHI_CLASSMASK); 	break; break;
+                        // 	printf("Unhandled event of class %ld\n", result &
+                        // WMHI_CLASSMASK); 	break; break;
                 }
             }
         }
@@ -1281,13 +1191,13 @@ void processEvents(Object *windowObject,
                     // Instead of scanning immediately, just update the
                     // requester and UI
                     setFileSequence(intuiwin,
-                                    bottomText,
-                                    windowObject,
-                                    scanButton,
-                                    listBrowser,
-                                    backButton,
-                                    doneFirst,
-                                    fullPath);
+                        bottomText,
+                        windowObject,
+                        scanButton,
+                        listBrowser,
+                        backButton,
+                        doneFirst,
+                        fullPath);
                     doneFirst = TRUE;
                 }
                 FreeVec(fullPath);
@@ -1296,9 +1206,8 @@ void processEvents(Object *windowObject,
         }
     }
 }
-void cleanexit(Object *windowObject,
-               struct MsgPort *appPort,
-               struct AppWindow *appWin) {
+void cleanexit(
+    Object *windowObject, struct MsgPort *appPort, struct AppWindow *appWin) {
     if (windowObject)
         DisposeObject(windowObject);
 

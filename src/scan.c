@@ -41,24 +41,24 @@ ULONG stopWindowSignal    = 0;
 
 STRPTR returnGivenFormat(int format) {
     switch (format) {
-    case 0:
-        return "B";
-        break;
-    case 1:
-        return "KB";
-        break;
-    case 2:
-        return "MB";
-        break;
-    case 3:
-        return "GB";
-        break;
-    case 4:
-        return "TB";
-        break;
-    default:
-        return "B";
-        break;
+        case 0:
+            return "B";
+            break;
+        case 1:
+            return "KB";
+            break;
+        case 2:
+            return "MB";
+            break;
+        case 3:
+            return "GB";
+            break;
+        case 4:
+            return "TB";
+            break;
+        default:
+            return "B";
+            break;
     }
 }
 
@@ -92,17 +92,17 @@ STRPTR returnFormatWithTotal(void) {
     STRPTR buffer = AllocVec(64, MEMF_CLEAR);
     if (NoRoundOption == TRUE) {
         snprintf(buffer,
-                 64,
-                 " (%lu %s)",
-                 totalSize,
-                 returnGivenFormat(currentFormat));
+            64,
+            " (%lu %s)",
+            totalSize,
+            returnGivenFormat(currentFormat));
     } else {
         struct Values format = correctFormat(totalSize, currentFormat);
         snprintf(buffer,
-                 64,
-                 " (%lu %s)",
-                 format.value,
-                 returnGivenFormat(format.format));
+            64,
+            " (%lu %s)",
+            format.value,
+            returnGivenFormat(format.format));
     }
 
     return buffer;
@@ -135,33 +135,33 @@ void addToList(char *name, ULONG size, STRPTR format) {
     snprintf(buffer2, 64, "%s %s", prebuffer2, format);
 
     struct Node *node = AllocListBrowserNode(3,
-                                             LBNA_Column,
-                                             0,
-                                             LBNCA_CopyText,
-                                             TRUE,
-                                             LBNCA_Text,
-                                             buffer,
-                                             LBNCA_MaxChars,
-                                             40,
-                                             LBNA_Column,
-                                             1,
-                                             LBNCA_CopyText,
-                                             TRUE,
-                                             LBNCA_Text,
-                                             "",
-                                             LBNCA_MaxChars,
-                                             40,
-                                             LBNA_Column,
-                                             2,
-                                             LBNCA_CopyText,
-                                             TRUE,
-                                             LBNCA_Text,
-                                             buffer2,
-                                             LBNCA_MaxChars,
-                                             40,
-                                             LBNCA_Justification,
-                                             LCJ_RIGHT,
-                                             TAG_DONE);
+        LBNA_Column,
+        0,
+        LBNCA_CopyText,
+        TRUE,
+        LBNCA_Text,
+        buffer,
+        LBNCA_MaxChars,
+        40,
+        LBNA_Column,
+        1,
+        LBNCA_CopyText,
+        TRUE,
+        LBNCA_Text,
+        "",
+        LBNCA_MaxChars,
+        40,
+        LBNA_Column,
+        2,
+        LBNCA_CopyText,
+        TRUE,
+        LBNCA_Text,
+        buffer2,
+        LBNCA_MaxChars,
+        40,
+        LBNCA_Justification,
+        LCJ_RIGHT,
+        TAG_DONE);
 
     if (EnableGraphOption) {
 
@@ -204,35 +204,35 @@ void addToList(char *name, ULONG size, STRPTR format) {
         BITMAP_Height, bmpH, EndImage;
 
         node = AllocListBrowserNode(4,
-                                    LBNA_Column,
-                                    0,
-                                    LBNCA_Image,
-                                    image1,
-                                    LBNA_Column,
-                                    1,
-                                    LBNCA_CopyText,
-                                    TRUE,
-                                    LBNCA_Text,
-                                    buffer,
-                                    LBNCA_MaxChars,
-                                    40,
-                                    LBNA_Column,
-                                    2,
-                                    LBNCA_CopyText,
-                                    TRUE,
-                                    LBNCA_Text,
-                                    "",
-                                    LBNCA_MaxChars,
-                                    40,
-                                    LBNA_Column,
-                                    3,
-                                    LBNCA_CopyText,
-                                    TRUE,
-                                    LBNCA_Text,
-                                    buffer2,
-                                    LBNCA_MaxChars,
-                                    40,
-                                    TAG_DONE);
+            LBNA_Column,
+            0,
+            LBNCA_Image,
+            image1,
+            LBNA_Column,
+            1,
+            LBNCA_CopyText,
+            TRUE,
+            LBNCA_Text,
+            buffer,
+            LBNCA_MaxChars,
+            40,
+            LBNA_Column,
+            2,
+            LBNCA_CopyText,
+            TRUE,
+            LBNCA_Text,
+            "",
+            LBNCA_MaxChars,
+            40,
+            LBNA_Column,
+            3,
+            LBNCA_CopyText,
+            TRUE,
+            LBNCA_Text,
+            buffer2,
+            LBNCA_MaxChars,
+            40,
+            TAG_DONE);
     }
 
     AddTail(&contents, node);
@@ -241,9 +241,8 @@ void addToList(char *name, ULONG size, STRPTR format) {
     FreeVec(buffer2);
 }
 
-void addFileSequence(struct Gadget *listGadget,
-                     struct FileInfoBlock *fib,
-                     BOOL subFoldering) {
+void addFileSequence(
+    struct Gadget *listGadget, struct FileInfoBlock *fib, BOOL subFoldering) {
     if (listGadget) {
         struct Values format = correctFormat(fib->fib_Size, 0);
         addToList(
@@ -252,9 +251,9 @@ void addFileSequence(struct Gadget *listGadget,
     if (!subFoldering && !listGadget) {
         struct Values format = correctFormat(fib->fib_Size, 0);
         printf("| %-20.20s: %12lu %s\n",
-               fib->fib_FileName,
-               format.value,
-               returnGivenFormat(format.format));
+            fib->fib_FileName,
+            format.value,
+            returnGivenFormat(format.format));
     }
 
     addToTotalSize(fib->fib_Size);
@@ -268,24 +267,23 @@ void openStopWindow(void) {
         return;
 
     // Create a simple window
-    stopWindow =
-        OpenWindowTags(NULL,
-                       WA_Title,
-                       (ULONG) "Mnemosyne Scanning...",
-                       WA_Width,
-                       300,
-                       WA_Height,
-                       100,
-                       WA_Left,
-                       300,
-                       WA_Top,
-                       100,
-                       WA_Flags,
-                       WFLG_DEPTHGADGET | WFLG_CLOSEGADGET | WFLG_DRAGBAR
-                           | WFLG_ACTIVATE | WFLG_SMART_REFRESH,
-                       WA_IDCMP,
-                       CLOSEWINDOW | GADGETUP,
-                       TAG_DONE);
+    stopWindow = OpenWindowTags(NULL,
+        WA_Title,
+        (ULONG) "Mnemosyne Scanning...",
+        WA_Width,
+        300,
+        WA_Height,
+        100,
+        WA_Left,
+        300,
+        WA_Top,
+        100,
+        WA_Flags,
+        WFLG_DEPTHGADGET | WFLG_CLOSEGADGET | WFLG_DRAGBAR | WFLG_ACTIVATE
+            | WFLG_SMART_REFRESH,
+        WA_IDCMP,
+        CLOSEWINDOW | GADGETUP,
+        TAG_DONE);
 
     if (stopWindow) {
         stopWindowSignal = 1L << stopWindow->UserPort->mp_SigBit;
@@ -304,8 +302,7 @@ void openStopWindow(void) {
 
         PrintIText(stopWindow->RPort, &itext, 0, 0);
 
-        struct IntuiText itext2 = {
-            2,
+        struct IntuiText itext2 = {2,
             0,
             JAM2,
             10,
@@ -326,8 +323,8 @@ BOOL checkStopMessage(void) {
     if (!stopWindow)
         return FALSE;
 
-    while ((msg = (struct IntuiMessage *)GetMsg(stopWindow->UserPort))
-           != NULL) {
+    while (
+        (msg = (struct IntuiMessage *)GetMsg(stopWindow->UserPort)) != NULL) {
         if (msg->Class == CLOSEWINDOW) {
             stopPressed = TRUE;
         }
@@ -352,10 +349,10 @@ void closeStopWindow(void) {
 }
 
 void scanPath(char *path,
-              BOOL subFoldering,
-              struct Gadget *listGadget,
-              void (*progress_cb)(const char *path, void *userData),
-              void *userData) {
+    BOOL subFoldering,
+    struct Gadget *listGadget,
+    void (*progress_cb)(const char *path, void *userData),
+    void *userData) {
     BPTR lockPath = Lock(path, ACCESS_READ);
     if (!lockPath) {
         printf("Path Doesn't Exist: %s\n", path);
@@ -434,14 +431,14 @@ void scanPath(char *path,
                         struct Values format = correctFormat(
                             totalSize - oldTotalSize, currentFormat);
                         printf("| %-20s: %12lu %s\n",
-                               fib->fib_FileName,
-                               format.value,
-                               returnGivenFormat(format.format));
+                            fib->fib_FileName,
+                            format.value,
+                            returnGivenFormat(format.format));
                     } else {
                         printf("| %-20s: %12lu %s\n",
-                               fib->fib_FileName,
-                               totalSize - oldTotalSize,
-                               returnGivenFormat(currentFormat));
+                            fib->fib_FileName,
+                            totalSize - oldTotalSize,
+                            returnGivenFormat(currentFormat));
                     }
                 }
                 if (listGadget) {
@@ -459,12 +456,12 @@ void scanPath(char *path,
                         struct Values format = correctFormat(
                             totalSize - oldTotalSize, currentFormat);
                         addToList(fib->fib_FileName,
-                                  format.value,
-                                  returnGivenFormat(format.format));
+                            format.value,
+                            returnGivenFormat(format.format));
                     } else {
                         addToList(fib->fib_FileName,
-                                  totalSize - oldTotalSize,
-                                  returnGivenFormat(currentFormat));
+                            totalSize - oldTotalSize,
+                            returnGivenFormat(currentFormat));
                     }
                 }
                 FreeVec(newPath);
@@ -512,11 +509,10 @@ exit:
             // Get last 2 characters from word
             char *format      = getLastTwoChars((char *)initBuffer[0]);
             ULONG firstNumber = stringToULONG((char *)initBuffer[0]);
-            STRPTR buffer     = floatToString(
-                presentageFromULongs(firstNumber,
-                                     totalSize,
-                                     format,
-                                     returnGivenFormat(currentFormat)));
+            STRPTR buffer     = floatToString(presentageFromULongs(firstNumber,
+                totalSize,
+                format,
+                returnGivenFormat(currentFormat)));
             if (stringToFloat(buffer) < 0.01 && firstNumber != 0) {
                 strcpy(buffer, "<0.01");
             }
@@ -542,12 +538,12 @@ exit:
         if (NoRoundOption == FALSE) {
             struct Values format = correctFormat(totalSize, currentFormat);
             printf("\n--> Total Size Of Path Given: %lu %s\n\n",
-                   format.value,
-                   returnGivenFormat(format.format));
+                format.value,
+                returnGivenFormat(format.format));
         } else {
             printf("\n--> Total Size Of Path Given: %lu %s\n\n",
-                   totalSize,
-                   returnGivenFormat(currentFormat));
+                totalSize,
+                returnGivenFormat(currentFormat));
         }
     }
 

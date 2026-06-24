@@ -109,10 +109,8 @@ STRPTR ULongToString(ULONG num) {
     return buffer;
 }
 
-float presentageFromULongs(ULONG num1,
-                           ULONG num2,
-                           STRPTR num1Format,
-                           STRPTR num2Format) {
+float presentageFromULongs(
+    ULONG num1, ULONG num2, STRPTR num1Format, STRPTR num2Format) {
     // printf("%ld\t%ld\n", num1, num2);
     if (num1Format != num2Format) {
         int num1FormatValue = returnFormatValue(num1Format);
@@ -323,12 +321,12 @@ void updateIconTooltypes(void) {
                 LONG errorCode;
                 BOOL success;
                 success = PutIconTags(path,
-                                      diskObj,
-                                      ICONPUTA_DropNewIconToolTypes,
-                                      TRUE,
-                                      ICONA_ErrorCode,
-                                      &errorCode,
-                                      TAG_DONE);
+                    diskObj,
+                    ICONPUTA_DropNewIconToolTypes,
+                    TRUE,
+                    ICONA_ErrorCode,
+                    &errorCode,
+                    TAG_DONE);
 
                 if (success == FALSE) {
                     printf("Error: %ld\n", errorCode);
@@ -384,9 +382,8 @@ ULONG getBitmapColorPen(struct BitMap *bm) {
 // a small per-row image from column 0; if present we extract its bitmap and
 // derive a pen to use for display. Results are written into the supplied
 // nodeArray and the number of items filled is returned.
-ULONG collectAllNodePercentages(struct Gadget *listbrowser,
-                                struct NodeData *nodeArray,
-                                ULONG maxNodes) {
+ULONG collectAllNodePercentages(
+    struct Gadget *listbrowser, struct NodeData *nodeArray, ULONG maxNodes) {
     struct List *nodeList = NULL;
     GetAttr(LISTBROWSER_Labels, listbrowser, (ULONG *)&nodeList);
 
@@ -401,11 +398,11 @@ ULONG collectAllNodePercentages(struct Gadget *listbrowser,
         ULONG percentColumn = 2;
 
         GetListBrowserNodeAttrs(node,
-                                LBNA_Column,
-                                percentColumn,
-                                LBNCA_Text,
-                                &percentText,
-                                TAG_DONE);
+            LBNA_Column,
+            percentColumn,
+            LBNCA_Text,
+            &percentText,
+            TAG_DONE);
 
         if (percentText) {
             /* Parse percentage text into a float and clamp to [0..100] */
@@ -452,10 +449,10 @@ ULONG collectAllNodePercentages(struct Gadget *listbrowser,
 // remaining area along its longest side, assigning each node an area
 // proportional to its percentage.
 void drawTreemapRectangles(struct RastPort *rp,
-                           struct NodeData *nodeArray,
-                           ULONG nodeCount,
-                           ULONG bitmapWidth,
-                           ULONG bitmapHeight) {
+    struct NodeData *nodeArray,
+    ULONG nodeCount,
+    ULONG bitmapWidth,
+    ULONG bitmapHeight) {
     if (nodeCount == 0 || bitmapWidth == 0 || bitmapHeight == 0)
         return;
 
@@ -513,19 +510,19 @@ void drawTreemapRectangles(struct RastPort *rp,
             if (w >= h) {
                 if (rectX + rectW < bitmapWidth)
                     RectFill(rp,
-                             rectX + rectW - 1,
-                             rectY,
-                             rectX + rectW - 1,
-                             rectY + rectH - 1);
+                        rectX + rectW - 1,
+                        rectY,
+                        rectX + rectW - 1,
+                        rectY + rectH - 1);
                 x += rectW;
                 w -= rectW;
             } else {
                 if (rectY + rectH < bitmapHeight)
                     RectFill(rp,
-                             rectX,
-                             rectY + rectH - 1,
-                             rectX + rectW - 1,
-                             rectY + rectH - 1);
+                        rectX,
+                        rectY + rectH - 1,
+                        rectX + rectW - 1,
+                        rectY + rectH - 1);
                 y += rectH;
                 h -= rectH;
             }
@@ -555,14 +552,14 @@ float asValue(STRPTR s) {
 }
 
 float __SAVE_DS__ __ASM__ myCompare(__REG__(a0, struct Hook *hook),
-                                    __REG__(a2, Object *obj),
-                                    __REG__(a1, struct LBSortMsg *msg)) {
+    __REG__(a2, Object *obj),
+    __REG__(a1, struct LBSortMsg *msg)) {
     return asValue(msg->lbsm_DataA.Text) - asValue(msg->lbsm_DataB.Text);
 }
 
 int __SAVE_DS__ __ASM__ myCompare2(__REG__(a0, struct Hook *hook),
-                                   __REG__(a2, Object *obj),
-                                   __REG__(a1, struct LBSortMsg *msg)) {
+    __REG__(a2, Object *obj),
+    __REG__(a1, struct LBSortMsg *msg)) {
     char *a =
         string_to_lower(msg->lbsm_DataA.Text, safeStrlen(msg->lbsm_DataA.Text));
     char *b =
@@ -585,13 +582,13 @@ void checkBackButton(char *pastPath, BOOL doneFirst, Object *backButton) {
 }
 
 void toggleButtons(Object *windowObject,
-                   Object *backButton,
-                   struct Gadget *listBrowser,
-                   Object *fileRequester,
-                   char *pastPath,
-                   BOOL doneFirst,
-                   BOOL option,
-                   BOOL Refresh) {
+    Object *backButton,
+    struct Gadget *listBrowser,
+    Object *fileRequester,
+    char *pastPath,
+    BOOL doneFirst,
+    BOOL option,
+    BOOL Refresh) {
     SetAttrs(windowObject, WA_BusyPointer, option, TAG_DONE);
     SetAttrs(backButton, GA_Disabled, option, TAG_DONE);
     SetAttrs(listBrowser, LISTBROWSER_TitleClickable, !option, TAG_DONE);
@@ -610,10 +607,10 @@ void toggleBusyPointer(Object *windowObject, BOOL option) {
 }
 
 void updateBottomTextW2Text(Object *bottomText,
-                            Object *windowObject,
-                            char *firstText,
-                            STRPTR secondText,
-                            BOOL Refresh) {
+    Object *windowObject,
+    char *firstText,
+    STRPTR secondText,
+    BOOL Refresh) {
     char *title = AllocVec(256, MEMF_CLEAR);
     if (!title)
         return;
@@ -642,11 +639,11 @@ void updateBottomTextW2Text(Object *bottomText,
 }
 
 void updateBottomTextW2AndTotal(Object *bottomText,
-                                Object *windowObject,
-                                char *firstText,
-                                STRPTR secondText,
-                                STRPTR totalText,
-                                BOOL Refresh) {
+    Object *windowObject,
+    char *firstText,
+    STRPTR secondText,
+    STRPTR totalText,
+    BOOL Refresh) {
     char *title = AllocVec(sizeof(char) * 256, MEMF_CLEAR);
     snprintf(title, 256, "%s%s%s", firstText, secondText, totalText);
     SetAttrs(bottomText, GA_Image, NULL, STRINGA_TextVal, title, TAG_DONE);
@@ -655,9 +652,8 @@ void updateBottomTextW2AndTotal(Object *bottomText,
     FreeVec(title);
 }
 
-void updateBottomText(Object *bottomText,
-                      Object *windowObject,
-                      STRPTR secondText) {
+void updateBottomText(
+    Object *bottomText, Object *windowObject, STRPTR secondText) {
     // Check that the text is not the same as the current text
     STRPTR bottomTextString = NULL;
     GetAttr(STRINGA_TextVal, bottomText, (ULONG *)&bottomTextString);

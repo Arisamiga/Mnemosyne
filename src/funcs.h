@@ -47,11 +47,11 @@ void drawTreemapRectangles(
 void flushAppPort(struct MsgPort *);
 float asValue(STRPTR);
 float __SAVE_DS__ __ASM__ myCompare(__REG__(a0, struct Hook *),
-                                    __REG__(a2, Object *),
-                                    __REG__(a1, struct LBSortMsg *));
+    __REG__(a2, Object *),
+    __REG__(a1, struct LBSortMsg *));
 int __SAVE_DS__ __ASM__ myCompare2(__REG__(a0, struct Hook *),
-                                   __REG__(a2, Object *),
-                                   __REG__(a1, struct LBSortMsg *));
+    __REG__(a2, Object *),
+    __REG__(a1, struct LBSortMsg *));
 void checkBackButton(char *, BOOL, Object *);
 void toggleButtons(
     Object *, Object *, struct Gadget *, Object *, char *, BOOL, BOOL, BOOL);
