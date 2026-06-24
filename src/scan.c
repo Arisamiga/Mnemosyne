@@ -77,13 +77,12 @@ struct Values correctFormat(ULONG size, int format) {
 }
 
 ULONG devideByGivenFormat(ULONG size, int format) {
-    // Bit-shift amounts for bytes, kilobytes, megabytes, gigabytes
-    int shifts[] = {0, 10, 20, 30};
-
-    // Validate 'format' is within supported range
-    if (format >= 0 && format <= 3)
-        // Fast division: shift right by specified amount
-        return size >> shifts[format];
+    // Validate 'format' is within supported range (0 = B, 1 = KB, 2 = MB, 3 =
+    // GB)
+    if (format >= 0 && format <= 3) {
+        // Fast division: shift right by (format * 10)
+        return size >> (format * 10);
+    }
 
     // Fallback for unsupported 'format' values
     return size;
@@ -189,9 +188,6 @@ void addToList(char *name, ULONG size, STRPTR format) {
         struct RastPort rp;
         InitRastPort(&rp);
         rp.BitMap = bm;
-
-        int filledCols = (entryIndex % 5) + 1; /* 1..5 columns */
-        int x;
 
         SetRast(&rp, entryIndex);
 

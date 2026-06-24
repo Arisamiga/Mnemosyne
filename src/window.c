@@ -144,26 +144,34 @@ static void scanProgressCallback(const char *path, void *userData) {
     FreeVec(displayName);
 }
 
-static void clearCompletionBitmap(Object *bottomText) {
-    if (!completionButton || !EnableGraphOption)
+static void clearCompletionBitmap(Object *windowObject) {
+    if (!completionButton || !EnableGraphOption || !windowObject)
         return;
 
-    SetAttrs(completionButton,
-             GA_Image,
-             NULL,
-             GA_Width,
-             0,
-             GA_Height,
-             0,
-             GA_Disabled,
-             TRUE,
-             TAG_DONE);
-    if (mainWindowObject)
-        DoMethod(mainWindowObject, WM_NEWPREFS);
+    struct Window *intuiWindow = NULL;
+    GetAttr(WINDOW_Window, windowObject, (ULONG *)&intuiWindow);
+    if (!intuiWindow)
+        return;
+
+    struct Screen *screen = intuiWindow->WScreen;
+    WORD depth            = screen->BitMap.Depth;
+
+    struct BitMap *blankBM =
+        AllocBitMap(1, 1, depth, BMF_CLEAR | BMF_DISPLAYABLE, &screen->BitMap);
+    if (!blankBM)
+        return;
+
+    struct Image *blankImage = BitMapObject, BITMAP_BitMap, blankBM,
+                 BITMAP_Width, 1, BITMAP_Height, 1, BITMAP_Screen, screen,
+                 BITMAP_MaskPlane, NULL, EndImage;
+
+    SetAttrs(
+        completionButton, GA_Image, blankImage, GA_Disabled, TRUE, TAG_DONE);
+
+    RefreshGList((struct Gadget *)completionButton, intuiWindow, NULL, 1);
 }
 
-static void showCompletionBitmap(Object *bottomText,
-                                 struct Gadget *listbrowser,
+static void showCompletionBitmap(struct Gadget *listbrowser,
                                  Object *windowObject) {
     if (!completionButton || !EnableGraphOption || !listbrowser)
         return;
@@ -179,7 +187,6 @@ static void showCompletionBitmap(Object *bottomText,
     if (!bm)
         return;
 
-    /* Use current gadget size so the graph fills the entire completion area. */
     ULONG bitmapWidth  = 0;
     ULONG bitmapHeight = 0;
     GetAttr(GA_Width, completionButton, &bitmapWidth);
@@ -202,28 +209,11 @@ static void showCompletionBitmap(Object *bottomText,
     struct RastPort rp;
     InitRastPort(&rp);
     rp.BitMap = bm;
-
-    /* ... (Your existing allocation, RastPort setup, and treemap rendering) ...
-     */
-
     drawTreemapRectangles(&rp, nodeArray, nodeCount, bitmapWidth, bitmapHeight);
 
-    /*
-       1. FIX: Pass BITMAP_MaskPlane as NULL.
-       This strips the rigid mask properties from the BOOPSI image,
-       allowing the rendering engine to clip it seamlessly against the window
-       boundaries.
-    */
     image1 = BitMapObject, BITMAP_BitMap, bm, BITMAP_Width, bitmapWidth,
     BITMAP_Height, bitmapHeight, BITMAP_MaskPlane, NULL, EndImage;
 
-    /*
-       2. FIX: Remove GA_Width and GA_Height from SetAttrs!
-       If you hardcode GA_Width and GA_Height on the completionButton, you are
-       explicitly commanding the button to overflow past its parent layout
-       limits. Removing them lets the button squish with the window,
-       automatically hiding the overlapping pixels.
-    */
     SetAttrs(completionButton, GA_Image, image1, GA_Disabled, FALSE, TAG_DONE);
 
     if (windowObject) {
@@ -345,6 +335,8 @@ void setFileSequence(struct Window *intuiwin,
 
     updateMenuItems(intuiwin, FALSE);
 
+    clearCompletionBitmap(windowObject);
+
     updateBottomText(bottomText, windowObject, "Ready to Scan!");
     fileEntered = TRUE;
     doneFirst   = FALSE;
@@ -411,7 +403,6 @@ void scanningSequence(int type,
     UnLock(lockPath);
 
     scanning = TRUE;
-    clearCompletionBitmap(bottomText);
 
     char *parentName = AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
 
@@ -488,7 +479,7 @@ void scanningSequence(int type,
     updateBottomTextW2AndTotal(
         bottomText, windowObject, "Current: ", parentName, TotalText, TRUE);
 
-    showCompletionBitmap(bottomText, listBrowser, windowObject);
+    showCompletionBitmap(listBrowser, windowObject);
 
     // Remove focus from the listbrowser
     SetAttrs(listBrowser, LISTBROWSER_Selected, -1, TAG_DONE);
@@ -933,13 +924,11 @@ void processEvents(Object *windowObject,
                     break;
                 }
                 case WMHI_NEWSIZE: {
-
-                    if (EnableGraphOption && listBrowser && doneFirst) {
-                        printf("New size of window: %dx%d\n",
-                               intuiwin->Width,
-                               intuiwin->Height);
-                        showCompletionBitmap(
-                            bottomText, listBrowser, windowObject);
+                    struct BOOL *disabled;
+                    GetAttr(GA_Disabled, completionButton, (ULONG *)&disabled);
+                    if (EnableGraphOption && listBrowser && doneFirst
+                        && !disabled) {
+                        showCompletionBitmap(listBrowser, windowObject);
                     }
                     break;
                 }
