@@ -163,11 +163,9 @@ static void clearCompletionBitmap(Object *bottomText) {
 }
 
 static void showCompletionBitmap(Object *bottomText,
-                                 struct Gadget *listbrowser) {
-    if (!completionButton || !EnableGraphOption)
-        return;
-
-    if (!listbrowser)
+                                 struct Gadget *listbrowser,
+                                 Object *windowObject) {
+    if (!completionButton || !EnableGraphOption || !listbrowser)
         return;
 
     struct NodeData nodeArray[128];
@@ -187,16 +185,14 @@ static void showCompletionBitmap(Object *bottomText,
     GetAttr(GA_Width, completionButton, &bitmapWidth);
     GetAttr(GA_Height, completionButton, &bitmapHeight);
 
-    if (bitmapWidth < 16)
-        bitmapWidth = 200;
-    if (bitmapHeight < 16)
-        bitmapHeight = 100;
-
     InitBitMap(bm, 4, bitmapWidth, bitmapHeight);
 
     for (int plane = 0; plane < 4; plane++) {
         bm->Planes[plane] = AllocRaster(bitmapWidth, bitmapHeight);
         if (!bm->Planes[plane]) {
+            for (int failPlane = 0; failPlane < plane; failPlane++) {
+                FreeRaster(bm->Planes[failPlane], bitmapWidth, bitmapHeight);
+            }
             FreeVec(bm);
             return;
         }
@@ -207,24 +203,39 @@ static void showCompletionBitmap(Object *bottomText,
     InitRastPort(&rp);
     rp.BitMap = bm;
 
+    /* ... (Your existing allocation, RastPort setup, and treemap rendering) ...
+     */
+
     drawTreemapRectangles(&rp, nodeArray, nodeCount, bitmapWidth, bitmapHeight);
 
+    /*
+       1. FIX: Pass BITMAP_MaskPlane as NULL.
+       This strips the rigid mask properties from the BOOPSI image,
+       allowing the rendering engine to clip it seamlessly against the window
+       boundaries.
+    */
     image1 = BitMapObject, BITMAP_BitMap, bm, BITMAP_Width, bitmapWidth,
-    BITMAP_Height, bitmapHeight, EndImage;
+    BITMAP_Height, bitmapHeight, BITMAP_MaskPlane, NULL, EndImage;
 
-    SetAttrs(completionButton,
-             GA_Image,
-             image1,
-             GA_Width,
-             bitmapWidth,
-             GA_Height,
-             bitmapHeight,
-             GA_Disabled,
-             FALSE,
-             TAG_DONE);
+    /*
+       2. FIX: Remove GA_Width and GA_Height from SetAttrs!
+       If you hardcode GA_Width and GA_Height on the completionButton, you are
+       explicitly commanding the button to overflow past its parent layout
+       limits. Removing them lets the button squish with the window,
+       automatically hiding the overlapping pixels.
+    */
+    SetAttrs(completionButton, GA_Image, image1, GA_Disabled, FALSE, TAG_DONE);
 
-    if (mainWindowObject)
-        DoMethod(mainWindowObject, WM_NEWPREFS);
+    if (windowObject) {
+        struct Window *intuiWindow = NULL;
+        GetAttr(WINDOW_Window, windowObject, (ULONG *)&intuiWindow);
+
+        if (intuiWindow) {
+            // Render only this specific gadget cleanly
+            RefreshGList(
+                (struct Gadget *)completionButton, intuiWindow, NULL, 1);
+        }
+    }
 }
 
 // -------------
@@ -477,7 +488,7 @@ void scanningSequence(int type,
     updateBottomTextW2AndTotal(
         bottomText, windowObject, "Current: ", parentName, TotalText, TRUE);
 
-    showCompletionBitmap(bottomText, listBrowser);
+    showCompletionBitmap(bottomText, listBrowser, windowObject);
 
     // Remove focus from the listbrowser
     SetAttrs(listBrowser, LISTBROWSER_Selected, -1, TAG_DONE);
@@ -799,45 +810,46 @@ void createWindow(char *Path) {
                                TAG_DONE);
     }
 
-    appPort          = CreateMsgPort();
-    windowObject     = NewObject(WINDOW_GetClass(),
-                             NULL,
-                             WINDOW_Position,
-                             WPOS_CENTERSCREEN,
-                             WINDOW_NewMenu,
-                             MenuArray,
-                             WINDOW_IconifyGadget,
-                             TRUE,
-                             WINDOW_IconTitle,
-                             "Mnemosyne",
-                             WINDOW_Icon,
-                             GetDiskObject("PROGDIR:Mnemosyne"),
-                             WINDOW_AppPort,
-                             appPort,
-                             WA_Activate,
-                             TRUE,
-                             WA_Title,
-                             "Mnemosyne 1.2.0",
-                             WA_DragBar,
-                             TRUE,
-                             WA_CloseGadget,
-                             TRUE,
-                             WA_DepthGadget,
-                             TRUE,
-                             WA_SizeGadget,
-                             TRUE,
-                             WA_NewLookMenus,
-                             TRUE,
-                             WA_InnerWidth,
-                             355,
-                             WA_InnerHeight,
-                             150,
-                             WA_IDCMP,
-                             IDCMP_CLOSEWINDOW | IDCMP_GADGETUP
-                                 | IDCMP_GADGETDOWN | IDCMP_MENUPICK,
-                             WINDOW_Layout,
-                             mainLayout,
-                             TAG_DONE);
+    appPort = CreateMsgPort();
+    windowObject =
+        NewObject(WINDOW_GetClass(),
+                  NULL,
+                  WINDOW_Position,
+                  WPOS_CENTERSCREEN,
+                  WINDOW_NewMenu,
+                  MenuArray,
+                  WINDOW_IconifyGadget,
+                  TRUE,
+                  WINDOW_IconTitle,
+                  "Mnemosyne",
+                  WINDOW_Icon,
+                  GetDiskObject("PROGDIR:Mnemosyne"),
+                  WINDOW_AppPort,
+                  appPort,
+                  WA_Activate,
+                  TRUE,
+                  WA_Title,
+                  "Mnemosyne 1.2.0",
+                  WA_DragBar,
+                  TRUE,
+                  WA_CloseGadget,
+                  TRUE,
+                  WA_DepthGadget,
+                  TRUE,
+                  WA_SizeGadget,
+                  TRUE,
+                  WA_NewLookMenus,
+                  TRUE,
+                  WA_InnerWidth,
+                  355,
+                  WA_InnerHeight,
+                  150,
+                  WA_IDCMP,
+                  IDCMP_CLOSEWINDOW | IDCMP_GADGETUP | IDCMP_GADGETDOWN
+                      | IDCMP_MENUPICK | IDCMP_NEWSIZE | IDCMP_CHANGEWINDOW,
+                  WINDOW_Layout,
+                  mainLayout,
+                  TAG_DONE);
     mainWindowObject = windowObject;
     if (!windowObject)
         cleanexit(NULL, NULL, NULL);
@@ -918,7 +930,19 @@ void processEvents(Object *windowObject,
                     if ((intuiwin = (struct Window *)DoMethod(
                              windowObject, WM_OPEN, NULL)))
                         GetAttr(WINDOW_SigMask, windowObject, &windowsignal);
-                } break;
+                    break;
+                }
+                case WMHI_NEWSIZE: {
+
+                    if (EnableGraphOption && listBrowser && doneFirst) {
+                        printf("New size of window: %dx%d\n",
+                               intuiwin->Width,
+                               intuiwin->Height);
+                        showCompletionBitmap(
+                            bottomText, listBrowser, windowObject);
+                    }
+                    break;
+                }
                 case WMHI_MENUPICK: {
                     struct Menu *menuStrip;
                     GetAttr(
