@@ -112,6 +112,55 @@ BOOL fileEntered                = FALSE;
 static BOOL scanning            = FALSE;
 static Object *completionButton = NULL;
 static Object *mainWindowObject = NULL;
+static Object *completionImageObject = NULL;
+static struct BitMap *completionImageBitmap = NULL;
+static BOOL completionImageUsesFreeBitMap = FALSE;
+static ULONG completionImageWidth = 0;
+static ULONG completionImageHeight = 0;
+
+static void freeCompletionImageBitmap(void) {
+    if (!completionImageBitmap)
+        return;
+
+    if (completionImageUsesFreeBitMap) {
+        FreeBitMap(completionImageBitmap);
+    } else {
+        for (int plane = 0; plane < 4; plane++) {
+            if (completionImageBitmap->Planes[plane]) {
+                FreeRaster(completionImageBitmap->Planes[plane],
+                    completionImageWidth,
+                    completionImageHeight);
+            }
+        }
+        FreeVec(completionImageBitmap);
+    }
+
+    completionImageBitmap         = NULL;
+    completionImageUsesFreeBitMap = FALSE;
+    completionImageWidth          = 0;
+    completionImageHeight         = 0;
+}
+
+static void releaseCompletionBitmap(Object *windowObject) {
+    if (completionButton) {
+        SetAttrs(completionButton, GA_Image, NULL, TAG_DONE);
+    }
+
+    if (completionImageObject) {
+        DisposeObject(completionImageObject);
+        completionImageObject = NULL;
+    }
+
+    freeCompletionImageBitmap();
+
+    if (completionButton && windowObject) {
+        struct Window *intuiWindow = NULL;
+        GetAttr(WINDOW_Window, windowObject, (ULONG *)&intuiWindow);
+        if (intuiWindow) {
+            RefreshGList((struct Gadget *)completionButton, intuiWindow, NULL, 1);
+        }
+    }
+}
 
 // Progress callback used by scanPath to report the current path being scanned.
 static void scanProgressCallback(const char *path, void *userData) {
@@ -144,6 +193,8 @@ static void scanProgressCallback(const char *path, void *userData) {
 }
 
 static void clearCompletionBitmap(Object *windowObject) {
+    releaseCompletionBitmap(windowObject);
+
     if (!completionButton || !EnableGraphOption || !windowObject)
         return;
 
@@ -160,12 +211,27 @@ static void clearCompletionBitmap(Object *windowObject) {
     if (!blankBM)
         return;
 
-    struct Image *blankImage = BitMapObject, BITMAP_BitMap, blankBM,
-                 BITMAP_Width, 1, BITMAP_Height, 1, BITMAP_Screen, screen,
-                 BITMAP_MaskPlane, NULL, EndImage;
+    Object *blankImage = NewObject(BITMAP_GetClass(), NULL,
+        BITMAP_BitMap, blankBM,
+        BITMAP_Width, 1,
+        BITMAP_Height, 1,
+        BITMAP_Screen, screen,
+        BITMAP_MaskPlane, NULL,
+        TAG_DONE);
+
+    if (!blankImage) {
+        FreeBitMap(blankBM);
+        return;
+    }
 
     SetAttrs(
         completionButton, GA_Image, blankImage, GA_Disabled, TRUE, TAG_DONE);
+
+    completionImageObject        = blankImage;
+    completionImageBitmap        = blankBM;
+    completionImageUsesFreeBitMap = TRUE;
+    completionImageWidth         = 1;
+    completionImageHeight        = 1;
 
     RefreshGList((struct Gadget *)completionButton, intuiWindow, NULL, 1);
 }
@@ -213,7 +279,25 @@ static void showCompletionBitmap(
     image1 = BitMapObject, BITMAP_BitMap, bm, BITMAP_Width, bitmapWidth,
     BITMAP_Height, bitmapHeight, BITMAP_MaskPlane, NULL, EndImage;
 
+    if (!image1) {
+        for (int plane = 0; plane < 4; plane++) {
+            if (bm->Planes[plane]) {
+                FreeRaster(bm->Planes[plane], bitmapWidth, bitmapHeight);
+            }
+        }
+        FreeVec(bm);
+        return;
+    }
+
+    releaseCompletionBitmap(windowObject);
+
     SetAttrs(completionButton, GA_Image, image1, GA_Disabled, FALSE, TAG_DONE);
+
+    completionImageObject         = (Object *)image1;
+    completionImageBitmap         = bm;
+    completionImageUsesFreeBitMap = FALSE;
+    completionImageWidth          = bitmapWidth;
+    completionImageHeight         = bitmapHeight;
 
     if (windowObject) {
         struct Window *intuiWindow = NULL;
@@ -402,6 +486,8 @@ void scanningSequence(int type,
     UnLock(lockPath);
 
     scanning = TRUE;
+
+    clearCompletionBitmap(windowObject);
 
     char *parentName = AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
 

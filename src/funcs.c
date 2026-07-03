@@ -161,6 +161,30 @@ BOOL clearList(struct List list) {
     }
     while (node->ln_Succ) {
         struct Node *nextNode = node->ln_Succ;
+        struct Image *image   = NULL;
+        struct BitMap *bitmap = NULL;
+        ULONG imageWidth      = 0;
+        ULONG imageHeight     = 0;
+
+        GetListBrowserNodeAttrs(
+            node, LBNA_Column, 0, LBNCA_Image, &image, TAG_DONE);
+        if (image) {
+            GetAttr(BITMAP_BitMap, image, (ULONG *)&bitmap);
+            GetAttr(BITMAP_Width, image, &imageWidth);
+            GetAttr(BITMAP_Height, image, &imageHeight);
+            DisposeObject((Object *)image);
+            if (bitmap) {
+                for (int plane = 0; plane < bitmap->Depth; plane++) {
+                    if (bitmap->Planes[plane]) {
+                        FreeRaster(bitmap->Planes[plane],
+                            imageWidth,
+                            imageHeight);
+                    }
+                }
+                FreeVec(bitmap);
+            }
+        }
+
         Remove(node);
         FreeListBrowserNode(node);
         node = nextNode;

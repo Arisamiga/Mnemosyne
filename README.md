@@ -44,7 +44,7 @@ To see how to use Mnemosyne, please read the [Wiki](https://github.com/Arisamiga
 Please don't hesitate to contribute to making Mnemosyne even better!!
 
 If you want to contribute but don't know what to work on you can check our ideas list!
-https://github.com/users/Arisamiga/projects/3/
+<https://github.com/users/Arisamiga/projects/3/>
 
 ## Code and bug reporting
 

@@ -135,32 +135,19 @@ void addToList(char *name, ULONG size, STRPTR format) {
     snprintf(buffer2, 64, "%s %s", prebuffer2, format);
 
     struct Node *node = AllocListBrowserNode(3,
-        LBNA_Column,
-        0,
-        LBNCA_CopyText,
-        TRUE,
-        LBNCA_Text,
-        buffer,
-        LBNCA_MaxChars,
-        40,
-        LBNA_Column,
-        1,
-        LBNCA_CopyText,
-        TRUE,
-        LBNCA_Text,
-        "",
-        LBNCA_MaxChars,
-        40,
-        LBNA_Column,
-        2,
-        LBNCA_CopyText,
-        TRUE,
-        LBNCA_Text,
-        buffer2,
-        LBNCA_MaxChars,
-        40,
-        LBNCA_Justification,
-        LCJ_RIGHT,
+        LBNA_Column, 0,
+        LBNCA_CopyText, TRUE,
+        LBNCA_Text, buffer,
+        LBNCA_MaxChars, 40,
+        LBNA_Column, 1,
+        LBNCA_CopyText, TRUE,
+        LBNCA_Text, "",
+        LBNCA_MaxChars, 40,
+        LBNA_Column, 2,
+        LBNCA_CopyText, TRUE,
+        LBNCA_Text, buffer2,
+        LBNCA_MaxChars, 40,
+        LBNCA_Justification, LCJ_RIGHT,
         TAG_DONE);
 
     if (EnableGraphOption) {
@@ -376,6 +363,8 @@ void scanPath(char *path,
 
     if (!subFoldering) {
         if (listGadget) {
+            clearList(contents);
+
             if (path != pastPath && path[0] != '\0') {
                 strlcpy(pastPath, path, MAX_BUFFER);
             }
@@ -488,7 +477,12 @@ exit:
             struct Node *nextNode   = node->ln_Succ;
             ULONG *initBuffer       = AllocVec(sizeof(ULONG), MEMF_CLEAR);
             struct TagItem *tagList = (struct TagItem *)AllocVec(
-                sizeof(struct TagItem) * 2, MEMF_CLEAR);
+                sizeof(struct TagItem) * 3, MEMF_CLEAR);
+            if (!initBuffer || !tagList) {
+                FreeVec(tagList);
+                FreeVec(initBuffer);
+                break;
+            }
             tagList[0].ti_Tag = LBNA_Column;
             if (EnableGraphOption)
                 tagList[0].ti_Data = 3;
