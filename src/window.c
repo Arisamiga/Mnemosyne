@@ -152,14 +152,7 @@ static void releaseCompletionBitmap(Object *windowObject) {
     }
 
     freeCompletionImageBitmap();
-
-    if (completionButton && windowObject) {
-        struct Window *intuiWindow = NULL;
-        GetAttr(WINDOW_Window, windowObject, (ULONG *)&intuiWindow);
-        if (intuiWindow) {
-            RefreshGList((struct Gadget *)completionButton, intuiWindow, NULL, 1);
-        }
-    }
+    return;
 }
 
 // Progress callback used by scanPath to report the current path being scanned.
