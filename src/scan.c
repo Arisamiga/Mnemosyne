@@ -90,6 +90,11 @@ ULONG devideByGivenFormat(ULONG size, int format) {
 
 STRPTR returnFormatWithTotal(void) {
     STRPTR buffer = AllocVec(64, MEMF_CLEAR);
+    if (!buffer) {
+        outOfMemoryWindow(11);
+        return NULL;
+    }
+
     if (NoRoundOption == TRUE) {
         snprintf(buffer,
             64,
@@ -127,11 +132,23 @@ void addToList(char *name, ULONG size, STRPTR format) {
     // printf("Size: %ld\n", size);
 
     UBYTE *buffer = AllocVec(64, MEMF_CLEAR);
+    if (!buffer) {
+        outOfMemoryWindow(12);
+        return;
+    }
+
     snprintf(buffer, 64, "%s", name);
 
     STRPTR prebuffer2 = ULongToString(size);
 
     UBYTE *buffer2 = AllocVec(64, MEMF_CLEAR);
+    if (!buffer2) {
+        outOfMemoryWindow(13);
+        FreeVec(buffer);
+        FreeVec(prebuffer2);
+        return;
+    }
+
     snprintf(buffer2, 64, "%s %s", prebuffer2, format);
 
     struct Node *node = AllocListBrowserNode(3,
@@ -164,6 +181,14 @@ void addToList(char *name, ULONG size, STRPTR format) {
         LONG bmpW            = 10;
         LONG bmpH            = 10;
         struct BitMap *bm    = AllocVec(sizeof(struct BitMap), MEMF_CLEAR);
+
+        if (!bm) {
+            outOfMemoryWindow(14);
+            FreeVec(buffer);
+            FreeVec(prebuffer2);
+            FreeVec(buffer2);
+            return;
+        }
 
         InitBitMap(bm, 4, bmpW, bmpH);
 
@@ -353,6 +378,16 @@ void scanPath(char *path,
     struct FileInfoBlock *fib = (struct FileInfoBlock *)AllocVec(
         sizeof(struct FileInfoBlock), MEMF_CLEAR);
 
+    if (!fib) {
+        printf("Failed to allocate memory for FileInfoBlock\n");
+        UnLock(lockPath);
+        if (!subFoldering) {
+            closeStopWindow();
+            outOfMemoryWindow(3);
+        }
+        return;
+    }
+
     if (!Examine(lockPath, fib)) {
         printf("Examine Failed on path: %s\n", path);
         if (!subFoldering) {
@@ -395,6 +430,12 @@ void scanPath(char *path,
             if (fib->fib_DirEntryType > 0) {
                 // Scan SubFolders
                 char *newPath = (char *)AllocVec(256, MEMF_CLEAR);
+
+                if (!newPath) {
+                    outOfMemoryWindow(15);
+                    break;
+                }
+
                 strcpy(newPath, path);
                 if (getLastCharSafely(newPath) != ':'
                     && getLastCharSafely(newPath) != '/') {
@@ -474,13 +515,19 @@ exit:
         // struct Node *node = list->lh_Head;
         struct Node *node = contents.lh_Head;
         while (node->ln_Succ) {
-            struct Node *nextNode   = node->ln_Succ;
-            ULONG *initBuffer       = AllocVec(sizeof(ULONG), MEMF_CLEAR);
+            struct Node *nextNode = node->ln_Succ;
+            ULONG *initBuffer     = AllocVec(sizeof(ULONG), MEMF_CLEAR);
+            if (!initBuffer) {
+                outOfMemoryWindow(16);
+                break;
+            }
+
             struct TagItem *tagList = (struct TagItem *)AllocVec(
                 sizeof(struct TagItem) * 3, MEMF_CLEAR);
             if (!initBuffer || !tagList) {
                 FreeVec(tagList);
                 FreeVec(initBuffer);
+                outOfMemoryWindow(17);
                 break;
             }
             tagList[0].ti_Tag = LBNA_Column;

@@ -99,12 +99,26 @@ void getNameFromPath(char *path, char *result, unsigned int resultSize) {
 
 STRPTR floatToString(float num) {
     STRPTR buffer = AllocVec(64, MEMF_ANY);
+
+    // Check if out of memory
+    if (!buffer) {
+        outOfMemoryWindow(4);
+        return NULL;
+    }
+
     sprintf(buffer, "%.2f", num);
     return buffer;
 }
 
 STRPTR ULongToString(ULONG num) {
     STRPTR buffer = AllocVec(64, MEMF_ANY);
+
+    // Check if out of memory
+    if (!buffer) {
+        outOfMemoryWindow(5);
+        return NULL;
+    }
+
     snprintf(buffer, 64, "%lu", num);
     return buffer;
 }
@@ -176,9 +190,8 @@ BOOL clearList(struct List list) {
             if (bitmap) {
                 for (int plane = 0; plane < bitmap->Depth; plane++) {
                     if (bitmap->Planes[plane]) {
-                        FreeRaster(bitmap->Planes[plane],
-                            imageWidth,
-                            imageHeight);
+                        FreeRaster(
+                            bitmap->Planes[plane], imageWidth, imageHeight);
                     }
                 }
                 FreeVec(bitmap);
@@ -240,6 +253,13 @@ char *getLastTwoChars(const char *str) {
 
 char *string_to_lower(const char *text, size_t len) {
     char *result = AllocVec(len + 1, MEMF_ANY);
+
+    // Check if out of memory
+    if (!result) {
+        outOfMemoryWindow(6);
+        return NULL;
+    }
+
     for (size_t i = 0; i < len; i++)
         result[i] = tolower(text[i]);
     result[len] = '\0';
@@ -259,7 +279,8 @@ size_t safeStrlen(const char *str) {
 char *getProgramPath() {
     char *path = AllocVec(sizeof(char) * 256, MEMF_CLEAR);
     if (path == NULL) {
-        // Handle error
+        // Handle out of memory error
+        outOfMemoryWindow(7);
         return NULL;
     }
 
@@ -327,6 +348,14 @@ void updateIconTooltypes(void) {
         if (diskObj) {
             // Create array with the new tooltypes
             char **newToolTypes = AllocVec(sizeof(char *) * 3, MEMF_CLEAR);
+            if (!newToolTypes) {
+                outOfMemoryWindow(8);
+                FreeDiskObject(diskObj);
+                if (path)
+                    FreeVec(path);
+                return;
+            }
+
             if (newToolTypes) {
                 if (NoRoundOption) {
                     newToolTypes[0] = "NOROUND";
@@ -636,9 +665,11 @@ void updateBottomTextW2Text(Object *bottomText,
     STRPTR secondText,
     BOOL Refresh) {
     char *title = AllocVec(256, MEMF_CLEAR);
-    if (!title)
+    if (!title) {
+        // Handle out of memory error
+        outOfMemoryWindow(9);
         return;
-
+    }
     snprintf(title, 256, "%s%s", firstText, secondText);
 
     // Note: ReAction string gadgets usually expect STRINGA_TextVal directly,
@@ -669,6 +700,12 @@ void updateBottomTextW2AndTotal(Object *bottomText,
     STRPTR totalText,
     BOOL Refresh) {
     char *title = AllocVec(sizeof(char) * 256, MEMF_CLEAR);
+    if (!title) {
+        // Handle out of memory error
+        outOfMemoryWindow(10);
+        return;
+    }
+
     snprintf(title, 256, "%s%s%s", firstText, secondText, totalText);
     SetAttrs(bottomText, GA_Image, NULL, STRINGA_TextVal, title, TAG_DONE);
     if (Refresh)
@@ -690,4 +727,24 @@ void updateBottomText(
 
 void updatePathText(Object *fileRequester, STRPTR path) {
     SetAttrs(fileRequester, GETFILE_FullFile, path, TAG_DONE);
+}
+
+// Create a out of memory Easy requestor with a title and message informing the user that the program is out of memory and will stop
+void outOfMemoryWindow(uint8_t id) {
+
+    STRPTR message = NULL;
+    snprintf(message,
+        256,
+        "Mnemosyne was not able to use the required memory to continue. Please "
+        "close some applications and try again. (Error Code: %d)",
+        id);
+
+    struct EasyStruct requesterAbout = {
+        sizeof(struct EasyStruct),
+        0,
+        "Out of Memory",
+        message,
+        "OK",
+    };
+    EasyRequest(NULL, &requesterAbout, NULL, NULL);
 }

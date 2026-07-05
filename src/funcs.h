@@ -62,6 +62,8 @@ void updateBottomTextW2AndTotal(
 void updateBottomText(Object *, Object *, STRPTR);
 void updatePathText(Object *, STRPTR);
 
+void outOfMemoryWindow(uint8_t errorCode);
+
 // ------------ Variables -----------
 
 extern BOOL NoRoundOption;

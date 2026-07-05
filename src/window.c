@@ -108,15 +108,15 @@ struct {
     BOOL Sorting;
 } ColumnSorting[] = {{0, LBMSORT_FORWARD}, {1, LBMSORT_FORWARD}};
 
-BOOL fileEntered                = FALSE;
-static BOOL scanning            = FALSE;
-static Object *completionButton = NULL;
-static Object *mainWindowObject = NULL;
-static Object *completionImageObject = NULL;
+BOOL fileEntered                            = FALSE;
+static BOOL scanning                        = FALSE;
+static Object *completionButton             = NULL;
+static Object *mainWindowObject             = NULL;
+static Object *completionImageObject        = NULL;
 static struct BitMap *completionImageBitmap = NULL;
-static BOOL completionImageUsesFreeBitMap = FALSE;
-static ULONG completionImageWidth = 0;
-static ULONG completionImageHeight = 0;
+static BOOL completionImageUsesFreeBitMap   = FALSE;
+static ULONG completionImageWidth           = 0;
+static ULONG completionImageHeight          = 0;
 
 static void freeCompletionImageBitmap(void) {
     if (!completionImageBitmap)
@@ -166,12 +166,22 @@ static void scanProgressCallback(const char *path, void *userData) {
         return;
 
     char *displayName = AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
-    if (!displayName)
+    if (!displayName) {
+        // Handle out of memory error
+        outOfMemoryWindow(24);
         return;
+    }
     getNameFromPath((char *)path, displayName, MAX_BUFFER);
 
     if ((rand() % 1000) == 0) {
         char *eggName = AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
+        if (!eggName) {
+            // Handle out of memory error
+            outOfMemoryWindow(25);
+            FreeVec(displayName);
+            return;
+        }
+
         if (eggName) {
             snprintf(eggName, MAX_BUFFER, "%s :D", displayName);
             updateBottomTextW2Text(
@@ -220,11 +230,11 @@ static void clearCompletionBitmap(Object *windowObject) {
     SetAttrs(
         completionButton, GA_Image, blankImage, GA_Disabled, TRUE, TAG_DONE);
 
-    completionImageObject        = blankImage;
-    completionImageBitmap        = blankBM;
+    completionImageObject         = blankImage;
+    completionImageBitmap         = blankBM;
     completionImageUsesFreeBitMap = TRUE;
-    completionImageWidth         = 1;
-    completionImageHeight        = 1;
+    completionImageWidth          = 1;
+    completionImageHeight         = 1;
 
     RefreshGList((struct Gadget *)completionButton, intuiWindow, NULL, 1);
 }
@@ -242,8 +252,10 @@ static void showCompletionBitmap(
 
     struct Image *image1 = NULL;
     struct BitMap *bm    = AllocVec(sizeof(struct BitMap), MEMF_CLEAR);
-    if (!bm)
+    if (!bm) {
+        outOfMemoryWindow(26);
         return;
+    }
 
     ULONG bitmapWidth  = 0;
     ULONG bitmapHeight = 0;
@@ -433,6 +445,12 @@ void fileRequesterSequence(Object *fileRequester,
         NewList(&contents);
 
         TEXT *path = AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
+        if (!path) {
+            // Handle out of memory error
+            outOfMemoryWindow(27);
+            return;
+        }
+
         ULONG pathPtr;
         GetAttr(GETFILE_FullFile, fileRequester, &pathPtr);
         strlcpy(path, (const char *)pathPtr, MAX_BUFFER - 1);
@@ -483,6 +501,13 @@ void scanningSequence(int type,
     clearCompletionBitmap(windowObject);
 
     char *parentName = AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
+
+    if (!parentName) {
+        // Handle out of memory error
+        outOfMemoryWindow(28);
+        scanning = FALSE;
+        return;
+    }
 
     getNameFromPath(givenPath, parentName, MAX_BUFFER);
 
@@ -1024,6 +1049,13 @@ void processEvents(Object *windowObject,
 
                                 char *parentPath = AllocVec(
                                     sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
+
+                                if (!parentPath) {
+                                    // Handle out of memory error
+                                    outOfMemoryWindow(29);
+                                    break;
+                                }
+
                                 getParentPath(pastPath, parentPath, MAX_BUFFER);
                                 // printf("Parent Path: %s\n", parentPath);
 
@@ -1064,6 +1096,13 @@ void processEvents(Object *windowObject,
 
                                 TEXT *buffer = AllocVec(
                                     sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
+
+                                if (!buffer) {
+                                    // Handle out of memory error
+                                    outOfMemoryWindow(30);
+                                    break;
+                                }
+
                                 ULONG pathPtr;
 
                                 GetAttr(
@@ -1191,6 +1230,12 @@ void processEvents(Object *windowObject,
                                     char *parentPath = AllocVec(
                                         sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
 
+                                    if (!parentPath) {
+                                        // Handle out of memory error
+                                        outOfMemoryWindow(31);
+                                        break;
+                                    }
+
                                     // printf("Selected %s\n", text);
                                     getParentPath(text, parentPath, MAX_BUFFER);
 
@@ -1210,6 +1255,14 @@ void processEvents(Object *windowObject,
                                         char *newPath =
                                             AllocVec(sizeof(char) * MAX_BUFFER,
                                                 MEMF_CLEAR);
+
+                                        if (!newPath) {
+                                            // Handle out of memory error
+                                            outOfMemoryWindow(32);
+                                            FreeVec(parentPath);
+                                            break;
+                                        }
+
                                         if (getLastCharSafely(pastPath) != '/'
                                             && getLastCharSafely(pastPath)
                                                    != ':') {
@@ -1262,6 +1315,14 @@ void processEvents(Object *windowObject,
                 struct WBArg *arg = &appMsg->am_ArgList[i];
                 char *fullPath =
                     AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
+
+                if (!fullPath) {
+                    // Handle out of memory error
+                    outOfMemoryWindow(33);
+                    ReplyMsg((struct Message *)appMsg);
+                    break;
+                }
+
                 NameFromLock(arg->wa_Lock, fullPath, MAX_BUFFER);
                 // printf("Received dropped file: %s\n", fullPath);
                 if (i == 0) {
