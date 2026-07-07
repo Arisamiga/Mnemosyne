@@ -542,6 +542,10 @@ void scanningSequence(int type,
 
     scanning = FALSE;
 
+    if (!doneFirst) {
+        doneFirst = TRUE;
+    }
+
     toggleButtons(windowObject,
         backButton,
         listBrowser,
@@ -824,7 +828,7 @@ void createWindow(char *Path) {
         WINDOW_Icon, GetDiskObject("PROGDIR:Mnemosyne"),
         WINDOW_AppPort, appPort,
         WA_Activate, TRUE,
-        WA_Title, "Mnemosyne 1.2.0",
+        WA_Title, "Mnemosyne 1.3.0",
         WA_DragBar, TRUE,
         WA_CloseGadget, TRUE,
         WA_DepthGadget, TRUE,
