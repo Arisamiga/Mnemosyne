@@ -169,6 +169,7 @@ static void scanProgressCallback(const char *path, void *userData) {
     if (!displayName) {
         // Handle out of memory error
         outOfMemoryWindow(24);
+        shouldStopScanning = TRUE;
         return;
     }
     getNameFromPath((char *)path, displayName, MAX_BUFFER);
@@ -177,8 +178,9 @@ static void scanProgressCallback(const char *path, void *userData) {
         char *eggName = AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
         if (!eggName) {
             // Handle out of memory error
-            outOfMemoryWindow(25);
             FreeVec(displayName);
+            outOfMemoryWindow(25);
+            shouldStopScanning = TRUE;
             return;
         }
 
@@ -579,6 +581,13 @@ void scanningSequence(int type,
     updateMenuItems(intuiwin, TRUE);
 
     STRPTR TotalText = returnFormatWithTotal();
+
+    if (!TotalText) {
+        FreeVec(parentName);
+        scanning = FALSE;
+        return;
+    }
+
     updateBottomTextW2AndTotal(
         bottomText, windowObject, "Current: ", parentName, TotalText, TRUE);
 
@@ -991,7 +1000,6 @@ void processEvents(Object *windowObject,
                                 UpdateMenuToolTypes();
                                 updateIconTooltypes();
                                 UpdateMenu(intuiwin, TRUE);
-
                                 toggleBusyPointer(windowObject, FALSE);
                                 break;
                             }
@@ -1053,6 +1061,7 @@ void processEvents(Object *windowObject,
                                 if (!parentPath) {
                                     // Handle out of memory error
                                     outOfMemoryWindow(29);
+                                    end = TRUE;
                                     break;
                                 }
 
@@ -1100,6 +1109,7 @@ void processEvents(Object *windowObject,
                                 if (!buffer) {
                                     // Handle out of memory error
                                     outOfMemoryWindow(30);
+                                    end = TRUE;
                                     break;
                                 }
 
@@ -1233,6 +1243,7 @@ void processEvents(Object *windowObject,
                                     if (!parentPath) {
                                         // Handle out of memory error
                                         outOfMemoryWindow(31);
+                                        end = TRUE;
                                         break;
                                     }
 
@@ -1258,8 +1269,9 @@ void processEvents(Object *windowObject,
 
                                         if (!newPath) {
                                             // Handle out of memory error
-                                            outOfMemoryWindow(32);
                                             FreeVec(parentPath);
+                                            outOfMemoryWindow(32);
+                                            end = TRUE;
                                             break;
                                         }
 
@@ -1318,8 +1330,9 @@ void processEvents(Object *windowObject,
 
                 if (!fullPath) {
                     // Handle out of memory error
-                    outOfMemoryWindow(33);
                     ReplyMsg((struct Message *)appMsg);
+                    outOfMemoryWindow(33);
+                    end = TRUE;
                     break;
                 }
 

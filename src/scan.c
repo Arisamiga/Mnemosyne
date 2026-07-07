@@ -134,6 +134,7 @@ void addToList(char *name, ULONG size, STRPTR format) {
     UBYTE *buffer = AllocVec(64, MEMF_CLEAR);
     if (!buffer) {
         outOfMemoryWindow(12);
+        shouldStopScanning = TRUE;
         return;
     }
 
@@ -141,11 +142,17 @@ void addToList(char *name, ULONG size, STRPTR format) {
 
     STRPTR prebuffer2 = ULongToString(size);
 
+    if (!prebuffer2) {
+        FreeVec(buffer);
+        return;
+    }
+
     UBYTE *buffer2 = AllocVec(64, MEMF_CLEAR);
     if (!buffer2) {
-        outOfMemoryWindow(13);
         FreeVec(buffer);
         FreeVec(prebuffer2);
+        outOfMemoryWindow(13);
+        shouldStopScanning = TRUE;
         return;
     }
 
@@ -183,10 +190,11 @@ void addToList(char *name, ULONG size, STRPTR format) {
         struct BitMap *bm    = AllocVec(sizeof(struct BitMap), MEMF_CLEAR);
 
         if (!bm) {
-            outOfMemoryWindow(14);
             FreeVec(buffer);
             FreeVec(prebuffer2);
             FreeVec(buffer2);
+            outOfMemoryWindow(14);
+            shouldStopScanning = TRUE;
             return;
         }
 
@@ -384,6 +392,7 @@ void scanPath(char *path,
         if (!subFoldering) {
             closeStopWindow();
             outOfMemoryWindow(3);
+            shouldStopScanning = TRUE;
         }
         return;
     }
@@ -433,6 +442,7 @@ void scanPath(char *path,
 
                 if (!newPath) {
                     outOfMemoryWindow(15);
+                    shouldStopScanning = TRUE;
                     break;
                 }
 
@@ -554,6 +564,13 @@ exit:
                 totalSize,
                 format,
                 returnGivenFormat(currentFormat)));
+
+            if (!buffer) {
+                FreeVec(tagList);
+                FreeVec(initBuffer);
+                break;
+            }
+
             if (stringToFloat(buffer) < 0.01 && firstNumber != 0) {
                 strcpy(buffer, "<0.01");
             }

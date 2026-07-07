@@ -29,6 +29,7 @@
 #include <libraries/gadtools.h>
 
 #include "funcs.h"
+#include "scan.h"
 
 BOOL NoRoundOption     = FALSE;
 BOOL EnableGraphOption = FALSE;
@@ -304,6 +305,10 @@ void initializeIconTooltypes(void) {
 
     // Get path from where the program is running
     char *path = getProgramPath();
+    if (!path) {
+        return;
+    }
+
     if (IconBase) {
         struct DiskObject *diskObj = GetDiskObjectNew(path);
         if (diskObj) {
@@ -342,6 +347,10 @@ void initializeIconTooltypes(void) {
 void updateIconTooltypes(void) {
     // Get path from where the program is running
     char *path = getProgramPath();
+
+    if (!path) {
+        return;
+    }
 
     if (IconBase) {
         struct DiskObject *diskObj = GetIconTags(path, TAG_DONE);
@@ -618,6 +627,7 @@ int __SAVE_DS__ __ASM__ myCompare2(__REG__(a0, struct Hook *hook),
     char *b =
         string_to_lower(msg->lbsm_DataB.Text, safeStrlen(msg->lbsm_DataB.Text));
     int rc = 0;
+
     if (a && b)
         rc = strcmp(a, b);
     if (a)
@@ -731,20 +741,23 @@ void updatePathText(Object *fileRequester, STRPTR path) {
 
 // Create a out of memory Easy requestor with a title and message informing the user that the program is out of memory and will stop
 void outOfMemoryWindow(uint8_t id) {
+    clearScanning();
+    char message[256];
 
-    STRPTR message = NULL;
+    // Explicitly promote 'id' to a 32-bit unsigned long for safety
     snprintf(message,
-        256,
-        "Mnemosyne was not able to use the required memory to continue. Please "
-        "close some applications and try again. (Error Code: %d)",
-        id);
+        sizeof(message),
+        "Mnemosyne was not able to use the required memory\nto continue.\n"
+        "Please close some applications\nand try again.\n\n(Error Code: %lu)",
+        (unsigned long)id);
 
-    struct EasyStruct requesterAbout = {
+    struct EasyStruct outofMemoryRequester = {
         sizeof(struct EasyStruct),
         0,
         "Out of Memory",
-        message,
-        "OK",
+        (STRPTR)message,
+        "OK"
     };
-    EasyRequest(NULL, &requesterAbout, NULL, NULL);
+
+    EasyRequest(NULL, &outofMemoryRequester, NULL, NULL);
 }
