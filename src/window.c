@@ -184,12 +184,10 @@ static void scanProgressCallback(const char *path, void *userData) {
             return;
         }
 
-        if (eggName) {
-            snprintf(eggName, MAX_BUFFER, "%s :D", displayName);
-            updateBottomTextW2Text(
-                bottomText, windowObject, "Scanning: ", eggName, TRUE);
-            FreeVec(eggName);
-        }
+        snprintf(eggName, MAX_BUFFER, "%s :D", displayName);
+        updateBottomTextW2Text(
+            bottomText, windowObject, "Scanning: ", eggName, TRUE);
+        FreeVec(eggName);
     } else {
         updateBottomTextW2Text(
             bottomText, windowObject, "Scanning: ", displayName, TRUE);

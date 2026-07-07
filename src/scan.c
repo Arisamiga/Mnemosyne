@@ -534,7 +534,7 @@ exit:
 
             struct TagItem *tagList = (struct TagItem *)AllocVec(
                 sizeof(struct TagItem) * 3, MEMF_CLEAR);
-            if (!initBuffer || !tagList) {
+            if (!tagList) {
                 FreeVec(tagList);
                 FreeVec(initBuffer);
                 outOfMemoryWindow(17);

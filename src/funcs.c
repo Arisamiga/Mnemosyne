@@ -365,37 +365,35 @@ void updateIconTooltypes(void) {
                 return;
             }
 
-            if (newToolTypes) {
-                if (NoRoundOption) {
-                    newToolTypes[0] = "NOROUND";
-                } else {
-                    newToolTypes[0] = "(NOROUND)";
-                }
-                if (EnableGraphOption) {
-                    newToolTypes[1] = "ENABLEGRAPH";
-                } else {
-                    newToolTypes[1] = "(ENABLEGRAPH)";
-                }
-                newToolTypes[2] = NULL;
-
-                diskObj->do_ToolTypes = (STRPTR *)newToolTypes;
-
-                LONG errorCode;
-                BOOL success;
-                success = PutIconTags(path,
-                    diskObj,
-                    ICONPUTA_DropNewIconToolTypes,
-                    TRUE,
-                    ICONA_ErrorCode,
-                    &errorCode,
-                    TAG_DONE);
-
-                if (success == FALSE) {
-                    printf("Error: %ld\n", errorCode);
-                }
-
-                FreeVec(newToolTypes);
+            if (NoRoundOption) {
+                newToolTypes[0] = "NOROUND";
+            } else {
+                newToolTypes[0] = "(NOROUND)";
             }
+            if (EnableGraphOption) {
+                newToolTypes[1] = "ENABLEGRAPH";
+            } else {
+                newToolTypes[1] = "(ENABLEGRAPH)";
+            }
+            newToolTypes[2] = NULL;
+
+            diskObj->do_ToolTypes = (STRPTR *)newToolTypes;
+
+            LONG errorCode;
+            BOOL success;
+            success = PutIconTags(path,
+                diskObj,
+                ICONPUTA_DropNewIconToolTypes,
+                TRUE,
+                ICONA_ErrorCode,
+                &errorCode,
+                TAG_DONE);
+
+            if (success == FALSE) {
+                printf("Error: %ld\n", errorCode);
+            }
+
+            FreeVec(newToolTypes);
         }
     }
     if (path)
@@ -752,12 +750,7 @@ void outOfMemoryWindow(uint8_t id) {
         (unsigned long)id);
 
     struct EasyStruct outofMemoryRequester = {
-        sizeof(struct EasyStruct),
-        0,
-        "Out of Memory",
-        (STRPTR)message,
-        "OK"
-    };
+        sizeof(struct EasyStruct), 0, "Out of Memory", (STRPTR)message, "OK"};
 
     EasyRequest(NULL, &outofMemoryRequester, NULL, NULL);
 }
