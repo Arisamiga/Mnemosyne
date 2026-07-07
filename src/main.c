@@ -7,7 +7,7 @@
 #include "window.h"
 
 // Mnemosyne Version
-char *vers = "\0$VER: Mnemosyne 1.2.0 DEV ";
+char *vers = "\0$VER: Mnemosyne 1.3.0";
 
 struct IntuitionBase *IntuitionBase;
 struct Library *UtilityBase;

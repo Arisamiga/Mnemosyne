@@ -1,7 +1,7 @@
 @database Mnemosyne.guide
 
 @author "Aris (Arisamiga) Sokianos"
-@$VER: Mnemosyne.Guide 1.2.0
+@$VER: Mnemosyne.Guide 1.3.0
 @(c) 2023 Aris (Arisamiga) Sokianos
 @Node "Main" "Mnemosyne"
 
@@ -15,7 +15,7 @@
  |_|  |_|_| |_|\\___|_| |_| |_|\\___/|___/\\___ |_| |_|\\___|
                                         |___/            
 
-@{jright}Version 1.2.0
+@{jright}Version 1.3.0
 
 @{jcenter}
 
@@ -163,6 +163,10 @@ There are 2 ways to use Mnemosyne:
 
     @{lindent 5}@{IMG "GUIDEDIR:Guide_Images/pressdrawer.iff"}@{lindent 0}
 
+  *Note: You can also drag the icon of the directory you want to scan
+  and drop it on the Mnemosyne window to select it*
+
+
   After you have selected the directory you want to scan,
   Mnemosyne will say that it is "Ready to Scan!"
   To start the scanning process, click on the "Scan" button.
@@ -171,9 +175,18 @@ There are 2 ways to use Mnemosyne:
   @{lindent 5}@{IMG "GUIDEDIR:Guide_Images/mnemosyne_ready.iff"}@{lindent 0}
 
   After you click the Scan button Mnemosyne will start and indicate 
-  that it is scanning the directory
+  that it is scanning the directory including also which directory it
+  is scanning. (Maybe you might see a easter egg sometimes 
+  in your scanning adventures :D)
 
   @{lindent 5}@{IMG "GUIDEDIR:Guide_Images/mnemosyne_scanning.iff"}@{lindent 0}
+
+  And also a seperate window will open with the following:
+  @{lindent 5}@{IMG "GUIDEDIR:Guide_Images/mnemosyne_scanning_window.iff"}@{lindent 0}
+
+  This will allow you to stop the scanning process any time you want to.
+  (This helps a lot if you are scanning a large directory
+  and it is taking a long time to scan and you want to stop it)
 
   When the scanning is finished, it will show you the results.
 
@@ -207,6 +220,21 @@ There are 2 ways to use Mnemosyne:
 
   @{lindent 5}@{IMG "GUIDEDIR:Guide_Images/mnemosyne_result.iff"}@{lindent 0}
 
+  Using the Graphical Representation of the Results
+  ---------------------------------------------
+  If you have enabled the graph feature, using the ENABLEGRAPH tooltype
+  or the Menu Bar,
+  you will see a graphical representation of the results.
+  @{lindent 5}@{IMG "GUIDEDIR:Guide_Images/mnemosyne_graph.iff"}@{lindent 0}
+
+  The graph is a treemap style graph that shows the percentage of the
+  directory size visually.
+
+  Each rectangle next to the file or folder in the results represents a
+  rectangle in the graph. 
+  The bigger the rectangle, the more percentage of the directory size it
+  takes up. And they are color coded!!
+
 
   Using The Menu Bar with the GUI
   -------------------------------
@@ -230,6 +258,24 @@ There are 2 ways to use Mnemosyne:
   + About: Opens a window with information about Mnemosyne.
 
   + Quit: Quits Mnemosyne.
+
+  The out of memory Window..
+  -----------------------------
+  Hopefully you will not see this window, but if you do, 
+  it means that Mnemosyne has run out of memory and cannot 
+  continue the scanning process.
+  @{lindent 5}@{IMG "GUIDEDIR:Guide_Images/mnemosyne_outofmemory.iff"}@{lindent 0}
+
+  Mnemosyne will stop what it is doing and clear any memory it has used
+  to prevent any memory leaks or crashes on your system.
+
+  Each OOM (Out of Memory) window will have a number on it (A error code),
+  which indicates exactly what function or allocation has run out of memory.
+  This is incredibly useful for helping Mnemosyne to be improved and fixed in the future.
+
+  So if you see this window, please report it to me on Github or Aminet
+  and include the number on the window (or a screenshot of the window) 
+  so I can fix it in the future.
 
 
 @EndNode
@@ -281,6 +327,13 @@ to use or not use certain features.
     + @{b}NOROUND@{ub} - This will disable the rounding of certain size values 
     (Mainly the overall size of a folder).
 
+    + @{b}ENABLEGRAPH@{ub} - This will enable the graph that shows the percentage
+    of the directory size visually in a treemap style.
+    (This is disabled by default as it uses more memory)
+
+    When the graph option is changed, Mnemosyne will exit and you will need to 
+    restart it for the changes to take effect.
+
 
 
 @EndNode
@@ -311,5 +364,14 @@ rounded up will cause the total to be more than 100%.
 - The rounding of the overall size of a folder is done 
 by rounding a number DOWN to the nearest integer so for example
 19.9MB will be rounded to 19MB.
+
+- The graph will show the graphical representation of the
+percentages. It might not show all files on the graph.
+The window will need to be scaled more for more files
+to be shown on the graph.
+
+- The graph is limited in the number of colors it can use
+so you will see colours repeating on the graph if there 
+are more files and folders
 
 @EndNode
