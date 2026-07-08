@@ -1363,11 +1363,11 @@ void processEvents(Object *windowObject,
 }
 void cleanexit(
     Object *windowObject, struct MsgPort *appPort, struct AppWindow *appWin) {
-    if (windowObject)
-        DisposeObject(windowObject);
-
     if (appWin)
         RemoveAppWindow(appWin);
+
+    if (windowObject)
+        DisposeObject(windowObject);
 
     if (appPort)
         DeleteMsgPort(appPort);
