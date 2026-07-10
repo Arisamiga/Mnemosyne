@@ -841,10 +841,14 @@ void createWindow(char *Path) {
         WINDOW_Layout, mainLayout,
         TAG_DONE);
     mainWindowObject = windowObject;
-    if (!windowObject)
+    if (!windowObject) {
         cleanexit(NULL, NULL, NULL);
-    if (!(intuiwin = (struct Window *)DoMethod(windowObject, WM_OPEN, NULL)))
-        cleanexit(windowObject, appPort, appWin);
+        return;
+    }
+    if (!(intuiwin = (struct Window *)DoMethod(windowObject, WM_OPEN, NULL))) {
+        cleanexit(windowObject, appPort, NULL);
+        return;
+    }
     appWin = AddAppWindow(1, 0, intuiwin, appPort, NULL);
     UpdateMenu(intuiwin, TRUE);
     processEvents(windowObject,
@@ -859,7 +863,6 @@ void createWindow(char *Path) {
         fileRequester,
         scanButton,
         Path);
-    DoMethod(windowObject, WM_CLOSE);
     clearList(contents);
     cleanexit(windowObject, appPort, appWin);
 }
@@ -1363,13 +1366,21 @@ void processEvents(Object *windowObject,
 }
 void cleanexit(
     Object *windowObject, struct MsgPort *appPort, struct AppWindow *appWin) {
-    if (appWin)
+    if (appWin) {
         RemoveAppWindow(appWin);
-
-    if (windowObject)
+        appWin = NULL;
+    }
+    if (windowObject) {
+        DoMethod(windowObject, WM_CLOSE);
         DisposeObject(windowObject);
+    }
 
-    if (appPort)
+    if (appPort) {
+        struct Message *msg;
+        while ((msg = GetMsg(appPort))) {
+            ReplyMsg(msg);
+        }
         DeleteMsgPort(appPort);
+    }
     clearScanning();
 }
