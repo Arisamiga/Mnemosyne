@@ -241,12 +241,13 @@ static void clearCompletionBitmap(Object *windowObject) {
 
 static void showCompletionBitmap(
     struct Gadget *listbrowser, Object *windowObject) {
+
     if (!completionButton || !EnableGraphOption || !listbrowser)
         return;
 
     struct NodeData nodeArray[128];
     ULONG nodeCount = collectAllNodePercentages(listbrowser, nodeArray, 128);
-
+    // printf("Collected %lu nodes for completion bitmap\n", nodeCount);
     if (nodeCount == 0)
         return;
 
@@ -257,10 +258,12 @@ static void showCompletionBitmap(
         return;
     }
 
-    ULONG bitmapWidth  = 0;
-    ULONG bitmapHeight = 0;
-    GetAttr(GA_Width, completionButton, &bitmapWidth);
-    GetAttr(GA_Height, completionButton, &bitmapHeight);
+    struct Gadget *gad = (struct Gadget *)completionButton;
+    ULONG bitmapWidth  = gad->Width;
+    ULONG bitmapHeight = gad->Height;
+    // printf("Button Width: %lu, Height: %lu\n", bitmapWidth, bitmapHeight);
+
+    bitmapWidth = (bitmapWidth + 15) & ~15;
 
     InitBitMap(bm, 4, bitmapWidth, bitmapHeight);
 
@@ -942,9 +945,14 @@ void processEvents(Object *windowObject,
                         break;
                     }
                     case WMHI_NEWSIZE: {
-                        struct BOOL *disabled;
-                        GetAttr(
-                            GA_Disabled, completionButton, (ULONG *)&disabled);
+                        struct Gadget *gad = (struct Gadget *)completionButton;
+                        BOOL disabled;
+
+                        if (gad->Flags & GFLG_DISABLED) {
+                            disabled = TRUE;
+                        } else {
+                            disabled = FALSE;
+                        }
                         if (EnableGraphOption && listBrowser && doneFirst
                             && !disabled) {
                             showCompletionBitmap(listBrowser, windowObject);
