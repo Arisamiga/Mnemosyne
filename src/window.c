@@ -607,7 +607,7 @@ void scanningSequence(int type,
 // -------------
 
 void cleanexit(
-    Object *windowObject, struct MsgPort *appPort, struct AppWindow *appWin);
+    Object *windowObject, struct MsgPort *appPort, struct AppWindow *appWin, APTR bottomTextBuffer);
 void processEvents(Object *windowObject,
     struct Window *intuiwin,
     struct Gadget *listBrowser,
@@ -734,9 +734,20 @@ void createWindow(char *Path) {
 
     UpdateMenuToolTypes();
 
+    APTR bottomTextBuffer = AllocVec(sizeof(char) * MAX_BUFFER, MEMF_CLEAR);
+
+    if (!bottomTextBuffer) {
+        // Handle out of memory error
+        outOfMemoryWindow(34);
+        cleanexit(NULL, NULL, NULL, NULL);
+        return;
+    }
+
     bottomText = NewObject(STRING_GetClass(), NULL,
-        GA_ReadOnly, TRUE,
-        STRINGA_TextVal, "Welcome to Mnemosyne!",
+        GA_ReadOnly,           TRUE,
+        STRINGA_Buffer,         bottomTextBuffer,
+        STRINGA_MaxChars,      MAX_BUFFER - 1,
+        STRINGA_TextVal,       "Welcome to Mnemosyne!",
         STRINGA_Justification, GACT_STRINGCENTER,
         TAG_END);
 
@@ -842,11 +853,11 @@ void createWindow(char *Path) {
         TAG_DONE);
     mainWindowObject = windowObject;
     if (!windowObject) {
-        cleanexit(NULL, NULL, NULL);
+        cleanexit(NULL, NULL, NULL, NULL);
         return;
     }
     if (!(intuiwin = (struct Window *)DoMethod(windowObject, WM_OPEN, NULL))) {
-        cleanexit(windowObject, appPort, NULL);
+        cleanexit(windowObject, appPort, NULL, bottomTextBuffer);
         return;
     }
     appWin = AddAppWindow(1, 0, intuiwin, appPort, NULL);
@@ -864,7 +875,7 @@ void createWindow(char *Path) {
         scanButton,
         Path);
     clearList(contents);
-    cleanexit(windowObject, appPort, appWin);
+    cleanexit(windowObject, appPort, appWin, bottomTextBuffer);
 }
 void processEvents(Object *windowObject,
     struct Window *intuiwin,
@@ -1365,7 +1376,7 @@ void processEvents(Object *windowObject,
     }
 }
 void cleanexit(
-    Object *windowObject, struct MsgPort *appPort, struct AppWindow *appWin) {
+    Object *windowObject, struct MsgPort *appPort, struct AppWindow *appWin, APTR bottomTextBuffer) {
     if (appWin) {
         RemoveAppWindow(appWin);
         appWin = NULL;
@@ -1382,5 +1393,8 @@ void cleanexit(
         }
         DeleteMsgPort(appPort);
     }
+
+    if (bottomTextBuffer)
+        FreeVec(bottomTextBuffer);
     clearScanning();
 }
