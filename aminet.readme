@@ -53,7 +53,7 @@ https://github.com/Arisamiga/Mnemosyne/issues
 Including a new option to enable/disable the graph in the settings.
 * Added a notice/alert to inform the user if Mnemosyne has run out of memory and cannot continue scanning.
 * Added new drag feature where folder icons can be dragged into the Mnemosyne window to scan them.
-* Fixed issue were Mnemosyne would not update the bottom text by itself.
+* Fixed issue where Mnemosyne would not update the bottom text by itself.
 * Fixed issue where Mnemosyne would not store settings correctly if it was stored in a folder.
 * Improvements to the code using clang-format to make it more readable and uniform.
 
