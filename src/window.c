@@ -263,8 +263,6 @@ static void showCompletionBitmap(
     ULONG bitmapHeight = gad->Height;
     // printf("Button Width: %lu, Height: %lu\n", bitmapWidth, bitmapHeight);
 
-    bitmapWidth = (bitmapWidth + 15) & ~15;
-
     InitBitMap(bm, 4, bitmapWidth, bitmapHeight);
 
     for (int plane = 0; plane < 4; plane++) {
