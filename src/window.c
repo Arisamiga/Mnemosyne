@@ -875,6 +875,10 @@ void createWindow(char *Path) {
         scanButton,
         Path);
     clearList(contents);
+
+    // Clean bitmap and image objects
+    releaseCompletionBitmap(windowObject);
+
     cleanexit(windowObject, appPort, appWin, bottomTextBuffer);
 }
 void processEvents(Object *windowObject,
@@ -1383,7 +1387,7 @@ void cleanexit(
     }
     if (windowObject) {
         DoMethod(windowObject, WM_CLOSE);
-        DisposeObject(windowObject);
+        // DisposeObject(windowObject);
     }
 
     if (appPort) {
