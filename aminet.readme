@@ -2,7 +2,7 @@ Short:        Disk usage statistics+file/folder utility
 Uploader:     arisamiga@gmail.com (Aris Sokianos)
 Author:       Aris (arisamiga) Sokianos
 Type:         util/misc
-Version:      1.2.0
+Version:      1.3.0
 Architecture: m68k-amigaos >= 3.0.0
 Distribution: Aminet
 Replaces:     util/misc/Mnemosyne.lha
@@ -17,6 +17,7 @@ Features
 * Easy to use
 * Fast
 * No limits on size of files/folders
+* Graphical representation of disk usage
 
 Mnemosyne can help with trying to locate what files and folders
 are taking the most space out of your disk so you can
@@ -40,6 +41,21 @@ https://github.com/Arisamiga/Mnemosyne/issues
 
 ------------------------------------------------------------------------------
 **ChangeLog**
+
+-> Update 1.3.0 (2026-07-11)
+* Version moving from 1.2.0 -> 1.3.0
+* Made Mnemosyne program from: 33.832B to 43.152B
+* Faster division through bit-shifting for rounding numbers.
+* Added indicator for which folder Mnemosyne is scanning.
+* Added Keyboard shortcuts for the Menu Bar.
+* Added a stop button to stop the scanning process by closing the new Mnemosyne scanning window.
+* Added new graphical representation of the results in a treemap style graph that shows the percentage of the directory size visually.
+Including a new option to enable/disable the graph in the settings.
+* Added a notice/alert to inform the user if Mnemosyne has run out of memory and cannot continue scanning.
+* Added new drag feature where folder icons can be dragged into the Mnemosyne window to scan them.
+* Fixed issue were Mnemosyne would not update the bottom text by itself.
+* Fixed issue where Mnemosyne would not store settings correctly if it was stored in a folder.
+* Improvements to the code using clang-format to make it more readable and uniform.
 
 -> Update 1.2.0 (2024-01-14)
 * Version moving from 1.1.1 -> 1.2.0

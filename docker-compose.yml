@@ -1,0 +1,7 @@
+version: '3'
+
+services:
+  vbcc-m68k:
+    image: 'walkero/docker4amigavbcc:latest-m68k'
+    volumes:
+      - './:/opt/code'
