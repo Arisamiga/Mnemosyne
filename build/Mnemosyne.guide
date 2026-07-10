@@ -251,13 +251,17 @@ There are 2 ways to use Mnemosyne:
   The Menu Bar has the following options:
 
   + Open: Opens window for you to select a directory to scan.
+  Keyboard Shortcut: **Amiga + O**
 
   + Open in Workbench...: Opens the current directory you are in on a window. 
   (Note: This will stay disabled when you have not scanned a directory)
+  Keyboard Shortcut: **Amiga + W**
 
   + About: Opens a window with information about Mnemosyne.
+  Keyboard Shortcut: **Amiga + A**
 
   + Quit: Quits Mnemosyne.
+  Keyboard Shortcut: **Amiga + Q**
 
   The out of memory Window..
   -----------------------------

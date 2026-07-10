@@ -18,6 +18,7 @@ It is written in C and utilizes NDK 3.2 and ReAction.
 - Easy to use
 - Fast
 - No limits on size of files/folders
+- Graphical representation of disk usage
 
 ## Requirements
 
