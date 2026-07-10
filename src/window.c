@@ -607,8 +607,10 @@ void scanningSequence(int type,
 // Main Window Functions
 // -------------
 
-void cleanexit(
-    Object *windowObject, struct MsgPort *appPort, struct AppWindow *appWin, APTR bottomTextBuffer);
+void cleanexit(Object *windowObject,
+    struct MsgPort *appPort,
+    struct AppWindow *appWin,
+    APTR bottomTextBuffer);
 void processEvents(Object *windowObject,
     struct Window *intuiwin,
     struct Gadget *listBrowser,
@@ -1385,8 +1387,10 @@ void processEvents(Object *windowObject,
         }
     }
 }
-void cleanexit(
-    Object *windowObject, struct MsgPort *appPort, struct AppWindow *appWin, APTR bottomTextBuffer) {
+void cleanexit(Object *windowObject,
+    struct MsgPort *appPort,
+    struct AppWindow *appWin,
+    APTR bottomTextBuffer) {
     if (appWin) {
         RemoveAppWindow(appWin);
         appWin = NULL;
